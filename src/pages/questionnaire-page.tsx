@@ -5,6 +5,8 @@ import { CodeSnippet } from "../components/code-snippet";
 import { getStateByStateHash, getStateHello } from "../services/message.service";
 //import { useNavigate } from 'react-router-dom';
 
+import {FormCard} from "../components/form-card";
+
 export const Questionnaire: React.FC = () => {
   const [message, setMessage] = useState<string>("");
 
@@ -47,10 +49,30 @@ export const Questionnaire: React.FC = () => {
     };
   }, []);
 
-  
-  //const navigate = useNavigate();
-  //const handleHelloClick = () => navigate('/questionnaire');
+  const [formStep, setFormStep] = useState<number>(0);
+  const nextFormStep = () => setFormStep((currentStep) => currentStep + 1);
+  const prevFormStep = () => setFormStep((currentStep) => currentStep - 1);
 
+
+  const steps = [
+    {
+      name: "step1",
+      fields: [
+        { name: "name", type: "text" },
+        { name: "email", type: "email" }
+      ]
+    },
+    {
+      name: "step2",
+      fields: [
+        { name: "address", type: "text" },
+        { name: "city", type: "text" },
+        { name: "state", type: "text" },
+        { name: "zip", type: "text" }
+      ]
+    }
+  ]
+  
   return (
     <PageLayout>
       <div className="content-layout">
@@ -66,7 +88,12 @@ export const Questionnaire: React.FC = () => {
                   microservice API.
           </span>
           <p></p>
-          <h3 className="content__title">API Calls</h3>
+          <h3 className="content__title">Form</h3>
+          <div>
+            <FormCard steps={steps}/>
+          </div>
+          <p></p>
+          <h3 className="content__title">API Call Testing</h3>
           <div>
             <button onClick={getMessageStateHello}>State: Hello World</button>
             <button onClick={() => getMessageStateByHash("abc")}>State: Get State</button>
