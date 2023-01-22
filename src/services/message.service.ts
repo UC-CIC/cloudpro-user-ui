@@ -41,3 +41,21 @@ export const getStateByStateHash = async (stateHash:string): Promise<ApiResponse
     error,
   };
 };
+
+export const getQuestionnaireByProHash = async (pro_hash:string): Promise<ApiResponse> => {
+  const config: AxiosRequestConfig = {
+    url: `${apiServerUrl}/questionnaire/${pro_hash}?token=${apiToken}`,
+    method: "GET",
+    headers: {
+      "content-type": "application/json",
+      "x-token": apiXToken
+    },
+  };
+
+  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
+
+  return {
+    data,
+    error,
+  };
+};

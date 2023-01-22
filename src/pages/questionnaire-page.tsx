@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import { PageLayout } from "../components/page-layout";
 import { CodeSnippet } from "../components/code-snippet";
-import { getStateByStateHash, getStateHello } from "../services/message.service";
+import { getStateByStateHash, getStateHello, getQuestionnaireByProHash } from "../services/message.service";
 //import { useNavigate } from 'react-router-dom';
 
 import {FormCard} from "../components/form-card";
@@ -33,7 +33,25 @@ export const Questionnaire: React.FC = () => {
     if (error) {
       setMessage(JSON.stringify(error, null, 2));
     }
+
+    return data;
   };
+
+  const getMessageQuestionnaireByProHash = async (pro_hash:string) => {
+    const { data, error } = await getQuestionnaireByProHash(pro_hash);
+
+    if (data) {
+      setMessage(JSON.stringify(data, null, 2));
+    }
+
+    if (error) {
+      setMessage(JSON.stringify(error, null, 2));
+    }
+    return data;
+  };
+
+  var state_var = {};
+  var questionnaire_payload = {};
 
   useEffect(() => {
     let isMounted = true;
@@ -41,8 +59,26 @@ export const Questionnaire: React.FC = () => {
     if (!isMounted) {
       return;
     }
-
-    getMessageStateHello();
+ 
+    //************
+    //***TODO*****
+    //************
+    //clean up and get rid of ts-ignore
+    //set q payload & state payload
+    //iterate through q payload and build dynamic survey
+    //fill dynamic survey with proper states
+    const data=getMessageStateByHash("abc");
+    data.then(value => { 
+        console.log(value)
+        //@ts-ignore
+        let pro_hash = value["pro_hash"];
+        console.log(pro_hash)
+        //@ts-ignore
+        let questionnaire_payload = getMessageQuestionnaireByProHash(pro_hash);
+        questionnaire_payload.then(xx=> {
+          console.log(xx)
+        });
+    });
 
     return () => {
       isMounted = false;
