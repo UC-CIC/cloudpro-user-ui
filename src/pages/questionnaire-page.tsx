@@ -6,6 +6,7 @@ import { getStateByStateHash, getStateHello, getQuestionnaireByProHash } from ".
 //import { useNavigate } from 'react-router-dom';
 
 import {FormCard} from "../components/form-card";
+import { Message } from "../models/message";
 
 export const Questionnaire: React.FC = () => {
   const [message, setMessage] = useState<string>("");
@@ -66,16 +67,25 @@ export const Questionnaire: React.FC = () => {
     //set q payload & state payload
     //iterate through q payload and build dynamic survey
     //fill dynamic survey with proper states
+
+
     const data=getMessageStateByHash("abc");
     data.then(value => { 
         let key:string = "pro_hash"
-        let pro_hash = value?.key ?? "";
-        console.log(pro_hash)
+        let pro_hash:string =""
+
+        if( value != null ){
+          pro_hash = value[key]
+        }
+        console.log("PRO_HASH:",pro_hash)
         let questionnaire_payload = getMessageQuestionnaireByProHash(pro_hash);
         questionnaire_payload.then(qvalue=> {
           console.log(qvalue)
         });
     });
+
+
+
 
     return () => {
       isMounted = false;
