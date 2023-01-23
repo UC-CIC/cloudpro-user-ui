@@ -7,6 +7,7 @@ import { getStateByStateHash, getStateHello, getQuestionnaireByProHash } from ".
 
 import {FormCard} from "../components/form-card";
 import { Message } from "../models/message";
+import { stringify } from "querystring";
 
 export const Questionnaire: React.FC = () => {
   const [message, setMessage] = useState<string>("");
@@ -54,6 +55,58 @@ export const Questionnaire: React.FC = () => {
   var state_var = {};
   var questionnaire_payload = {};
 
+
+  /* IMORTANT: 
+        Needs reworked -- very sloppy code
+  */
+  const buildForm = (svalue:Message|null,qvalue:Message|null) => {
+    let rvalue =new Map()
+
+    console.log("====BUILDER:svalue====",svalue)
+    console.log("====BUILDER:qvalue====",qvalue)
+
+    if( qvalue != null )
+    {
+      //@ts-ignore
+      let questionnaire_data = qvalue["data"]["questionnaire"];
+      for ( let [key,value] of Object.entries(questionnaire_data) )
+      {
+        
+        //@ts-ignore
+        if( value["element"] === "question" )
+        {
+          //@ts-ignore
+          //console.log(value["data"]["text"])
+          //@ts-ignore
+          rvalue[value["data"]["link_id"]] = {
+            //@ts-ignore
+            "name":value["data"]["text"],
+            "type":"text"
+          }
+        }
+        //@ts-ignore
+        else if( value["element"] === "group" )
+        {
+          //@ts-ignore
+          for ( let [group_key,group_val] of Object.entries(value["data"]["questions"]) )
+          {
+            //@ts-ignore
+            //console.log(group_val["text"])
+            //@ts-ignore
+            rvalue[group_val["link_id"]] = {
+              //@ts-ignore
+              "name":group_val["text"],
+              "type":"text"
+            }
+          }
+        }
+
+      } 
+    }
+
+    return rvalue;
+  }
+
   useEffect(() => {
     let isMounted = true;
 
@@ -70,17 +123,22 @@ export const Questionnaire: React.FC = () => {
 
 
     const data=getMessageStateByHash("abc");
-    data.then(value => { 
-        let key:string = "pro_hash"
-        let pro_hash:string =""
+    data.then(svalue => { 
+        let key:string = "pro_hash";
+        let pro_hash:string ="";
 
-        if( value != null ){
-          pro_hash = value[key]
+        if( svalue != null ){
+          pro_hash = svalue[key];
         }
-        console.log("PRO_HASH:",pro_hash)
+        console.log("~~~PRO HASH~~~~\n",pro_hash);
         let questionnaire_payload = getMessageQuestionnaireByProHash(pro_hash);
         questionnaire_payload.then(qvalue=> {
-          console.log(qvalue)
+          console.log("~~~STATE~~~~\n",svalue);
+          console.log("~~~QUESTIONNAIRE~~~~\n",qvalue);
+
+          let form_values = buildForm(svalue,qvalue) ;
+          console.log("~~~Form Values~~~~\n",form_values);
+          console.log(form_values)
         });
     });
 
@@ -97,7 +155,8 @@ export const Questionnaire: React.FC = () => {
   const prevFormStep = () => setFormStep((currentStep) => currentStep - 1);
 
 
-  const steps = [
+
+  var steps = [
     {
       name: "step1",
       fields: [
@@ -114,7 +173,7 @@ export const Questionnaire: React.FC = () => {
         { name: "zip", type: "text" }
       ]
     }
-  ]
+  ];
   
   return (
     <PageLayout>
