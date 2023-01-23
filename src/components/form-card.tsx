@@ -7,7 +7,7 @@ interface FormData {
   }
 }
  
-export const FormCard: React.FC<{ steps: { name: string, fields: { name: string, type: string }[] }[] }> = ({ steps }) => {
+export const FormCard: React.FC<{ steps: { name: string, fields: { name: string, text:string, type: string }[] }[] }> = ({ steps }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
  
@@ -15,13 +15,14 @@ export const FormCard: React.FC<{ steps: { name: string, fields: { name: string,
     console.log(data);
   };
  
+  console.log( "CS:", steps[currentStep] )
   const renderStep = () => {
     const step = steps[currentStep];
     return (
       <form onSubmit={handleSubmit(onSubmit)}>
         {step.fields.map(field => (
           <label key={field.name}>
-            {field.name}:
+            {field.text}:
             <input 
                 type={field.type} 
                 {...register(`${step.name}.${field.name}`,{ required: true })}

@@ -9,6 +9,7 @@ import {FormCard} from "../components/form-card";
 import { Message } from "../models/message";
 import { stringify } from "querystring";
 
+
 export const Questionnaire: React.FC = () => {
   const [message, setMessage] = useState<string>("");
 
@@ -60,7 +61,7 @@ export const Questionnaire: React.FC = () => {
         Needs reworked -- very sloppy code
   */
   const buildForm = (svalue:Message|null,qvalue:Message|null) => {
-    let rvalue =new Map()
+    let rvalue = new Array()
 
     console.log("====BUILDER:svalue====",svalue)
     console.log("====BUILDER:qvalue====",qvalue)
@@ -71,18 +72,25 @@ export const Questionnaire: React.FC = () => {
       let questionnaire_data = qvalue["data"]["questionnaire"];
       for ( let [key,value] of Object.entries(questionnaire_data) )
       {
-        
+        console.log("KEY:",key)
         //@ts-ignore
         if( value["element"] === "question" )
         {
+          let mvalue ={}
           //@ts-ignore
           //console.log(value["data"]["text"])
           //@ts-ignore
-          rvalue[value["data"]["link_id"]] = {
+          mvalue.name = key.toString()
+          //@ts-ignore
+          mvalue.fields = [{
+          //rvalue[value["data"]["link_id"]] = {
             //@ts-ignore
-            "name":value["data"]["text"],
+            "name":value["data"]["link_id"],
+            //@ts-ignore
+            "text":value["data"]["text"],
             "type":"text"
-          }
+          }]
+          rvalue.push(mvalue)
         }
         //@ts-ignore
         else if( value["element"] === "group" )
@@ -90,14 +98,21 @@ export const Questionnaire: React.FC = () => {
           //@ts-ignore
           for ( let [group_key,group_val] of Object.entries(value["data"]["questions"]) )
           {
+            let mvalue ={}
             //@ts-ignore
             //console.log(group_val["text"])
             //@ts-ignore
-            rvalue[group_val["link_id"]] = {
+            mvalue.name = key.toString()
+            //@ts-ignore
+            mvalue.fields = [{
+            //rvalue[group_val["link_id"]] = {
               //@ts-ignore
-              "name":group_val["text"],
+              "name":"step_"+group_val["link_id"],
+              //@ts-ignore
+              "text":group_val["text"],
               "type":"text"
-            }
+            }]
+            rvalue.push(mvalue)
           }
         }
 
@@ -107,6 +122,19 @@ export const Questionnaire: React.FC = () => {
     return rvalue;
   }
 
+
+
+  interface FormElement { 
+    steps: { name: string, 
+    fields: { 
+      name: string,
+      text: string, 
+      type: string
+     }[] }
+  }
+  
+
+  
   useEffect(() => {
     let isMounted = true;
 
@@ -117,8 +145,6 @@ export const Questionnaire: React.FC = () => {
     //************
     //***TODO*****
     //************
-    //set q payload & state payload
-    //iterate through q payload and build dynamic survey
     //fill dynamic survey with proper states
 
 
@@ -136,12 +162,13 @@ export const Questionnaire: React.FC = () => {
           console.log("~~~STATE~~~~\n",svalue);
           console.log("~~~QUESTIONNAIRE~~~~\n",qvalue);
 
-          let form_values = buildForm(svalue,qvalue) ;
+          const form_values = buildForm(svalue,qvalue) ;
           console.log("~~~Form Values~~~~\n",form_values);
-          console.log(form_values)
+          //@ts-ignore
+          setMySteps(form_values);
         });
     });
-
+    
 
 
 
@@ -155,25 +182,34 @@ export const Questionnaire: React.FC = () => {
   const prevFormStep = () => setFormStep((currentStep) => currentStep - 1);
 
 
-
   var steps = [
     {
       name: "step1",
       fields: [
-        { name: "name", type: "text" },
-        { name: "email", type: "email" }
+        { name: "name", text:"name", type: "text" },
+        { name: "email", text:"email", type: "email" }
       ]
     },
     {
       name: "step2",
       fields: [
-        { name: "address", type: "text" },
-        { name: "city", type: "text" },
-        { name: "state", type: "text" },
-        { name: "zip", type: "text" }
+        { name: "address", text:"address", type: "text" },
+        { name: "city", text:"city", type: "text" },
+        { name: "state", text:"state", type: "text" },
+        { name: "zip", text:"zip", type: "text" }
       ]
     }
   ];
+
+  //@ts-ignore
+  const [mySteps, setMySteps] = useState<FormElement>( steps );
+/*
+  useEffect(() => {
+    console.log("++++++++++++++++++MS",mySteps)
+    console.log(steps)
+  },[mySteps]);
+*/
+  
   
   return (
     <PageLayout>
@@ -192,7 +228,8 @@ export const Questionnaire: React.FC = () => {
           <p></p>
           <h3 className="content__title">Form</h3>
           <div>
-            <FormCard steps={steps}/>
+            {/* @ts-ignore */}
+            <FormCard steps={mySteps}/>
           </div>
           <p></p>
           <h3 className="content__title">API Call Testing</h3>
