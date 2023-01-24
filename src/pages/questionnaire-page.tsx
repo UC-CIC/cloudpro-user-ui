@@ -65,7 +65,6 @@ export const Questionnaire: React.FC = () => {
     const buildForm = (svalue:{[key: string]: any }|null,qvalue:{ [key: string]: any }|null) => {
       let rvalue:FormElements = [];
   
-  
       if( qvalue != null && svalue != null )
       {
         let questionnaire_data:questionData = qvalue["data"]["questionnaire"];
@@ -163,7 +162,7 @@ export const Questionnaire: React.FC = () => {
         }]
     }]
   );
-
+  
   return (
     <PageLayout>
       <div className="content-layout">
@@ -181,7 +180,6 @@ export const Questionnaire: React.FC = () => {
           <p></p>
           <h3 className="content__title">Form</h3>
           <div>
-            {/* @ts-ignore */}
             <FormCard steps={proFormQuestions}/>
           </div>
           <p></p>

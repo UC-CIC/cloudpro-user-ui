@@ -17,17 +17,37 @@ export const FormCard: React.FC<{ steps: { name: string, fields: { name: string,
  
   const renderStep = () => {
     const step = steps[currentStep];
+
+    let FieldContent;
+    step.fields.map(field => {
+      switch (field.type) {
+        case 'text':
+          FieldContent = 
+            <label key={field.name}>
+              {field.text}:<br/>
+              <input type={field.type} {...register(`${step.name}.${field.name}`,{ required: true })}/>
+            </label>
+          console.log(field.type)
+          break;
+        default:
+          console.log(`Invalid type of ${field.type}`);
+      }
+    });
+
     return (
       <form onSubmit={handleSubmit(onSubmit)}>
+        {FieldContent}
+        {/*
         {step.fields.map(field => (
-          <label key={field.name}>
-            {field.text}:
-            <input 
-                type={field.type} 
-                {...register(`${step.name}.${field.name}`,{ required: true })}
-              />
-          </label>
+              <label key={field.name}>
+                {field.text}:
+                <input 
+                    type={field.type} 
+                    {...register(`${step.name}.${field.name}`,{ required: true })}
+                  />
+              </label>
         ))}
+        */}
         {errors[step.name] && <span>All fields are required</span>}
         <br />
         {currentStep > 0 && <button type="button" onClick={() => setCurrentStep(currentStep - 1)}>Previous</button>}
@@ -39,7 +59,7 @@ export const FormCard: React.FC<{ steps: { name: string, fields: { name: string,
  
   return (
     <>
-      <h1>Step {currentStep + 1} of {steps.length}</h1>
+      <h1 className="content__title">Step {currentStep + 1} of {steps.length}</h1>
       {renderStep()}
     </>
   );
