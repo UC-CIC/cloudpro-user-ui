@@ -63,7 +63,7 @@ export const Questionnaire: React.FC = () => {
 
   useEffect(() => {
     const buildForm = (svalue:{[key: string]: any }|null,qvalue:{ [key: string]: any }|null) => {
-      let rvalue = [];
+      let rvalue:FormElements = [];
   
   
       if( qvalue != null && svalue != null )
@@ -74,13 +74,14 @@ export const Questionnaire: React.FC = () => {
         {
           if( value["element"] === "question" )
           {
-            let mvalue ={ name:"",fields:[{}] }
+            //let mvalue ={ name:"",fields:[{}] }
+            let mvalue = {} as FormElement;
             mvalue.name = key.toString()
             
             mvalue.fields = [{
-              "name":value["data"]["link_id"],
-              "text":value["data"]["text"],
-              "type":"text"
+              name:value["data"]["link_id"],
+              text:value["data"]["text"],
+              type:"text"
             }]
             rvalue.push(mvalue)
           }
@@ -90,12 +91,12 @@ export const Questionnaire: React.FC = () => {
             // destructuring as we do not need the key in this for loop
             for ( let [,group_val] of Object.entries(group_questionnaire_data) )
             {
-              let mvalue ={ name:"",fields:[{}] }
+              let mvalue = {} as FormElement; 
               mvalue.name = key.toString()
               mvalue.fields = [{
-                "name":"step_"+group_val["link_id"],
-                "text":group_val["text"],
-                "type":"text"
+                name:"step_"+group_val["link_id"],
+                text:group_val["text"],
+                type:"text"
               }]
               rvalue.push(mvalue)
             }
@@ -104,7 +105,6 @@ export const Questionnaire: React.FC = () => {
         } 
       }
       
-  
       return rvalue;
     }
 
@@ -133,8 +133,6 @@ export const Questionnaire: React.FC = () => {
         let questionnaire_payload = getMessageQuestionnaireByProHash(pro_hash);
         questionnaire_payload.then(qvalue=> {
           const form_values = buildForm(svalue,qvalue) ;
-
-          //@ts-ignore
           setproFormQuestions(form_values);
         });
     });
