@@ -76,11 +76,11 @@ export const Questionnaire: React.FC = () => {
             //let mvalue ={ name:"",fields:[{}] }
             let mvalue = {} as FormElement;
             mvalue.name = key.toString()
-            
             mvalue.fields = [{
               name:value["data"]["link_id"],
               text:value["data"]["text"],
-              type:"text"
+              type:value["data"]["type"],
+              value:value["data"]["value"] 
             }]
             rvalue.push(mvalue)
           }
@@ -95,7 +95,8 @@ export const Questionnaire: React.FC = () => {
               mvalue.fields = [{
                 name:"step_"+group_val["link_id"],
                 text:group_val["text"],
-                type:"text"
+                type:group_val["type"],
+                value:value["data"]["value"] 
               }]
               rvalue.push(mvalue)
             }
@@ -147,7 +148,8 @@ export const Questionnaire: React.FC = () => {
       fields: { 
         name: string,
         text: string, 
-        type: string
+        type: string,
+        value: any
       }[] 
   }
   interface FormElements extends Array<FormElement>{}
@@ -158,7 +160,8 @@ export const Questionnaire: React.FC = () => {
         fields: [{
           name:"",
           text:"",
-          type:""
+          type:"",
+          value:null
         }]
     }]
   );

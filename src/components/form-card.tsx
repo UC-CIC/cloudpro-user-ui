@@ -7,7 +7,7 @@ interface FormData {
   }
 }
  
-export const FormCard: React.FC<{ steps: { name: string, fields: { name: string, text:string, type: string }[] }[] }> = ({ steps }) => {
+export const FormCard: React.FC<{ steps: { name: string, fields: { name: string, text:string, type: string, value: any }[] }[] }> = ({ steps }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
  
@@ -19,19 +19,51 @@ export const FormCard: React.FC<{ steps: { name: string, fields: { name: string,
     const step = steps[currentStep];
 
     let FieldContent;
+        
     step.fields.map(field => {
       switch (field.type) {
         case 'text':
+        case 'decimal':
           FieldContent = 
             <label key={field.name}>
               {field.text}:<br/>
               <input type={field.type} {...register(`${step.name}.${field.name}`,{ required: true })}/>
             </label>
-          console.log(field.type)
+          break;
+        case 'dropdown':
+          let OptionContent =[]
+          for ( let [,option_value] of Object.entries(field.value as string) ){
+            OptionContent.push(<option key={ `${step.name}.${option_value}` } value={option_value}>{option_value}</option>)
+          }
+          FieldContent = 
+          <label key={field.name}>
+            {field.text}:<br/>
+            <select {...register(`${step.name}.${field.name}`,{ required: true })}>
+              {OptionContent}
+            </select>
+          </label>
+          break;        
+        case 'radio':
+          let RadioContent =[]
+          for ( let [,radio_value] of Object.entries(field.value as string) ){
+            RadioContent.push(<label key={ `${step.name}.${radio_value}` } >{radio_value}<input type={field.type} {...register(`${step.name}.${radio_value}`,{ required: true })}/></label>)
+          }
+          FieldContent = 
+          <label key={field.name}>
+              {field.text}:<br/>
+              {RadioContent}
+          </label>
+          break;
+          case 'hidden':
+            FieldContent = <p>To be implemented... :: hidden</p>
+            break;
+        case 'useValues()':
+          FieldContent = <p>To be implemented... :: useValues()'</p>
           break;
         default:
           console.log(`Invalid type of ${field.type}`);
       }
+      return 0;
     });
 
     return (
