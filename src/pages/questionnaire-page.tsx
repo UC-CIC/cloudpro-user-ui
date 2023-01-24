@@ -3,11 +3,9 @@ import React, { useEffect, useState } from "react";
 import { PageLayout } from "../components/page-layout";
 import { CodeSnippet } from "../components/code-snippet";
 import { getStateByStateHash, getStateHello, getQuestionnaireByProHash } from "../services/message.service";
-//import { useNavigate } from 'react-router-dom';
+
 
 import {FormCard} from "../components/form-card";
-import { Message } from "../models/message";
-import { stringify } from "querystring";
 
 
 export const Questionnaire: React.FC = () => {
@@ -53,89 +51,64 @@ export const Questionnaire: React.FC = () => {
     return data;
   };
 
-  var state_var = {};
-  var questionnaire_payload = {};
 
 
+  //logic for PRO format
   /* IMORTANT: 
         Needs reworked -- very sloppy code
   */
-  const buildForm = (svalue:Message|null,qvalue:Message|null) => {
-    let rvalue = new Array()
+  interface questionData {
+    [key: string]: any;
+  }
 
-    console.log("====BUILDER:svalue====",svalue)
-    console.log("====BUILDER:qvalue====",qvalue)
-
-    if( qvalue != null )
-    {
-      //@ts-ignore
-      let questionnaire_data = qvalue["data"]["questionnaire"];
-      for ( let [key,value] of Object.entries(questionnaire_data) )
+  useEffect(() => {
+    const buildForm = (svalue:{[key: string]: any }|null,qvalue:{ [key: string]: any }|null) => {
+      let rvalue = [];
+  
+  
+      if( qvalue != null && svalue != null )
       {
-        console.log("KEY:",key)
-        //@ts-ignore
-        if( value["element"] === "question" )
+        let questionnaire_data:questionData = qvalue["data"]["questionnaire"];
+        
+        for ( let [key,value] of Object.entries(questionnaire_data) )
         {
-          let mvalue ={}
-          //@ts-ignore
-          //console.log(value["data"]["text"])
-          //@ts-ignore
-          mvalue.name = key.toString()
-          //@ts-ignore
-          mvalue.fields = [{
-          //rvalue[value["data"]["link_id"]] = {
-            //@ts-ignore
-            "name":value["data"]["link_id"],
-            //@ts-ignore
-            "text":value["data"]["text"],
-            "type":"text"
-          }]
-          rvalue.push(mvalue)
-        }
-        //@ts-ignore
-        else if( value["element"] === "group" )
-        {
-          //@ts-ignore
-          for ( let [group_key,group_val] of Object.entries(value["data"]["questions"]) )
+          if( value["element"] === "question" )
           {
-            let mvalue ={}
-            //@ts-ignore
-            //console.log(group_val["text"])
-            //@ts-ignore
+            let mvalue ={ name:"",fields:[{}] }
             mvalue.name = key.toString()
-            //@ts-ignore
+            
             mvalue.fields = [{
-            //rvalue[group_val["link_id"]] = {
-              //@ts-ignore
-              "name":"step_"+group_val["link_id"],
-              //@ts-ignore
-              "text":group_val["text"],
+              "name":value["data"]["link_id"],
+              "text":value["data"]["text"],
               "type":"text"
             }]
             rvalue.push(mvalue)
           }
-        }
-
-      } 
+          else if( value["element"] === "group" )
+          {
+            let group_questionnaire_data:questionData =value["data"]["questions"]
+            // destructuring as we do not need the key in this for loop
+            for ( let [,group_val] of Object.entries(group_questionnaire_data) )
+            {
+              let mvalue ={ name:"",fields:[{}] }
+              mvalue.name = key.toString()
+              mvalue.fields = [{
+                "name":"step_"+group_val["link_id"],
+                "text":group_val["text"],
+                "type":"text"
+              }]
+              rvalue.push(mvalue)
+            }
+          }
+  
+        } 
+      }
+      
+  
+      return rvalue;
     }
 
-    return rvalue;
-  }
 
-
-
-  interface FormElement { 
-    steps: { name: string, 
-    fields: { 
-      name: string,
-      text: string, 
-      type: string
-     }[] }
-  }
-  
-
-  
-  useEffect(() => {
     let isMounted = true;
 
     if (!isMounted) {
@@ -156,61 +129,43 @@ export const Questionnaire: React.FC = () => {
         if( svalue != null ){
           pro_hash = svalue[key];
         }
-        console.log("~~~PRO HASH~~~~\n",pro_hash);
+
         let questionnaire_payload = getMessageQuestionnaireByProHash(pro_hash);
         questionnaire_payload.then(qvalue=> {
-          console.log("~~~STATE~~~~\n",svalue);
-          console.log("~~~QUESTIONNAIRE~~~~\n",qvalue);
-
           const form_values = buildForm(svalue,qvalue) ;
-          console.log("~~~Form Values~~~~\n",form_values);
+
           //@ts-ignore
-          setMySteps(form_values);
+          setproFormQuestions(form_values);
         });
     });
     
-
-
-
     return () => {
       isMounted = false;
     };
-  }, []);
-
-  const [formStep, setFormStep] = useState<number>(0);
-  const nextFormStep = () => setFormStep((currentStep) => currentStep + 1);
-  const prevFormStep = () => setFormStep((currentStep) => currentStep - 1);
+  }, []); 
 
 
-  var steps = [
-    {
-      name: "step1",
-      fields: [
-        { name: "name", text:"name", type: "text" },
-        { name: "email", text:"email", type: "email" }
-      ]
-    },
-    {
-      name: "step2",
-      fields: [
-        { name: "address", text:"address", type: "text" },
-        { name: "city", text:"city", type: "text" },
-        { name: "state", text:"state", type: "text" },
-        { name: "zip", text:"zip", type: "text" }
-      ]
-    }
-  ];
+  interface FormElement { 
+      name: string, 
+      fields: { 
+        name: string,
+        text: string, 
+        type: string
+      }[] 
+  }
+  interface FormElements extends Array<FormElement>{}
 
-  //@ts-ignore
-  const [mySteps, setMySteps] = useState<FormElement>( steps );
-/*
-  useEffect(() => {
-    console.log("++++++++++++++++++MS",mySteps)
-    console.log(steps)
-  },[mySteps]);
-*/
-  
-  
+  const [proFormQuestions, setproFormQuestions] = useState<FormElements>( 
+    [{
+        name: "init",
+        fields: [{
+          name:"",
+          text:"",
+          type:""
+        }]
+    }]
+  );
+
   return (
     <PageLayout>
       <div className="content-layout">
@@ -229,7 +184,7 @@ export const Questionnaire: React.FC = () => {
           <h3 className="content__title">Form</h3>
           <div>
             {/* @ts-ignore */}
-            <FormCard steps={mySteps}/>
+            <FormCard steps={proFormQuestions}/>
           </div>
           <p></p>
           <h3 className="content__title">API Call Testing</h3>
@@ -243,3 +198,35 @@ export const Questionnaire: React.FC = () => {
     </PageLayout>
   )
 };
+
+
+// ************************************* //
+// Dead/Old Code/Samples
+// ************************************* //
+/*
+  var formStep = [
+    {
+      name: "step1",
+      fields: [
+        { name: "name", text:"name", type: "text" },
+        { name: "email", text:"email", type: "email" }
+      ]
+    },
+    {
+      name: "step2",
+      fields: [
+        { name: "address", text:"address", type: "text" },
+        { name: "city", text:"city", type: "text" },
+        { name: "state", text:"state", type: "text" },
+        { name: "zip", text:"zip", type: "text" }
+      ]
+    }
+  ];
+*/
+//var state_var = {};
+//var questionnaire_payload = {};
+// const [formStep, setFormStep] = useState<number>(0);
+// const nextFormStep = () => setFormStep((currentStep) => currentStep + 1);
+// const prevFormStep = () => setFormStep((currentStep) => currentStep - 1);
+// Sample expected format of form steps
+//import { useNavigate } from 'react-router-dom';

@@ -15,7 +15,6 @@ export const FormCard: React.FC<{ steps: { name: string, fields: { name: string,
     console.log(data);
   };
  
-  console.log( "CS:", steps[currentStep] )
   const renderStep = () => {
     const step = steps[currentStep];
     return (
