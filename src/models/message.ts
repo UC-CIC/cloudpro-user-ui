@@ -1,3 +1,3 @@
 export interface Message {
-    [key:string] : string;
+    [key:string] : any;
   }

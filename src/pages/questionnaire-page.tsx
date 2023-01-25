@@ -28,6 +28,7 @@ export const Questionnaire: React.FC = () => {
     const { data, error } = await getStateByStateHash(stateHash);
 
     if (data) {
+      setproFormState(data);
       setMessage(JSON.stringify(data, null, 2));
     }
 
@@ -53,10 +54,6 @@ export const Questionnaire: React.FC = () => {
 
 
 
-  //logic for PRO format
-  /* IMORTANT: 
-        Needs reworked -- very sloppy code
-  */
   interface questionData {
     [key: string]: any;
   }
@@ -85,7 +82,7 @@ export const Questionnaire: React.FC = () => {
             rvalue.push(mvalue)
           }
           else if( value["element"] === "group" )
-          {
+          { // we will need logic here to build out for useValues().
             let group_questionnaire_data:questionData =value["data"]["questions"]
             // destructuring as we do not need the key in this for loop
             for ( let [,group_val] of Object.entries(group_questionnaire_data) )
@@ -120,14 +117,17 @@ export const Questionnaire: React.FC = () => {
     //************
     //fill dynamic survey with proper states
 
-
+    
     const data=getMessageStateByHash("abc");
+    
     data.then(svalue => { 
+
         let key:string = "pro_hash";
         let pro_hash:string ="";
 
         if( svalue != null ){
           pro_hash = svalue[key];
+          setproFormState(svalue);
         }
 
         let questionnaire_payload = getMessageQuestionnaireByProHash(pro_hash);
@@ -142,6 +142,25 @@ export const Questionnaire: React.FC = () => {
     };
   }, []); 
 
+
+  interface FormState { 
+    [key:string]: {
+      entry_response:any;
+      nxt: string;
+      entry_state: string;
+      prev: string;
+    }
+  }
+  const [proFormState, setproFormState] = useState<FormState>( 
+    {
+      "":{
+        entry_response:"",
+        nxt:"",
+        entry_state:"",
+        prev:""
+      }
+    }
+  );
 
   interface FormElement { 
       name: string, 
@@ -165,6 +184,20 @@ export const Questionnaire: React.FC = () => {
         }]
     }]
   );
+
+
+  interface FormData {
+    [key: string]: {
+      [key: string]: string | number;
+    }
+  }
+  const saveState = (data: FormData) => {
+    alert(JSON.stringify(proFormState, null, 2));
+    alert(JSON.stringify(data, null, 2));
+    //for ( let [,option_value] of Object.entries(field.value as string) ){}
+  };
+ 
+  
   
   return (
     <PageLayout>
@@ -183,7 +216,7 @@ export const Questionnaire: React.FC = () => {
           <p></p>
           <h3 className="content__title">Form</h3>
           <div>
-            <FormCard steps={proFormQuestions}/>
+            <FormCard saveState={saveState} steps={proFormQuestions}/>
           </div>
           <p></p>
           <h3 className="content__title">API Call Testing</h3>

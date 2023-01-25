@@ -7,12 +7,17 @@ interface FormData {
   }
 }
  
-export const FormCard: React.FC<{ steps: { name: string, fields: { name: string, text:string, type: string, value: any }[] }[] }> = ({ steps }) => {
+export const FormCard: React.FC<{ saveState:Function, steps: { name: string, fields: { name: string, text:string, type: string, value: any }[] }[] }> = ({ saveState,steps }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
  
   const onSubmit = (data: FormData) => {
     console.log(data);
+  };
+
+  const onSave = (data: FormData) => {
+    alert(JSON.stringify(data, null, 2));
+    saveState(data);
   };
  
   const renderStep = () => {
@@ -27,7 +32,7 @@ export const FormCard: React.FC<{ steps: { name: string, fields: { name: string,
           FieldContent = 
             <label key={field.name}>
               {field.text}:<br/>
-              <input type={field.type} {...register(`${step.name}.${field.name}`,{ required: true })}/>
+              <input type="number" {...register(`${step.name}.${field.name}`,{ required: true })}/>
             </label>
           break;
         case 'dropdown':
@@ -46,7 +51,7 @@ export const FormCard: React.FC<{ steps: { name: string, fields: { name: string,
         case 'radio':
           let RadioContent =[]
           for ( let [,radio_value] of Object.entries(field.value as string) ){
-            RadioContent.push(<label key={ `${step.name}.${radio_value}` } >{radio_value}<input type={field.type} {...register(`${step.name}.${radio_value}`,{ required: true })}/></label>)
+            RadioContent.push(<label key={ `${step.name}.${radio_value}` } >{radio_value}<input type={field.type} value={radio_value} {...register(`${step.name}.${field.name}`,{ required: true })}/></label>)
           }
           FieldContent = 
           <label key={field.name}>
@@ -83,7 +88,8 @@ export const FormCard: React.FC<{ steps: { name: string, fields: { name: string,
         {errors[step.name] && <span>All fields are required</span>}
         <br />
         {currentStep > 0 && <button type="button" onClick={() => setCurrentStep(currentStep - 1)}>Previous</button>}
-        {currentStep < steps.length - 1 && <button type="button" onClick={() => setCurrentStep(currentStep + 1)}>Next</button>}
+        {currentStep < steps.length - 1 && <button type="button" onClick={() => setCurrentStep(currentStep + 1)}>Next</button>}<br/>
+        <button type="button" onClick={handleSubmit(onSave)}>Save Progress</button>
         {currentStep === steps.length - 1 && <button type="submit">Submit</button>}
       </form>
     );
