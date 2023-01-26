@@ -29,7 +29,7 @@ export const Questionnaire: React.FC = () => {
     const { data, error } = await getStateByStateHash(stateHash);
 
     if (data) {
-      setproFormState(data as FormState);
+      //setproFormState(data as FormState);
       setMessage(JSON.stringify(data, null, 2));
     }
 
@@ -71,8 +71,25 @@ export const Questionnaire: React.FC = () => {
     [key: string]: any;
   }
 
+  const [proFormState, setproFormState] = useState<FormState>( 
+    {
+      state_status: "",
+      state_hash: "",
+      pro_hash: "",
+      states: {
+        "":{
+          entry_response:"",
+          nxt:"",
+          entry_state:"",
+          prev:""
+        }
+      }
+    }
+  );
+  
   useEffect(() => {
     const buildForm = (svalue:{[key: string]: any }|null,qvalue:{ [key: string]: any }|null) => {
+      console.log("BUILD_FORM:",svalue);
       let rvalue:FormElements = [];
   
       if( qvalue != null && svalue != null )
@@ -83,6 +100,13 @@ export const Questionnaire: React.FC = () => {
         {
           if( value["element"] === "question" )
           {
+            let state_init;
+            try{
+              state_init = svalue.states[value["data"]["link_id"]]["entry_response"];
+            }
+            catch{
+              state_init= null;
+            }
             //let mvalue ={ name:"",fields:[{}] }
             let mvalue = {} as FormElement;
             mvalue.name = key.toString()
@@ -90,7 +114,8 @@ export const Questionnaire: React.FC = () => {
               name:value["data"]["link_id"],
               text:value["data"]["text"],
               type:value["data"]["type"],
-              value:value["data"]["value"] 
+              value:value["data"]["value"] ,
+              state:state_init
             }]
             rvalue.push(mvalue)
           }
@@ -100,14 +125,25 @@ export const Questionnaire: React.FC = () => {
             // destructuring as we do not need the key in this for loop
             for ( let [,group_val] of Object.entries(group_questionnaire_data) )
             {
+              let state_init;
+              try{
+                state_init = svalue.states[group_val["link_id"]]["entry_response"];
+              }
+              catch{
+                state_init= null;
+              }
+
               let mvalue = {} as FormElement; 
               mvalue.name = key.toString()
               mvalue.fields = [{
                 name:"step_"+group_val["link_id"],
                 text:group_val["text"],
                 type:group_val["type"],
-                value:value["data"]["value"] 
+                value:value["data"]["value"],
+                state:state_init
               }]
+
+
               rvalue.push(mvalue)
             }
           }
@@ -157,21 +193,7 @@ export const Questionnaire: React.FC = () => {
 
 
 
-  const [proFormState, setproFormState] = useState<FormState>( 
-    {
-      state_status: "",
-      state_hash: "",
-      pro_hash: "",
-      states: {
-        "":{
-          entry_response:"",
-          nxt:"",
-          entry_state:"",
-          prev:""
-        }
-      }
-    }
-  );
+
 
   interface FormElement { 
       name: string, 
@@ -179,7 +201,8 @@ export const Questionnaire: React.FC = () => {
         name: string,
         text: string, 
         type: string,
-        value: any
+        value: any,
+        state?: any
       }[] 
   }
   interface FormElements extends Array<FormElement>{}
@@ -203,20 +226,22 @@ export const Questionnaire: React.FC = () => {
     }
   }
   const saveState = (data: FormData) => {
-    alert(JSON.stringify(proFormState, null, 2));
+    //alert(JSON.stringify(proFormState, null, 2));
     //alert(JSON.stringify(data, null, 2));
     for ( let [,form_entry] of Object.entries(data) )
     {
       for ( let [state_key,state_value] of Object.entries(form_entry) ){
         //console.log(state_key);
         //console.log(state_value);
-
-        proFormState.states[state_key].entry_response = state_value
-        proFormState.states[state_key].entry_state = "updated"
+        let svalue = proFormState;
+        svalue.states[state_key].entry_response = state_value
+        svalue.states[state_key].entry_state = "updated"
+        setproFormState(svalue as FormState);
+        console.log("svalue",svalue);
       }
     }
 
-    alert(JSON.stringify(proFormState, null, 2));
+    //alert(JSON.stringify(proFormState, null, 2));
     setMessage(JSON.stringify(proFormState, null, 2));
     putUpdateFullState(proFormState);
   };
@@ -240,7 +265,7 @@ export const Questionnaire: React.FC = () => {
           <p></p>
           <h3 className="content__title">Form</h3>
           <div>
-            <FormCard saveState={saveState} steps={proFormQuestions}/>
+            <FormCard saveState={saveState} steps={proFormQuestions} />
           </div>
           <p></p>
           <h3 className="content__title">API Call Testing</h3>

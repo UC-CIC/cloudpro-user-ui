@@ -7,9 +7,9 @@ interface FormData {
   }
 }
  
-export const FormCard: React.FC<{ saveState:Function, steps: { name: string, fields: { name: string, text:string, type: string, value: any }[] }[] }> = ({ saveState,steps }) => {
+export const FormCard: React.FC<{ saveState:Function,steps: { name: string, fields: { name: string, text:string, type: string, value: any, state?: any }[] }[] }> = ({ saveState,steps }) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>();
  
   const onSubmit = (data: FormData) => {
     console.log(data);
@@ -25,13 +25,14 @@ export const FormCard: React.FC<{ saveState:Function, steps: { name: string, fie
     let FieldContent;
         
     step.fields.map(field => {
+      console.log("State",field.state)
       switch (field.type) {
         case 'text':
         case 'decimal':
           FieldContent = 
             <label key={field.name}>
               {field.text}:<br/>
-              <input type="number" {...register(`${step.name}.${field.name}`,{ required: true })}/>
+              <input type="number" {...register(`${step.name}.${field.name}`,{ required: true })} />
             </label>
           break;
         case 'dropdown':
