@@ -16,7 +16,6 @@ export const FormCard: React.FC<{ saveState:Function, steps: { name: string, fie
   };
 
   const onSave = (data: FormData) => {
-    alert(JSON.stringify(data, null, 2));
     saveState(data);
   };
  

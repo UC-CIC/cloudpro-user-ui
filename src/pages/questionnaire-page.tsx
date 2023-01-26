@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 
 import { PageLayout } from "../components/page-layout";
 import { CodeSnippet } from "../components/code-snippet";
-import { getStateByStateHash, getStateHello, getQuestionnaireByProHash } from "../services/message.service";
+import { getStateByStateHash, getStateHello, getQuestionnaireByProHash, updateFullState } from "../services/message.service";
 
 
 import {FormCard} from "../components/form-card";
 
+import {FormState} from "../models/form-state"
 
 export const Questionnaire: React.FC = () => {
   const [message, setMessage] = useState<string>("");
@@ -28,7 +29,7 @@ export const Questionnaire: React.FC = () => {
     const { data, error } = await getStateByStateHash(stateHash);
 
     if (data) {
-      setproFormState(data);
+      setproFormState(data as FormState);
       setMessage(JSON.stringify(data, null, 2));
     }
 
@@ -52,6 +53,18 @@ export const Questionnaire: React.FC = () => {
     return data;
   };
 
+  const putUpdateFullState = async (state:FormState) => {
+    const { data, error } = await updateFullState(state);
+
+    if (data) {
+      setMessage(JSON.stringify(data, null, 2));
+    }
+
+    if (error) {
+      setMessage(JSON.stringify(error, null, 2));
+    }
+    return data;
+  };
 
 
   interface questionData {
@@ -105,7 +118,7 @@ export const Questionnaire: React.FC = () => {
       return rvalue;
     }
 
-
+    console.log("useEffect()");
     let isMounted = true;
 
     if (!isMounted) {
@@ -127,7 +140,7 @@ export const Questionnaire: React.FC = () => {
 
         if( svalue != null ){
           pro_hash = svalue[key];
-          setproFormState(svalue);
+          setproFormState(svalue as FormState);
         }
 
         let questionnaire_payload = getMessageQuestionnaireByProHash(pro_hash);
@@ -143,21 +156,19 @@ export const Questionnaire: React.FC = () => {
   }, []); 
 
 
-  interface FormState { 
-    [key:string]: {
-      entry_response:any;
-      nxt: string;
-      entry_state: string;
-      prev: string;
-    }
-  }
+
   const [proFormState, setproFormState] = useState<FormState>( 
     {
-      "":{
-        entry_response:"",
-        nxt:"",
-        entry_state:"",
-        prev:""
+      state_status: "",
+      state_hash: "",
+      pro_hash: "",
+      states: {
+        "":{
+          entry_response:"",
+          nxt:"",
+          entry_state:"",
+          prev:""
+        }
       }
     }
   );
@@ -188,13 +199,26 @@ export const Questionnaire: React.FC = () => {
 
   interface FormData {
     [key: string]: {
-      [key: string]: string | number;
+      [link_id: string]: string | number;
     }
   }
   const saveState = (data: FormData) => {
     alert(JSON.stringify(proFormState, null, 2));
-    alert(JSON.stringify(data, null, 2));
-    //for ( let [,option_value] of Object.entries(field.value as string) ){}
+    //alert(JSON.stringify(data, null, 2));
+    for ( let [,form_entry] of Object.entries(data) )
+    {
+      for ( let [state_key,state_value] of Object.entries(form_entry) ){
+        //console.log(state_key);
+        //console.log(state_value);
+
+        proFormState.states[state_key].entry_response = state_value
+        proFormState.states[state_key].entry_state = "updated"
+      }
+    }
+
+    alert(JSON.stringify(proFormState, null, 2));
+    setMessage(JSON.stringify(proFormState, null, 2));
+    putUpdateFullState(proFormState);
   };
  
   
@@ -223,6 +247,7 @@ export const Questionnaire: React.FC = () => {
           <div>
             <button onClick={getMessageStateHello}>State: Hello World</button>
             <button onClick={() => getMessageStateByHash("abc")}>State: Get State</button>
+            <button onClick={() => getMessageQuestionnaireByProHash("909104cdb5b06af2606ed4a197b07d09d5ef9a4aad97780c2fe48053bce2be52")}>PROPack: Get Questionnaire</button>
           </div>
           <CodeSnippet title="API Message" code={message} />      
         </div>
