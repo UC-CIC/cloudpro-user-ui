@@ -223,22 +223,6 @@ export const Questionnaire: React.FC = () => {
   }, []); 
 
 
-
-
-  /*
-    interface FormElement { 
-    name: string, 
-    fields: { 
-      name: string,
-      text: string, 
-      type: string,
-      value: any,
-      state?: any
-    }[] 
-    }
-  interface FormElements extends Array<FormElement>{}
-  */
-
   const saveState = (data: FormData) => {
     //alert(JSON.stringify(proFormState, null, 2));
     //alert(JSON.stringify(data, null, 2));
