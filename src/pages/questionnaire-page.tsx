@@ -71,6 +71,37 @@ export const Questionnaire: React.FC = () => {
     [key: string]: any;
   }
 
+  interface FormElement { 
+    name: string, 
+    fields: { 
+      name: string,
+      text: string, 
+      type: string,
+      value: any,
+      state?: any
+    }[] 
+    }
+  interface FormElements extends Array<FormElement>{}
+
+  const [proFormQuestions, setproFormQuestions] = useState<FormElements>( 
+    [{
+        name: "init",
+        fields: [{
+          name:"",
+          text:"",
+          type:"",
+          value:null
+        }]
+    }]
+  );
+
+
+  interface FormData {
+    [key: string]: {
+      [link_id: string]: string | number;
+    }
+  }
+
   const [proFormState, setproFormState] = useState<FormState>( 
     {
       state_status: "",
@@ -194,53 +225,48 @@ export const Questionnaire: React.FC = () => {
 
 
 
-
-  interface FormElement { 
-      name: string, 
-      fields: { 
-        name: string,
-        text: string, 
-        type: string,
-        value: any,
-        state?: any
-      }[] 
-  }
-  interface FormElements extends Array<FormElement>{}
-
-  const [proFormQuestions, setproFormQuestions] = useState<FormElements>( 
-    [{
-        name: "init",
-        fields: [{
-          name:"",
-          text:"",
-          type:"",
-          value:null
-        }]
-    }]
-  );
-
-
-  interface FormData {
-    [key: string]: {
-      [link_id: string]: string | number;
+  /*
+    interface FormElement { 
+    name: string, 
+    fields: { 
+      name: string,
+      text: string, 
+      type: string,
+      value: any,
+      state?: any
+    }[] 
     }
-  }
+  interface FormElements extends Array<FormElement>{}
+  */
+
   const saveState = (data: FormData) => {
     //alert(JSON.stringify(proFormState, null, 2));
     //alert(JSON.stringify(data, null, 2));
-    for ( let [,form_entry] of Object.entries(data) )
+    let svalue = proFormState;
+    let qvalue = proFormQuestions;
+
+    //console.log("qvalueSaveState:",qvalue)
+ 
+    
+
+    for ( let [idx,form_entry] of Object.entries(data) )
     {
       for ( let [state_key,state_value] of Object.entries(form_entry) ){
+        let index:number = Number(idx);
         //console.log(state_key);
         //console.log(state_value);
-        let svalue = proFormState;
         svalue.states[state_key].entry_response = state_value
         svalue.states[state_key].entry_state = "updated"
-        setproFormState(svalue as FormState);
-        console.log("svalue",svalue);
+        //console.log("idx",qvalue[index])
+        //console.log("svalue",svalue);
+   
+        //WARNING:  Potential bug here assuming multiple fields
+        qvalue[index].fields[0].state = state_value;
       }
     }
-
+    //console.log("Q:",qvalue)
+    setproFormQuestions(qvalue);
+    setproFormState(  svalue as FormState);
     //alert(JSON.stringify(proFormState, null, 2));
     setMessage(JSON.stringify(proFormState, null, 2));
     putUpdateFullState(proFormState);

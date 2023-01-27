@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
- 
+
 interface FormData {
   [key: string]: {
     [key: string]: string | number;
   }
 }
- 
-export const FormCard: React.FC<{ saveState:Function,steps: { name: string, fields: { name: string, text:string, type: string, value: any, state?: any }[] }[] }> = ({ saveState,steps }) => {
+
+
+export const FormCard: React.FC<{ saveState:Function,steps: { name: string, fields: { name: string, text:string, type: string, value: any, state?: any }[] }[]}> = ({ saveState,steps }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>();
  
@@ -15,7 +16,9 @@ export const FormCard: React.FC<{ saveState:Function,steps: { name: string, fiel
     console.log(data);
   };
 
+
   const onSave = (data: FormData) => {
+    console.log("onSave:", data);
     saveState(data);
   };
  
@@ -34,19 +37,28 @@ export const FormCard: React.FC<{ saveState:Function,steps: { name: string, fiel
               {field.text}:<br/>
               <input type="number" {...register(`${step.name}.${field.name}`,{ required: true })} />
             </label>
+            if( field.state != null )
+              setValue(`${step.name}.${field.name}`,field.state);
           break;
         case 'dropdown':
           let OptionContent =[]
+
+          OptionContent.push(<option key="DEFAULT" value="DEFAULT" disabled> -- select an option -- </option>)
           for ( let [,option_value] of Object.entries(field.value as string) ){
             OptionContent.push(<option key={ `${step.name}.${option_value}` } value={option_value}>{option_value}</option>)
           }
           FieldContent = 
           <label key={field.name}>
             {field.text}:<br/>
-            <select {...register(`${step.name}.${field.name}`,{ required: true })}>
+            <select defaultValue={'DEFAULT'}  {...register(`${step.name}.${field.name}`,{ required: true })}>
               {OptionContent}
             </select>
           </label>
+          
+          if( field.state != null ){
+              setValue(`${step.name}.${field.name}`,field.state);
+          }
+          
           break;        
         case 'radio':
           let RadioContent =[]
@@ -57,7 +69,11 @@ export const FormCard: React.FC<{ saveState:Function,steps: { name: string, fiel
           <label key={field.name}>
               {field.text}:<br/>
               {RadioContent}
-          </label>
+          </label>          
+          
+          if( field.state != null ){
+              setValue(`${step.name}.${field.name}`,field.state);
+          }
           break;
           case 'hidden':
             FieldContent = <p>To be implemented... :: hidden</p>
