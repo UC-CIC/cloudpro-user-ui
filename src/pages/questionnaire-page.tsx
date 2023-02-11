@@ -106,7 +106,7 @@ export const Questionnaire: React.FC = () => {
     {
       state_status: "",
       state_hash: "",
-      pro_hash: "",
+      pro_pack: "",
       states: {
         "":{
           entry_response:"",
@@ -202,7 +202,7 @@ export const Questionnaire: React.FC = () => {
     
     data.then(svalue => { 
 
-        let key:string = "pro_hash";
+        let key:string = "pro_pack";
         let pro_hash:string ="";
 
         if( svalue != null ){
@@ -281,8 +281,9 @@ export const Questionnaire: React.FC = () => {
           <h3 className="content__title">API Call Testing</h3>
           <div>
             <button onClick={getMessageStateHello}>State: Hello World</button>
+            {/* hard codes eventually need to go out as development iterates */}
             <button onClick={() => getMessageStateByHash("abc")}>State: Get State</button>
-            <button onClick={() => getMessageQuestionnaireByProHash("909104cdb5b06af2606ed4a197b07d09d5ef9a4aad97780c2fe48053bce2be52")}>PROPack: Get Questionnaire</button>
+            <button onClick={() => getMessageQuestionnaireByProHash("2d7243474da051a4243697acdaba49dab0795f0ba7815caab4044e6740ac481a")}>PROPack: Get Questionnaire</button>
           </div>
           <CodeSnippet title="API Message" code={message} />      
         </div>

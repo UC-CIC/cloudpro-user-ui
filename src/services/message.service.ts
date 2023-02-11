@@ -8,6 +8,8 @@ const apiServerUrl = process.env.REACT_APP_API_SERVER_URL + "";
 const apiXToken = process.env.REACT_APP_API_X_TOKEN  + "";
 const apiToken = process.env.REACT_APP_API_TOKEN  + "";
 
+// We can drop api x token and api token here after we iterate.
+
 export const getStateHello = async (): Promise<ApiResponse> => {
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/state/?token=${apiToken}`,
