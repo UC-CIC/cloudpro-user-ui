@@ -12,11 +12,10 @@ const apiToken = process.env.REACT_APP_API_TOKEN  + "";
 
 export const getStateHello = async (): Promise<ApiResponse> => {
   const config: AxiosRequestConfig = {
-    url: `${apiServerUrl}/state/?token=${apiToken}`,
+    url: `${apiServerUrl}/state/`,
     method: "GET",
     headers: {
-      "content-type": "application/json",
-      "x-token": apiXToken
+      "content-type": "application/json"
     },
   };
 
@@ -30,11 +29,10 @@ export const getStateHello = async (): Promise<ApiResponse> => {
 
 export const getStateByStateHash = async (stateHash:string): Promise<ApiResponse> => {
   const config: AxiosRequestConfig = {
-    url: `${apiServerUrl}/state/${stateHash}?token=${apiToken}`,
+    url: `${apiServerUrl}/state/${stateHash}`,
     method: "GET",
     headers: {
-      "content-type": "application/json",
-      "x-token": apiXToken
+      "content-type": "application/json"
     },
   };
 
@@ -48,11 +46,10 @@ export const getStateByStateHash = async (stateHash:string): Promise<ApiResponse
 
 export const getQuestionnaireByProHash = async (pro_hash:string): Promise<ApiResponse> => {
   const config: AxiosRequestConfig = {
-    url: `${apiServerUrl}/questionnaire/${pro_hash}?token=${apiToken}`,
+    url: `${apiServerUrl}/questionnaire/${pro_hash}`,
     method: "GET",
     headers: {
-      "content-type": "application/json",
-      "x-token": apiXToken
+      "content-type": "application/json"
     },
   };
 
@@ -68,11 +65,10 @@ export const getQuestionnaireByProHash = async (pro_hash:string): Promise<ApiRes
 
 export const updateFullState = async (state:FormState): Promise<ApiResponse> => {
   const config: AxiosRequestConfig = {
-    url: `${apiServerUrl}/state/update?token=${apiToken}`,
+    url: `${apiServerUrl}/state/update`,
     method: "PUT",
     headers: {
-      "content-type": "application/json",
-      "x-token": apiXToken
+      "content-type": "application/json"
     },
     data:state
   };
