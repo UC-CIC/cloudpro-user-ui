@@ -9,6 +9,13 @@ import {
   IconProps,
 } from "@chakra-ui/react";
 
+
+import {
+  NavLink as RouterLink, // <-- import the NavLink component
+} from "react-router-dom";
+
+
+
 export const CallToActionWithIllustration = () => {
   return (
     <Container maxW={"5xl"}>
@@ -38,10 +45,16 @@ export const CallToActionWithIllustration = () => {
             colorScheme={"orange"}
             bg={"orange.400"}
             _hover={{ bg: "orange.500" }}
+            as={RouterLink}
+            to="/register"
           >
             Register now
           </Button>
-          <Button rounded={"full"} px={6}>
+          <Button 
+          rounded={"full"} 
+          px={6}
+          as={RouterLink}
+          to="/signin">
             Login
           </Button>
         </Stack>
