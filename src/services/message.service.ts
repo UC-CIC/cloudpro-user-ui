@@ -5,8 +5,8 @@ import { callExternalApi } from "./external-api.service";
 import {FormState} from "../models/form-state"
 
 const apiServerUrl = process.env.REACT_APP_API_SERVER_URL + "";
-const apiXToken = process.env.REACT_APP_API_X_TOKEN  + "";
-const apiToken = process.env.REACT_APP_API_TOKEN  + "";
+//const apiXToken = process.env.REACT_APP_API_X_TOKEN  + "";
+//const apiToken = process.env.REACT_APP_API_TOKEN  + "";
 
 // We can drop api x token and api token here after we iterate.
 

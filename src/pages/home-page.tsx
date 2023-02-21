@@ -1,14 +1,11 @@
 import React from "react";
 import { PageLayout } from "../components/page-layout";
+import { CallToActionWithIllustration } from "../components/home/cta/call-to-action-with-illustration";
+
 
 export const HomePage: React.FC = () => (
   <PageLayout>
-    <div>
-        <h1 id="page-title" className="content__title">
-          Home
-        </h1>
-        <p><em>Menu</em></p>
-        <a href="/questionnaire">Questionnaire</a>
-    </div>
+    <CallToActionWithIllustration/>
+
   </PageLayout>
 );
