@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { PageLayout } from "../components/page-layout";
+/*import { PageLayout } from "../components/page-layout";*/
 import { CodeSnippet } from "../components/code-snippet";
 import { getStateByStateHash, getStateHello, getQuestionnaireByProHash, updateFullState } from "../services/message.service";
 
@@ -259,7 +259,7 @@ export const Questionnaire: React.FC = () => {
   
   
   return (
-    <PageLayout>
+
       <div className="content-layout">
         <a href="/">Go To Home</a>
         
@@ -288,7 +288,7 @@ export const Questionnaire: React.FC = () => {
           <CodeSnippet title="API Message" code={message} />      
         </div>
       </div>
-    </PageLayout>
+
   )
 };
 
