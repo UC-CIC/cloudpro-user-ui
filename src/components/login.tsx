@@ -15,7 +15,6 @@ import {
   FormControl,
   FormHelperText,
   InputRightElement,
-  HStack
 } from "@chakra-ui/react";
 import { FaUserAlt, FaLock } from "react-icons/fa";
 
@@ -34,12 +33,13 @@ export const LoginFlow = () => {
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
 
-  const handleShowClick = () => setShowOTP(!showOTP);
-  const handleShowGetCodeClick = () => setShowGetCode(!showGetCode);
+  const handleShowOTPClick = () => setShowOTP(!showOTP);
+
 
 
   const executeGetCode = async (event: React.FormEvent<HTMLFormElement>)  => {
     event.preventDefault();
+    console.log("<execute_getcode>");
     const result = await auth.getChallenge(email);
     if (result.success) {
         setShowGetCode(true);
@@ -49,6 +49,7 @@ export const LoginFlow = () => {
   };
   const executeVerify = async(event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    console.log("<execute_verify>");
     const result = await auth.signIn(code);
     if (result.success) {
         navigate({ pathname: "/pt-authed-landing" });
@@ -133,7 +134,7 @@ export const LoginFlow = () => {
                       />
 
                       <InputRightElement width="4.5rem">
-                        <Button h="1.75rem" size="sm" onClick={handleShowClick}>
+                        <Button h="1.75rem" size="sm" onClick={handleShowOTPClick}>
                           {showOTP ? "Hide" : "Show"}
                         </Button>
                       </InputRightElement>

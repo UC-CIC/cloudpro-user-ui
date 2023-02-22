@@ -15,7 +15,6 @@ import {
   FormControl,
   FormHelperText,
   InputRightElement,
-  HStack
 } from "@chakra-ui/react";
 import { FaUserAlt, FaLock } from "react-icons/fa";
 

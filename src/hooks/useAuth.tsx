@@ -64,6 +64,7 @@ const useProvideAuth = (): UseAuth => {
 
 
     const getChallenge = async (username: string) => {
+        console.log("USER", username);
         try {
             const result = await Auth.signIn(username);
             console.log(result)
