@@ -6,6 +6,7 @@ import { RegisterPage } from './pages/register-page';
 import { LoginPage } from './pages/login-page';
 import { PtAuthedLanding } from './pages/pt-authed-landing';
 import { Registered } from './pages/registered';
+import { FormTest } from './pages/form-test';
 
 export const App: React.FC = () => {
 
@@ -17,6 +18,8 @@ export const App: React.FC = () => {
       <Route path="/registered" element={<Registered />} />
       <Route path="/pt-authed-landing" element={<PtAuthedLanding />} />
       <Route path="/questionnaire" element={<Questionnaire />} />
+
+      <Route path="/formtest" element={<FormTest />} />
     </Routes>
   );
 };
