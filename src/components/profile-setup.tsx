@@ -85,9 +85,8 @@ export const ProfileSetup = () => {
                     <FormControl>
                       <FormLabel>Birth Sex</FormLabel>
                       <Select placeholder="Select option"  value={birthsex} onChange={(e) => setBirthSex(e.target.value)}>
-                        <option value="option1">BS 1</option>
-                        <option value="option2">BS 2</option>
-                        <option value="option3">BS 3</option>
+                        <option value="bs_m">Male</option>
+                        <option value="bs_f">Female</option>
                       </Select>
                     </FormControl>
                   </InputGroup>
@@ -99,17 +98,17 @@ export const ProfileSetup = () => {
                   <FormControl>
                     <FormLabel>Hospital</FormLabel>
                     <Select placeholder="Select option" value={hospital} onChange={(e) => setHospital(e.target.value)}>
-                      <option value="option1">H 1</option>
-                      <option value="option2">H 2</option>
-                      <option value="option3">H 3</option>
+                      <option value="h1">H 1</option>
+                      <option value="h2">H 2</option>
+                      <option value="h3">H 3</option>
                     </Select>
                   </FormControl>
                   <FormControl>
                     <FormLabel>Surgeon</FormLabel>
                     <Select placeholder="Select option" value={surgeon} onChange={(e) => setSurgeon(e.target.value)}>
-                      <option value="option1">S 1</option>
-                      <option value="option2">S 2</option>
-                      <option value="option3">S 3</option>
+                      <option value="s1">S 1</option>
+                      <option value="s2">S 2</option>
+                      <option value="s3">S 3</option>
                     </Select>
                   </FormControl>
                   <FormControl>
@@ -123,9 +122,9 @@ export const ProfileSetup = () => {
                   <FormControl>
                     <FormLabel>Challenge Q1</FormLabel>
                     <Select placeholder="Select option" value={c1q} onChange={(e) => setC1q(e.target.value)}>
-                      <option value="option1">S 1</option>
-                      <option value="option2">S 2</option>
-                      <option value="option3">Option 3</option>
+                      <option value="c1q_a">What is your favorite name?</option>
+                      <option value="c1q_b">What is your favorite website?</option>
+                      <option value="c1q_c">What is your favorite game?</option>
                     </Select>
                   </FormControl>
                   <FormControl>
@@ -135,9 +134,9 @@ export const ProfileSetup = () => {
                   <FormControl>
                     <FormLabel>Challenge Q2</FormLabel>
                     <Select placeholder="Select option" value={c2q} onChange={(e) => setC2q(e.target.value)}>
-                      <option value="option1">Option 1</option>
-                      <option value="option2">Option 2</option>
-                      <option value="option3">Option 3</option>
+                      <option value="c2q_a">What is your favorite name?</option>
+                      <option value="c2q_b">What is your favorite website?</option>
+                      <option value="c2q_c">What is your favorite game?</option>
                     </Select>
                   </FormControl>
                   <FormControl>
@@ -147,9 +146,9 @@ export const ProfileSetup = () => {
                   <FormControl>
                     <FormLabel>Challenge Q3</FormLabel>
                     <Select placeholder="Select option" value={c3q} onChange={(e) => setC3q(e.target.value)}>
-                      <option value="option1">Option 1</option>
-                      <option value="option2">Option 2</option>
-                      <option value="option3">Option 3</option>
+                      <option value="c3q_a">What is your favorite name?</option>
+                      <option value="c3q_b">What is your favorite website?</option>
+                      <option value="c3q_c">What is your favorite game?</option>
                     </Select>
                   </FormControl>
                   <FormControl>
@@ -160,6 +159,9 @@ export const ProfileSetup = () => {
                   : "" }
                 { step === 3 ?
                 <Box>
+                 <Box bg='CadetBlue' w='100%' p={4} color='white'>
+CloudPRO simplifies your life by defaulting to passwordless authentication. This allows for a unique code to be sent to you each time you login to identify you. We support three methods of this code being sent, email, SMS, or a phone call. Let us know your default preference!
+</Box>   
                   <FormControl>
                     <FormLabel>Preferred 2fa</FormLabel>
                     <Select placeholder="Select option" value={tfa}  onChange={(e) => setTfa(e.target.value)}>

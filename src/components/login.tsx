@@ -35,7 +35,7 @@ export const LoginFlow = () => {
 
   const handleShowOTPClick = () => setShowOTP(!showOTP);
 
-
+  const [alttfa, setAltTfa] = useState(false);
 
   const executeGetCode = async (event: React.FormEvent<HTMLFormElement>)  => {
     event.preventDefault();
@@ -116,7 +116,7 @@ export const LoginFlow = () => {
                   </InputGroup>
        
                 </FormControl>
-                {!showGetCode ? (
+                {showGetCode ? (
                   ""
                 ) : (
                   <FormControl>
@@ -139,9 +139,22 @@ export const LoginFlow = () => {
                         </Button>
                       </InputRightElement>
                     </InputGroup>
-                    <FormHelperText textAlign="right">
-                      <Link>resend code</Link>
+                    <FormHelperText textAlign="center">
+                      <Link>resend code</Link><br></br>
+                      <Link onClick={() => setAltTfa(!alttfa)}>try a different method?</Link>
                     </FormHelperText>
+                    {alttfa === true ?
+                    <Box>
+                    <Button h="1.75rem" size="sm" >
+                          email
+                        </Button> 
+                                            <Button h="1.75rem" size="sm" >
+                                            sms
+                                          </Button>   
+                                                              <Button h="1.75rem" size="sm" >
+                                                              call
+                                                            </Button> </Box>      
+                        : "" }         
                   </FormControl>
                 )}
                 {!showGetCode ? (
