@@ -50,7 +50,7 @@ export const RegisterFlow = () => {
     event.preventDefault();
     const result = await auth.verify(email,code);
     if (result.success) {
-        navigate({ pathname: "/" });
+        navigate({ pathname: "/registered" });
     } else {
         alert(result.message);
     }
