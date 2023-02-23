@@ -4,6 +4,9 @@ import React, { useEffect,useState } from "react";
 import { getUserProfile } from "../services/message.service";
 import { Box, Button, Text, VStack } from "@chakra-ui/react";
 
+
+import { ProfileSetup } from "../components/profile-setup";
+const test="hello@hello"
 export const PtAuthedLanding: React.FC = () => {
     const auth = useAuth();
 
@@ -73,9 +76,17 @@ export const PtAuthedLanding: React.FC = () => {
             </VStack>
 
             { profile_state === "INIT" ?
-                <div>
-                    "init"
-                </div>
+                <ProfileSetup uid={test} profile={profile}/>
+            :
+            ""
+            }
+            { profile_state === "STAGED" ?
+                <ProfileSetup uid={test} profile={profile}/>
+            :
+            ""
+            }
+            { profile_state === "COMPLETE" ?
+                <ProfileSetup uid={test} profile={profile}/>
             :
             ""
             }

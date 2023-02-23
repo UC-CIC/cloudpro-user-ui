@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {
   Flex,
   Heading,
@@ -13,7 +13,13 @@ import {
   Select,
 } from "@chakra-ui/react";
 
-export const ProfileSetup = () => {
+
+export interface Props {
+    uid: string;
+    profile: any;
+}
+
+export const ProfileSetup: React.FC<Props> = (props) => {
   const [step, setStep] = useState(1);
 
   const [firstname, setFirstName] = useState("");
@@ -23,6 +29,7 @@ export const ProfileSetup = () => {
   const [phone, setPhone] = useState("");
   const [hospital, setHospital] = useState("");
   const [surgeon, setSurgeon] = useState("");
+  const [surgerydate, setSurgeryDate] = useState("");
 
   const [c1q, setC1q] = useState("");
   const [c1a, setC1a] = useState("");
@@ -33,14 +40,87 @@ export const ProfileSetup = () => {
 
   const [tfa, setTfa] = useState("");
 
+
+  useEffect(() => {
+    console.log("<profile-setup use effect>");
+
+    let isMounted = true;
+
+    if (!isMounted ) {
+    return;
+    }
+
+
+    setFirstName(props.profile.profile.first_name ?? "");
+    setLastName(props.profile.profile.last_name ?? "");
+    setBday(props.profile.profile.birth_date ?? "")
+    setBirthSex(props.profile.profile.birth_sex ?? "")
+    setPhone(props.profile.profile.phone ?? "");
+    setHospital(props.profile.profile.hospital ?? "");
+    setSurgeon(props.profile.profile.surgeon ?? "");
+    setSurgeryDate(props.profile.profile.surgery_date ?? "");
+
+    setC1q(props.profile.challenge.c1q ?? "");
+    setC1a(props.profile.challenge.c1a ?? "");
+    setC2q(props.profile.challenge.c2q ?? "");
+    setC2a(props.profile.challenge.c2a ?? "");
+    setC3q(props.profile.challenge.c3q ?? "");
+    setC3a(props.profile.challenge.c3a ?? "");
+    
+    setTfa(props.profile.tfa ?? "");
+
+    return () => {
+        isMounted = false;
+    };
+    
+  }, [
+        props.profile.profile.first_name,
+        props.profile.profile.last_name,
+        props.profile.profile.birth_date,
+        props.profile.profile.birth_sex,
+        props.profile.profile.phone,
+        props.profile.profile.hospital,
+        props.profile.profile.surgeon,
+        props.profile.profile.surgery_date,
+
+        props.profile.challenge.c1q,
+        props.profile.challenge.c1a,
+        props.profile.challenge.c2q,
+        props.profile.challenge.c2a,
+        props.profile.challenge.c3q,
+        props.profile.challenge.c3a,
+
+        props.profile.tfa
+    ]);
+
   const executeProfileSetup = async (event: React.FormEvent<HTMLFormElement>)  => {
     event.preventDefault();
 
+    var profile_payload = {
+        email: props.uid,
+        state: "COMPLETE",
+        tfa: tfa,
+        profile: {
+            first_name:firstname,
+            last_name:lastname,
+            birth_date:bday,
+            birth_sex:birthsex,
+            phone:phone,
+            hospital:hospital,
+            surgeon:surgeon,
+            surgery_date:surgerydate
+        },
+        challenge: {
+            c1q:c1q,
+            c1a:c1a,
+            c2q:c2q,
+            c2a:c2a,
+            c3q:c3q,
+            c3a:c3a,
+        }
+    }
     /* build out profile payload */
-    console.log(firstname);
-    console.log(c1q);
-    console.log(c1a);
-    console.log(tfa);
+    console.log(profile_payload)
     
     return
   }
@@ -68,6 +148,11 @@ export const ProfileSetup = () => {
                 <Stack spacing={4} p="1rem" boxShadow="md">
                 { step === 1 ?
                 <Box>
+                   <FormControl>
+                    <FormLabel>Email</FormLabel>
+                    <Input type="text" disabled value={props.uid} />
+                  </FormControl>
+
                   <FormControl>
                     <FormLabel>First Name</FormLabel>
                     <Input type="text" placeholder="" value={firstname}  onChange={(e) => setFirstName(e.target.value)} />
@@ -113,7 +198,7 @@ export const ProfileSetup = () => {
                   </FormControl>
                   <FormControl>
                     <FormLabel>Surgery Date</FormLabel>
-                    <Input type="date" placeholder="" />
+                    <Input type="date" placeholder=""  value={surgerydate}  onChange={(e) => setSurgeryDate(e.target.value)} />
                   </FormControl>
                   </Box>
                   : "" }
@@ -160,14 +245,14 @@ export const ProfileSetup = () => {
                 { step === 3 ?
                 <Box>
                  <Box bg='CadetBlue' w='100%' p={4} color='white'>
-CloudPRO simplifies your life by defaulting to passwordless authentication. This allows for a unique code to be sent to you each time you login to identify you. We support three methods of this code being sent, email, SMS, or a phone call. Let us know your default preference!
-</Box>   
+                  CloudPRO simplifies your life by defaulting to passwordless authentication. This allows for a unique code to be sent to you each time you login to identify you. We support three methods of this code being sent, email, SMS, or a phone call. Let us know your default preference!
+                </Box>   
                   <FormControl>
                     <FormLabel>Preferred 2fa</FormLabel>
                     <Select placeholder="Select option" value={tfa}  onChange={(e) => setTfa(e.target.value)}>
-                      <option value="option1">Email</option>
-                      <option value="option2" disabled>SMS</option>
-                      <option value="option3" disabled>Call</option>
+                      <option value="tfa_email">Email</option>
+                      <option value="tfa_sms" disabled>SMS</option>
+                      <option value="tfa_call" disabled>Call</option>
                     </Select>
                   </FormControl>
                 </Box>
@@ -195,11 +280,14 @@ CloudPRO simplifies your life by defaulting to passwordless authentication. This
                       >
                         Next
                       </Button>
-                    ) : (
+                    ) : ""}
+
+                    {step === 3 ? 
                       <Button borderRadius={0} colorScheme="teal" width="full" type="submit" >
                         Complete
                       </Button>
-                    )}
+                      : ""}
+                    
                   </InputGroup>
                 </Stack>
               </form>
