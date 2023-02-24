@@ -3,14 +3,22 @@ import { useState } from "react";
 import {
   Box,
   Flex,
+  Avatar,
   Button,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  MenuDivider,
   useColorModeValue,
   Stack,
   useColorMode,
+  Center,
   Spacer,
   IconButton,
+  Divider,
 } from "@chakra-ui/react";
-import { HamburgerIcon, CloseIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
+import { HamburgerIcon, CloseIcon, MoonIcon, SunIcon, BellIcon } from "@chakra-ui/icons";
 
 import {
   NavLink as RouterLink, // <-- import the NavLink component
@@ -36,7 +44,7 @@ const Logo = (props: any) => {
   );
 };
 
-export const NavBar = () => {
+export const NavBarAuthed = () => {
   const { colorMode, toggleColorMode } = useColorMode();
   const [display, changeDisplay] = useState("none");
   return (
@@ -98,6 +106,14 @@ export const NavBar = () => {
             />
           </Flex>
           <Flex flexDir="column" align="center">
+            <Avatar
+              size={"sm"}
+              src={"https://avatars.dicebear.com/api/male/username.svg"}
+            />
+            <Box p="4">Username</Box>
+            <Spacer pb="4" />
+            <Divider />
+
             <Button
               as={RouterLink}
               to="/"
@@ -106,27 +122,27 @@ export const NavBar = () => {
               my={5}
               w="100%"
             >
-              Home
+              Surveys
             </Button>
             <Button
               as={RouterLink}
               to="/"
               variant="ghost"
-              aria-label="About"
+              aria-label="Home"
               my={5}
               w="100%"
             >
-              About
+              Account Settings
             </Button>
             <Button
               as={RouterLink}
               to="/"
               variant="ghost"
-              aria-label="Contact"
+              aria-label="Home"
               my={5}
               w="100%"
             >
-              Contact
+              Logout
             </Button>
           </Flex>
         </Flex>
@@ -141,37 +157,6 @@ export const NavBar = () => {
             <Box p="4">
               <Logo />
             </Box>
-            <Spacer />
-            <Button
-              as={RouterLink}
-              to="/"
-              variant="ghost"
-              aria-label="Home"
-              my={5}
-              w="100%"
-            >
-              Home
-            </Button>
-            <Button
-              as={RouterLink}
-              to="/"
-              variant="ghost"
-              aria-label="About"
-              my={5}
-              w="100%"
-            >
-              About
-            </Button>
-            <Button
-              as={RouterLink}
-              to="/"
-              variant="ghost"
-              aria-label="Contact"
-              my={5}
-              w="100%"
-            >
-              Contact
-            </Button>
           </Flex>
 
           <Flex alignItems={"center"}>
@@ -179,7 +164,39 @@ export const NavBar = () => {
               <Button onClick={toggleColorMode}>
                 {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
               </Button>
-              
+              <Button><BellIcon/></Button>
+              <Menu>
+                <MenuButton
+                  as={Button}
+                  rounded={"full"}
+                  variant={"link"}
+                  cursor={"pointer"}
+                  minW={0}
+                >
+                  <Avatar
+                    size={"sm"}
+                    src={"https://avatars.dicebear.com/api/male/username.svg"}
+                  />
+                </MenuButton>
+                <MenuList alignItems={"center"}>
+                  <br />
+                  <Center>
+                    <Avatar
+                      size={"2xl"}
+                      src={"https://avatars.dicebear.com/api/male/username.svg"}
+                    />
+                  </Center>
+                  <br />
+                  <Center>
+                    <p>Username</p>
+                  </Center>
+                  <br />
+                  <MenuDivider />
+                  <MenuItem>Surveys</MenuItem>
+                  <MenuItem>Account Settings</MenuItem>
+                  <MenuItem>Logout</MenuItem>
+                </MenuList>
+              </Menu>
             </Stack>
           </Flex>
         </Flex>

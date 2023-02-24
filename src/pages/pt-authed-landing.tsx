@@ -2,10 +2,11 @@ import { useAuth } from "../hooks/useAuth";
 import PrivateRoute from "../components/PrivateRoute";
 import React, { useEffect,useState } from "react";
 import { getUserProfile } from "../services/message.service";
-import { Box, Button, Text, VStack } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 
-
+import { PageLayout } from "../components/page-layout";
 import { ProfileSetup } from "../components/profile-setup";
+import { PtDash } from "../components/pt-dash";
 
 export const PtAuthedLanding: React.FC = () => {
     const auth = useAuth();
@@ -60,35 +61,34 @@ export const PtAuthedLanding: React.FC = () => {
         return <Box />;
     }
     return (
-        <PrivateRoute>
-            <VStack h={500} justify="center" spacing={8}>
-                    <Text fontSize="5xl">Welcome {auth.username}!!</Text>
-                    <Text fontSize="5xl">State: {profile_state}</Text>
-                    <Text fontSize="1xl">Payload: {JSON.stringify(profile,null,2)}</Text>
-                    <Text fontSize="4xl">Login Succeed🎉</Text>
-                    <Button
-                        colorScheme="teal"
-                        size="lg"
-                        onClick={() => auth.signOut()}
-                    >
-                        Log out
-                    </Button>
-            </VStack>
-
-            { profile_state === "INIT" ?
-                <ProfileSetup uid={auth.username} profile={profile}/>
-            :
-            ""
-            }
-            { profile_state === "STAGED" ?
-                <ProfileSetup uid={auth.username} profile={profile}/>
-            :
-            ""
-            }
-            { profile_state === "COMPLETE" ?
-                <div><p>main app</p></div>
-            : ""
-            }
-        </PrivateRoute>
+        <PageLayout>
+            <PrivateRoute>
+                
+                    { profile_state === "INIT" ?
+                        <ProfileSetup uid={auth.username} profile={profile}/>
+                    :
+                    ""
+                    }
+                    { profile_state === "STAGED" ?
+                        <ProfileSetup uid={auth.username} profile={profile}/>
+                    :
+                    ""
+                    }
+                    { profile_state === "COMPLETE" ?
+                        <PtDash/>
+                    : ""
+                    }
+                
+            </PrivateRoute>
+        </PageLayout>
     );
 }
+/*
+<Button
+colorScheme="teal"
+size="lg"
+onClick={() => auth.signOut()}
+>
+Log out
+</Button>
+*/

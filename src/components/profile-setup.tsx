@@ -14,7 +14,7 @@ import {
   Text
 } from "@chakra-ui/react";
 import { updateProfile } from "../services/message.service";
-import { useNavigate, NavLink as RouterLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export interface Props {
     uid: string;
@@ -44,6 +44,8 @@ export const ProfileSetup: React.FC<Props> = (props) => {
   const [tfa, setTfa] = useState("");
 
   const [state, setState] = useState("");
+
+  const [formsubbed, setFormSubbed] = useState(false);
 
   useEffect(() => {
     console.log("<profile-setup use effect>");
@@ -102,7 +104,7 @@ export const ProfileSetup: React.FC<Props> = (props) => {
 
   const executeProfileSetup = async (event: React.FormEvent<HTMLFormElement>)  => {
     event.preventDefault();
-
+    setFormSubbed(true);
     var profile_payload = {
         email: props.uid,
         state: "COMPLETE",
@@ -129,6 +131,8 @@ export const ProfileSetup: React.FC<Props> = (props) => {
     /* build out profile payload */
     console.log(profile_payload)
     const { data, error } = await updateProfile(profile_payload);
+    console.log(data);
+    console.log(error);
 
     navigate(0);
     
@@ -280,6 +284,7 @@ export const ProfileSetup: React.FC<Props> = (props) => {
                         variant="solid"
                         colorScheme="teal"
                         width="full"
+                        disabled={formsubbed}
                         onClick={() => setStep(step - 1)}
                       >
                         Back
@@ -299,12 +304,16 @@ export const ProfileSetup: React.FC<Props> = (props) => {
                     ) : ""}
 
                     {step === 3 ? 
-                      <Button borderRadius={0} colorScheme="teal" width="full" type="submit" >
+                      <Button borderRadius={0} colorScheme="teal" width="full" type="submit" disabled={formsubbed}>
                         Complete
                       </Button>
-                      : ""}
-                    
+                      : ""}                   
                   </InputGroup>
+                  {formsubbed === true ? 
+                     <Box bg='CadetBlue' w='100%' p={4} color='white'>
+                    Processing 
+                    </Box>  
+                      : ""}
                 </Stack>
               </form>
             </Box>
