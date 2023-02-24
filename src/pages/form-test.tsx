@@ -11,7 +11,7 @@ export const FormTest: React.FC = () => (
                 state: "STAGED",
                 tfa: "tfa_email",
                 profile: {
-                    first_name:"firsty",
+                    first_name:"",
                     last_name:"mcfirst",
                     birth_date:"1999-01-01",
                     birth_sex:"bs_m",

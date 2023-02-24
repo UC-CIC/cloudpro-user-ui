@@ -142,7 +142,8 @@ export const ProfileSetup: React.FC<Props> = (props) => {
 
   const [firstname_isError, setFirstnameError] = useState(false);
   const firstname_error_msg ="First name is a required field."
-
+  const [lastname_isError, setLastnameError] = useState(false);
+  const lastname_error_msg ="Last name is a required field."
 
   const validator_textHasContent = ( data:string ) => {
     return (data !== "")
@@ -160,6 +161,14 @@ export const ProfileSetup: React.FC<Props> = (props) => {
         else {
           setFirstnameError( false )
         }
+        if( !validator_textHasContent(lastname) ) {
+          setLastnameError( true )
+          errors=true;
+        } 
+        else {
+          setLastnameError( false )
+        }
+
 
         break;
       case 2:
@@ -170,6 +179,21 @@ export const ProfileSetup: React.FC<Props> = (props) => {
     }
 
     if( errors === false ) { setStep(go_to_step) }
+  }
+
+  const setField = (field:string,value:string) => {
+    //we clear out any errors on the field as user types until resubmission of next step
+    switch(field)
+    {
+      case "firstname":
+        setFirstName(value);
+        setFirstnameError(false);
+      break;
+      case "lastname":
+        setLastName(value);
+        setLastnameError(false);
+      break;
+    }
   }
 
 
@@ -212,15 +236,19 @@ export const ProfileSetup: React.FC<Props> = (props) => {
                   <FormControl isInvalid={firstname_isError}>
                     <FormLabel>First Name</FormLabel>
                     
-                    <Input type="text" placeholder="" value={firstname}  onChange={(e) => setFirstName(e.target.value)} />
+                    <Input type="text" placeholder="" value={firstname}  onChange={(e) => setField("firstname",e.target.value)}/>
                     { firstname_isError ?
                       <FormErrorMessage>{firstname_error_msg}</FormErrorMessage>
                       : ""
                     }
                   </FormControl>
-                  <FormControl>
+                  <FormControl isInvalid={lastname_isError}>
                     <FormLabel>Last Name</FormLabel>
-                    <Input type="text" placeholder="" value={lastname}  onChange={(e) => setLastName(e.target.value)}/>
+                    <Input type="text" placeholder="" value={lastname}  onChange={(e) => setField("lastname",e.target.value)}/>
+                    { lastname_isError ?
+                      <FormErrorMessage>{lastname_error_msg}</FormErrorMessage>
+                      : ""
+                    }
                   </FormControl>
 
                   <InputGroup>
