@@ -6,7 +6,7 @@ import { Box, Button, Text, VStack } from "@chakra-ui/react";
 
 
 import { ProfileSetup } from "../components/profile-setup";
-const test="hello@hello"
+
 export const PtAuthedLanding: React.FC = () => {
     const auth = useAuth();
 
@@ -64,7 +64,7 @@ export const PtAuthedLanding: React.FC = () => {
             <VStack h={500} justify="center" spacing={8}>
                     <Text fontSize="5xl">Welcome {auth.username}!!</Text>
                     <Text fontSize="5xl">State: {profile_state}</Text>
-                    <Text fontSize="5xl">Payload: {JSON.stringify(profile,null,2)}</Text>
+                    <Text fontSize="1xl">Payload: {JSON.stringify(profile,null,2)}</Text>
                     <Text fontSize="4xl">Login Succeed🎉</Text>
                     <Button
                         colorScheme="teal"
@@ -76,19 +76,18 @@ export const PtAuthedLanding: React.FC = () => {
             </VStack>
 
             { profile_state === "INIT" ?
-                <ProfileSetup uid={test} profile={profile}/>
+                <ProfileSetup uid={auth.username} profile={profile}/>
             :
             ""
             }
             { profile_state === "STAGED" ?
-                <ProfileSetup uid={test} profile={profile}/>
+                <ProfileSetup uid={auth.username} profile={profile}/>
             :
             ""
             }
             { profile_state === "COMPLETE" ?
-                <ProfileSetup uid={test} profile={profile}/>
-            :
-            ""
+                <div><p>main app</p></div>
+            : ""
             }
         </PrivateRoute>
     );

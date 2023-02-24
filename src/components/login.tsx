@@ -116,7 +116,7 @@ export const LoginFlow = () => {
                   </InputGroup>
        
                 </FormControl>
-                {showGetCode ? (
+                {!showGetCode ? (
                   ""
                 ) : (
                   <FormControl>

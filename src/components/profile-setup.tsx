@@ -11,8 +11,10 @@ import {
   FormControl,
   FormLabel,
   Select,
+  Text
 } from "@chakra-ui/react";
-
+import { updateProfile } from "../services/message.service";
+import { useNavigate, NavLink as RouterLink } from "react-router-dom";
 
 export interface Props {
     uid: string;
@@ -21,6 +23,7 @@ export interface Props {
 
 export const ProfileSetup: React.FC<Props> = (props) => {
   const [step, setStep] = useState(1);
+  const navigate = useNavigate();
 
   const [firstname, setFirstName] = useState("");
   const [lastname, setLastName] = useState("");
@@ -40,6 +43,7 @@ export const ProfileSetup: React.FC<Props> = (props) => {
 
   const [tfa, setTfa] = useState("");
 
+  const [state, setState] = useState("");
 
   useEffect(() => {
     console.log("<profile-setup use effect>");
@@ -69,6 +73,8 @@ export const ProfileSetup: React.FC<Props> = (props) => {
     
     setTfa(props.profile.tfa ?? "");
 
+    setState(props.profile.state ?? "");
+
     return () => {
         isMounted = false;
     };
@@ -90,7 +96,8 @@ export const ProfileSetup: React.FC<Props> = (props) => {
         props.profile.challenge.c3q,
         props.profile.challenge.c3a,
 
-        props.profile.tfa
+        props.profile.tfa,
+        props.profile.state
     ]);
 
   const executeProfileSetup = async (event: React.FormEvent<HTMLFormElement>)  => {
@@ -121,8 +128,10 @@ export const ProfileSetup: React.FC<Props> = (props) => {
     }
     /* build out profile payload */
     console.log(profile_payload)
+    const { data, error } = await updateProfile(profile_payload);
+
+    navigate(0);
     
-    return
   }
 
   return (
@@ -142,7 +151,14 @@ export const ProfileSetup: React.FC<Props> = (props) => {
           display="flex"
         >
           <Stack flexDir="column" mb="2" alignItems="center">
-            <Heading color="teal.400">Profile Setup ({step}/3)</Heading>
+            <Heading color="teal.400"> 
+              {state==="INIT" ? "Profile Setup" : "Profile Confirmation"}  ({step}/3)
+            </Heading>
+              {state==="INIT" ? "" : 
+               <Text>
+                  Congrats! Staff have already set your profile up and you are ready to go. Please confirm your information on the following screens
+               </Text>
+              }
             <Box minW={{ base: "90%", md: "468px" }}>
               <form noValidate onSubmit={executeProfileSetup}>
                 <Stack spacing={4} p="1rem" boxShadow="md">

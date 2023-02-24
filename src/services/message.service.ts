@@ -103,3 +103,20 @@ export const updateFullState = async (state:FormState): Promise<ApiResponse> => 
 
 
 
+export const updateProfile = async (profile:any): Promise<ApiResponse> => {
+  const config: AxiosRequestConfig = {
+    url: `${apiServerUrl}/user`,
+    method: "PUT",
+    headers: {
+      "content-type": "application/json"
+    },
+    data:profile
+  };
+
+  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
+
+  return {
+    data,
+    error,
+  };
+};
