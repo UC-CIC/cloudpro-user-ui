@@ -10,6 +10,7 @@ import {
   Container,
   FormControl,
   FormLabel,
+  FormErrorMessage,
   Select,
   Text
 } from "@chakra-ui/react";
@@ -138,6 +139,40 @@ export const ProfileSetup: React.FC<Props> = (props) => {
     
   }
 
+
+  const [firstname_isError, setFirstnameError] = useState(false);
+  const firstname_error_msg ="First name is a required field."
+
+
+  const validator_textHasContent = ( data:string ) => {
+    return (data !== "")
+  }
+
+  const checkForm = ( go_to_step:number ) => {
+    var errors=false;
+
+    switch (step) {
+      case 1:
+        if( !validator_textHasContent(firstname) ) {
+          setFirstnameError( true )
+          errors=true;
+        } 
+        else {
+          setFirstnameError( false )
+        }
+
+        break;
+      case 2:
+        alert("s2");
+        break;
+      case 3:
+        break;
+    }
+
+    if( errors === false ) { setStep(go_to_step) }
+  }
+
+
   return (
     <Container maxW={"5xl"}>
       <Stack
@@ -158,12 +193,13 @@ export const ProfileSetup: React.FC<Props> = (props) => {
             <Heading color="teal.400"> 
               {state==="INIT" ? "Profile Setup" : "Profile Confirmation"}  ({step}/3)
             </Heading>
-              {state==="INIT" ? "" : 
-               <Text>
-                  Congrats! Staff have already set your profile up and you are ready to go. Please confirm your information on the following screens
-               </Text>
-              }
+
             <Box minW={{ base: "90%", md: "468px" }}>
+              {state==="INIT" ? "" : 
+              <Box bg='CadetBlue' w='100%' p={4} color='white'>
+                <Text fontSize='sm'>Congrats! Staff have already set your profile up and you are ready to go.<br/> Please confirm your information on the following screens </Text>               
+              </Box>  
+              }
               <form noValidate onSubmit={executeProfileSetup}>
                 <Stack spacing={4} p="1rem" boxShadow="md">
                 { step === 1 ?
@@ -173,9 +209,14 @@ export const ProfileSetup: React.FC<Props> = (props) => {
                     <Input type="text" disabled value={props.uid} />
                   </FormControl>
 
-                  <FormControl>
+                  <FormControl isInvalid={firstname_isError}>
                     <FormLabel>First Name</FormLabel>
+                    
                     <Input type="text" placeholder="" value={firstname}  onChange={(e) => setFirstName(e.target.value)} />
+                    { firstname_isError ?
+                      <FormErrorMessage>{firstname_error_msg}</FormErrorMessage>
+                      : ""
+                    }
                   </FormControl>
                   <FormControl>
                     <FormLabel>Last Name</FormLabel>
@@ -264,10 +305,11 @@ export const ProfileSetup: React.FC<Props> = (props) => {
                   : "" }
                 { step === 3 ?
                 <Box>
-                 <Box bg='CadetBlue' w='100%' p={4} color='white'>
-                  CloudPRO simplifies your life by defaulting to passwordless authentication. This allows for a unique code to be sent to you each time you login to identify you. We support three methods of this code being sent, email, SMS, or a phone call. Let us know your default preference!
+                 <Box  fontSize='sm' bg='CadetBlue' p={4} color='white'>
+                  CloudPRO simplifies your life by defaulting to passwordless authentication. <br/>This allows for a unique code to be sent to you each time you login to identify you. <br/>We support three methods of this code being sent, email, SMS, or a phone call. <br/>Let us know your default preference!
                 </Box>   
                   <FormControl>
+                    
                     <FormLabel>Preferred 2fa</FormLabel>
                     <Select placeholder="Select option" value={tfa}  onChange={(e) => setTfa(e.target.value)}>
                       <option value="tfa_email">Email</option>
@@ -297,7 +339,7 @@ export const ProfileSetup: React.FC<Props> = (props) => {
                         borderRadius={0}
                         colorScheme="teal"
                         width="full"
-                        onClick={() => setStep(step + 1)}
+                        onClick={() => checkForm(step+1) }
                       >
                         Next
                       </Button>
