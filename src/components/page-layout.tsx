@@ -16,7 +16,7 @@ export const PageLayout: React.FC<Props> = ({ children }) => {
   return (
     <div className="page-layout">
 
-      { auth.username === "" ?
+      { auth.isAuthenticated === false ?
       <NavBar /> : <NavBarAuthed />
       }
       <div className="page-layout__content">{children}</div>
