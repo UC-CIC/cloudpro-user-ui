@@ -341,8 +341,7 @@ export const ProfileSetup: React.FC<Props> = (props) => {
       >
         <Flex
           flexDirection="column"
-          width="100wh"
-          height="100vh"
+
           justifyContent="top"
           alignItems="center"
           display="flex"

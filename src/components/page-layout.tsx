@@ -5,6 +5,7 @@ import { Footer } from "./nav/footer";
 
 import { useAuth } from "../hooks/useAuth";
 
+import { Grid, GridItem } from "@chakra-ui/react";
 
 interface Props {
   children: JSX.Element;
@@ -14,13 +15,26 @@ export const PageLayout: React.FC<Props> = ({ children }) => {
   const auth = useAuth();
 
   return (
-    <div className="page-layout">
-
-      { auth.isAuthenticated === false ?
-      <NavBar /> : <NavBarAuthed />
-      }
-      <div className="page-layout__content">{children}</div>
-      <Footer />
-    </div>
+    <Grid
+      templateAreas={`"nav nav"
+                  "main main"
+                  "footer footer"`}
+      gridTemplateRows={"50px 1fr 30px"}
+      gridTemplateColumns={"150px 1fr"}
+      h="200px"
+      gap="1"
+      color="blackAlpha.700"
+      fontWeight="bold"
+    >
+      <GridItem pl="2" area={"nav"}>
+        {auth.isAuthenticated === false ? <NavBar /> : <NavBarAuthed />}
+      </GridItem>
+      <GridItem pl="2" area={"main"}>
+        <div className="page-layout__content">{children}</div>
+      </GridItem>
+      <GridItem pl="2" area={"footer"}>
+        <Footer />
+      </GridItem>
+    </Grid>
   );
 };
