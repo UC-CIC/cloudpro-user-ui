@@ -13,7 +13,7 @@ export const FormTest: React.FC = () => (
                 profile: {
                     first_name:"",
                     last_name:"mcfirst",
-                    birth_date:"1999-01-01",
+                    birth_date:"",
                     birth_sex:"bs_m",
                     phone:"444-333-3123",
                     hospital:"h1",

@@ -145,28 +145,98 @@ export const ProfileSetup: React.FC<Props> = (props) => {
   const [lastname_isError, setLastnameError] = useState(false);
   const lastname_error_msg ="Last name is a required field."
 
-  const validator_textHasContent = ( data:string ) => {
+  const [birthsex_isError, setBirthSexError] = useState(false);
+  const birthsex_error_msg ="Birth Sex is a required field."
+
+  const [phone_isError, setPhoneError] = useState(false);
+  const phone_error_msg ="Phone is a required field. Use a valid phone number format. Ex: +1-444-333-2383"
+
+  const [hospital_isError, setHospitalError] = useState(false);
+  const hospital_error_msg ="Hopital is a required field."
+
+  const [surgeon_isError, setSurgeonError] = useState(false);
+  const surgeon_error_msg ="Surgeon is a required field."
+
+  const [bday_isError, setBdayError] = useState(false);
+  const bday_error_msg ="Birth Date is a required field."
+
+  const [surgerydate_isError, setSurgeryDateError] = useState(false);
+  const surgerydate_error_msg ="Surgery Date is a required field."
+
+  const validator_dataNotNull = ( data:string ) => {
     return (data !== "")
   }
+
+  const validator_phoneFormat = ( data:string ) => {
+    // eslint-disable-next-line
+    const re = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im
+    
+    console.log("REGEX: ", re.exec(data));
+
+    return re.exec(data);
+  }
+
 
   const checkForm = ( go_to_step:number ) => {
     var errors=false;
 
     switch (step) {
       case 1:
-        if( !validator_textHasContent(firstname) ) {
+        if( !validator_dataNotNull(firstname) ) {
           setFirstnameError( true )
           errors=true;
         } 
         else {
           setFirstnameError( false )
         }
-        if( !validator_textHasContent(lastname) ) {
+        if( !validator_dataNotNull(lastname) ) {
           setLastnameError( true )
           errors=true;
         } 
         else {
           setLastnameError( false )
+        }
+        if( !validator_dataNotNull(birthsex) ) {
+          setBirthSexError( true )
+          errors=true;
+        } 
+        else {
+          setBirthSexError( false )
+        }
+        if( !validator_dataNotNull(phone) || !validator_phoneFormat(phone) ) {
+          setPhoneError( true )
+          errors=true;
+        } 
+        else {
+          setPhoneError( false )
+        }
+        if( !validator_dataNotNull(hospital) ) {
+          setHospitalError( true )
+          errors=true;
+        } 
+        else {
+          setHospitalError( false )
+        }
+        if( !validator_dataNotNull(surgeon) ) {
+          setSurgeonError( true )
+          errors=true;
+        } 
+        else {
+          setSurgeonError( false )
+        }
+        if( !validator_dataNotNull(bday) ) {
+          setBdayError( true )
+          errors=true;
+        } 
+        else {
+          setBdayError( false )
+        }
+        if( !validator_dataNotNull(surgerydate) ) {
+          setSurgeryDateError( true )
+          errors=true;
+        } 
+        else {
+          setSurgeryDateError( false )
         }
 
 
@@ -181,21 +251,10 @@ export const ProfileSetup: React.FC<Props> = (props) => {
     if( errors === false ) { setStep(go_to_step) }
   }
 
-  const setField = (field:string,value:string) => {
-    //we clear out any errors on the field as user types until resubmission of next step
-    switch(field)
-    {
-      case "firstname":
-        setFirstName(value);
-        setFirstnameError(false);
-      break;
-      case "lastname":
-        setLastName(value);
-        setLastnameError(false);
-      break;
-    }
+  const setField = (setter:Function,field_error:Function, value:string) => {
+    setter(value);
+    field_error(false);
   }
-
 
   return (
     <Container maxW={"5xl"}>
@@ -236,7 +295,7 @@ export const ProfileSetup: React.FC<Props> = (props) => {
                   <FormControl isInvalid={firstname_isError}>
                     <FormLabel>First Name</FormLabel>
                     
-                    <Input type="text" placeholder="" value={firstname}  onChange={(e) => setField("firstname",e.target.value)}/>
+                    <Input type="text" placeholder="" value={firstname}  onChange={(e) => setField(setFirstName,setFirstnameError,e.target.value)}/>
                     { firstname_isError ?
                       <FormErrorMessage>{firstname_error_msg}</FormErrorMessage>
                       : ""
@@ -244,7 +303,7 @@ export const ProfileSetup: React.FC<Props> = (props) => {
                   </FormControl>
                   <FormControl isInvalid={lastname_isError}>
                     <FormLabel>Last Name</FormLabel>
-                    <Input type="text" placeholder="" value={lastname}  onChange={(e) => setField("lastname",e.target.value)}/>
+                    <Input type="text" placeholder="" value={lastname}  onChange={(e) => setField(setLastName,setLastnameError,e.target.value)}/>
                     { lastname_isError ?
                       <FormErrorMessage>{lastname_error_msg}</FormErrorMessage>
                       : ""
@@ -252,42 +311,66 @@ export const ProfileSetup: React.FC<Props> = (props) => {
                   </FormControl>
 
                   <InputGroup>
-                    <FormControl>
+                    <FormControl isInvalid={bday_isError}>
                       <FormLabel>Birth Date</FormLabel>
                       <Input type="date" placeholder="" value={bday}  onChange={(e) => setBday(e.target.value)} />
+                      { bday_isError ?
+                      <FormErrorMessage>{bday_error_msg}</FormErrorMessage>
+                      : ""
+                      }
                     </FormControl>
-                    <FormControl>
+                    <FormControl isInvalid={birthsex_isError}>
                       <FormLabel>Birth Sex</FormLabel>
-                      <Select placeholder="Select option"  value={birthsex} onChange={(e) => setBirthSex(e.target.value)}>
+                      <Select placeholder="Select option"  value={birthsex} onChange={(e) => setField(setBirthSex,setBirthSexError,e.target.value)}>
                         <option value="bs_m">Male</option>
                         <option value="bs_f">Female</option>
                       </Select>
+                      { birthsex_isError ?
+                      <FormErrorMessage>{birthsex_error_msg}</FormErrorMessage>
+                      : ""
+                      }
                     </FormControl>
                   </InputGroup>
 
-                  <FormControl>
+                  <FormControl isInvalid={phone_isError}>
                     <FormLabel>Phone</FormLabel>
-                    <Input type="tel" placeholder=""  value={phone}  onChange={(e) => setPhone(e.target.value)}/>
+                    <Input type="tel" placeholder=""  value={phone}  onChange={(e) => setField(setPhone,setPhoneError,e.target.value)}/>
+                    { phone_isError ?
+                      <FormErrorMessage>{phone_error_msg}</FormErrorMessage>
+                      : ""
+                    }
                   </FormControl>
-                  <FormControl>
+                  <FormControl isInvalid={hospital_isError}>
                     <FormLabel>Hospital</FormLabel>
-                    <Select placeholder="Select option" value={hospital} onChange={(e) => setHospital(e.target.value)}>
+                    <Select placeholder="Select option" value={hospital} onChange={(e) => setField(setHospital,setHospitalError,e.target.value)}>
                       <option value="h1">H 1</option>
                       <option value="h2">H 2</option>
                       <option value="h3">H 3</option>
                     </Select>
+                    { hospital_isError ?
+                      <FormErrorMessage>{hospital_error_msg}</FormErrorMessage>
+                      : ""
+                    }
                   </FormControl>
-                  <FormControl>
+                  <FormControl isInvalid={surgeon_isError}>
                     <FormLabel>Surgeon</FormLabel>
-                    <Select placeholder="Select option" value={surgeon} onChange={(e) => setSurgeon(e.target.value)}>
+                    <Select placeholder="Select option" value={surgeon} onChange={(e) => setField(setSurgeon,setSurgeonError,e.target.value)}>
                       <option value="s1">S 1</option>
                       <option value="s2">S 2</option>
                       <option value="s3">S 3</option>
                     </Select>
+                    { surgeon_isError ?
+                      <FormErrorMessage>{surgeon_error_msg}</FormErrorMessage>
+                      : ""
+                    }
                   </FormControl>
-                  <FormControl>
+                  <FormControl isInvalid={surgerydate_isError}>
                     <FormLabel>Surgery Date</FormLabel>
-                    <Input type="date" placeholder=""  value={surgerydate}  onChange={(e) => setSurgeryDate(e.target.value)} />
+                    <Input type="date" placeholder=""  value={surgerydate}  onChange={(e) => setField(setSurgeryDate,setSurgeryDateError,e.target.value)} />
+                    { surgerydate_isError ?
+                      <FormErrorMessage>{surgerydate_error_msg}</FormErrorMessage>
+                      : ""
+                    }
                   </FormControl>
                   </Box>
                   : "" }
