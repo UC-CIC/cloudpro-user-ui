@@ -105,6 +105,12 @@ export const ProfileSetup: React.FC<Props> = (props) => {
 
   const executeProfileSetup = async (event: React.FormEvent<HTMLFormElement>)  => {
     event.preventDefault();
+
+    if( checkForm(3) !== false ){
+      setFormSubbed(false);
+      return
+    }
+
     setFormSubbed(true);
     var profile_payload = {
         email: props.uid,
@@ -162,6 +168,25 @@ export const ProfileSetup: React.FC<Props> = (props) => {
 
   const [surgerydate_isError, setSurgeryDateError] = useState(false);
   const surgerydate_error_msg ="Surgery Date is a required field."
+
+  const [c1q_isError, setC1qError] = useState(false);
+  const c1q_error_msg ="Please select your first challenge question."
+  const [c1a_isError, setC1aError] = useState(false);
+  const c1a_error_msg ="Please select your first challenge answer."
+
+  const [c2q_isError, setC2qError] = useState(false);
+  const c2q_error_msg ="Please select your second challenge question."
+  const [c2a_isError, setC2aError] = useState(false);
+  const c2a_error_msg ="Please select your second challenge answer."
+
+  const [c3q_isError, setC3qError] = useState(false);
+  const c3q_error_msg ="Please select your third challenge question"
+  const [c3a_isError, setC3aError] = useState(false);
+  const c3a_error_msg ="Please select your third challenge answer"
+
+  const [tfa_isError, setTfaError] = useState(false);
+  const tfa_error_msg ="You must select a default two factor device."
+
 
   const validator_dataNotNull = ( data:string ) => {
     return (data !== "")
@@ -238,17 +263,67 @@ export const ProfileSetup: React.FC<Props> = (props) => {
         else {
           setSurgeryDateError( false )
         }
-
-
         break;
       case 2:
-        alert("s2");
+        if( !validator_dataNotNull(c1q) ) {
+          setC1qError( true )
+          errors=true;
+        } 
+        else {
+          setC1qError( false )
+        }
+        if( !validator_dataNotNull(c1a) ) {
+          setC1aError( true )
+          errors=true;
+        } 
+        else {
+          setC1aError( false )
+        }
+
+        if( !validator_dataNotNull(c2q) ) {
+          setC2qError( true )
+          errors=true;
+        } 
+        else {
+          setC2qError( false )
+        }
+        if( !validator_dataNotNull(c2a) ) {
+          setC2aError( true )
+          errors=true;
+        } 
+        else {
+          setC2aError( false )
+        }
+
+        if( !validator_dataNotNull(c3q) ) {
+          setC3qError( true )
+          errors=true;
+        } 
+        else {
+          setC3qError( false )
+        }
+        if( !validator_dataNotNull(c3a) ) {
+          setC3aError( true )
+          errors=true;
+        } 
+        else {
+          setC3aError( false )
+        }
         break;
       case 3:
+        if( !validator_dataNotNull(tfa) ) {
+          setTfaError( true )
+          errors=true;
+        } 
+        else {
+          setTfaError( false )
+        }       
         break;
     }
 
     if( errors === false ) { setStep(go_to_step) }
+
+    return errors
   }
 
   const setField = (setter:Function,field_error:Function, value:string) => {
@@ -313,7 +388,7 @@ export const ProfileSetup: React.FC<Props> = (props) => {
                   <InputGroup>
                     <FormControl isInvalid={bday_isError}>
                       <FormLabel>Birth Date</FormLabel>
-                      <Input type="date" placeholder="" value={bday}  onChange={(e) => setBday(e.target.value)} />
+                      <Input type="date" placeholder="" value={bday}  onChange={(e) => setField(setBday,setBdayError,e.target.value)} />
                       { bday_isError ?
                       <FormErrorMessage>{bday_error_msg}</FormErrorMessage>
                       : ""
@@ -376,41 +451,65 @@ export const ProfileSetup: React.FC<Props> = (props) => {
                   : "" }
                   { step === 2 ?
                   <Box>
-                  <FormControl>
+                  <FormControl isInvalid={c1q_isError}>
                     <FormLabel>Challenge Q1</FormLabel>
-                    <Select placeholder="Select option" value={c1q} onChange={(e) => setC1q(e.target.value)}>
+                    <Select placeholder="Select option" value={c1q} onChange={(e) => setField(setC1q,setC1qError,e.target.value)}>
                       <option value="c1q_a">What is your favorite name?</option>
                       <option value="c1q_b">What is your favorite website?</option>
                       <option value="c1q_c">What is your favorite game?</option>
                     </Select>
+                    { c1q_isError ?
+                      <FormErrorMessage>{c1q_error_msg}</FormErrorMessage>
+                      : ""
+                    }
                   </FormControl>
-                  <FormControl>
+                  <FormControl isInvalid={c1a_isError}>
                     <FormLabel>Q1 Answer</FormLabel>
-                    <Input type="text" placeholder="" value={c1a}  onChange={(e) => setC1a(e.target.value)}/>
+                    <Input type="text" placeholder="" value={c1a}  onChange={(e) => setField(setC1a,setC1aError,e.target.value)}/>
+                    { c1a_isError ?
+                      <FormErrorMessage>{c1a_error_msg}</FormErrorMessage>
+                      : ""
+                    }
                   </FormControl>
-                  <FormControl>
+                  <FormControl isInvalid={c2q_isError}>
                     <FormLabel>Challenge Q2</FormLabel>
-                    <Select placeholder="Select option" value={c2q} onChange={(e) => setC2q(e.target.value)}>
+                    <Select placeholder="Select option" value={c2q} onChange={(e) => setField(setC2q,setC2qError,e.target.value)}>
                       <option value="c2q_a">What is your favorite name?</option>
                       <option value="c2q_b">What is your favorite website?</option>
                       <option value="c2q_c">What is your favorite game?</option>
                     </Select>
+                    { c2q_isError ?
+                      <FormErrorMessage>{c2q_error_msg}</FormErrorMessage>
+                      : ""
+                    }
                   </FormControl>
-                  <FormControl>
+                  <FormControl isInvalid={c2a_isError}>
                     <FormLabel>Q2 Answer</FormLabel>
-                    <Input type="text" placeholder="" value={c2a}  onChange={(e) => setC2a(e.target.value)}/>
+                    <Input type="text" placeholder="" value={c2a}  onChange={(e) => setField(setC2a,setC2aError,e.target.value)}/>
+                    { c2a_isError ?
+                      <FormErrorMessage>{c2a_error_msg}</FormErrorMessage>
+                      : ""
+                    }
                   </FormControl>
-                  <FormControl>
+                  <FormControl isInvalid={c3q_isError}>
                     <FormLabel>Challenge Q3</FormLabel>
-                    <Select placeholder="Select option" value={c3q} onChange={(e) => setC3q(e.target.value)}>
+                    <Select placeholder="Select option" value={c3q} onChange={(e) => setField(setC3q,setC3qError,e.target.value)}>
                       <option value="c3q_a">What is your favorite name?</option>
                       <option value="c3q_b">What is your favorite website?</option>
                       <option value="c3q_c">What is your favorite game?</option>
                     </Select>
+                    { c3q_isError ?
+                      <FormErrorMessage>{c3q_error_msg}</FormErrorMessage>
+                      : ""
+                    }
                   </FormControl>
-                  <FormControl>
+                  <FormControl isInvalid={c3a_isError}>
                     <FormLabel>Q3 Answer</FormLabel>
-                    <Input type="text" placeholder="" value={c3a}  onChange={(e) => setC3a(e.target.value)}/>
+                    <Input type="text" placeholder="" value={c3a}  onChange={(e) => setField(setC3a,setC3aError,e.target.value)}/>
+                    { c3a_isError ?
+                      <FormErrorMessage>{c3a_error_msg}</FormErrorMessage>
+                      : ""
+                    }
                   </FormControl>
                   </Box>
                   : "" }
@@ -419,14 +518,18 @@ export const ProfileSetup: React.FC<Props> = (props) => {
                  <Box  fontSize='sm' bg='CadetBlue' p={4} color='white'>
                   CloudPRO simplifies your life by defaulting to passwordless authentication. <br/>This allows for a unique code to be sent to you each time you login to identify you. <br/>We support three methods of this code being sent, email, SMS, or a phone call. <br/>Let us know your default preference!
                 </Box>   
-                  <FormControl>
+                  <FormControl isInvalid={tfa_isError}>
                     
                     <FormLabel>Preferred 2fa</FormLabel>
-                    <Select placeholder="Select option" value={tfa}  onChange={(e) => setTfa(e.target.value)}>
+                    <Select placeholder="Select option" value={tfa}  onChange={(e) => setField(setTfa,setTfaError,e.target.value)}>
                       <option value="tfa_email">Email</option>
                       <option value="tfa_sms" disabled>SMS</option>
                       <option value="tfa_call" disabled>Call</option>
                     </Select>
+                    { tfa_isError ?
+                      <FormErrorMessage>{tfa_error_msg}</FormErrorMessage>
+                      : ""
+                    }
                   </FormControl>
                 </Box>
                   : "" }
