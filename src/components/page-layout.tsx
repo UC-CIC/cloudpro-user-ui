@@ -7,6 +7,8 @@ import { useAuth } from "../hooks/useAuth";
 
 import { Grid, GridItem } from "@chakra-ui/react";
 
+import PrivateRoute from "../components/PrivateRoute";
+
 interface Props {
   children: JSX.Element;
 }
@@ -27,7 +29,7 @@ export const PageLayout: React.FC<Props> = ({ children }) => {
       fontWeight="bold"
     >
       <GridItem pl="2" area={"nav"}>
-        {auth.isAuthenticated === false ? <NavBar /> : <NavBarAuthed />}
+        {auth.isAuthenticated === false ? <NavBar /> : <PrivateRoute><NavBarAuthed /></PrivateRoute>}
       </GridItem>
       <GridItem pl="2" area={"main"}>
         <div className="page-layout__content">{children}</div>

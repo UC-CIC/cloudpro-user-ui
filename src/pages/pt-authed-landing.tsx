@@ -15,8 +15,8 @@ export const PtAuthedLanding: React.FC = () => {
     const [profile_state, setProfileState] = useState<string>("");
     const [profile, setProfile] = useState({});
 
-    const getMessageUserProfile = async (email:string) => {
-        const { data, error } = await getUserProfile(email);
+    const getMessageUserProfile = async (sub:string) => {
+        const { data, error } = await getUserProfile(sub);
 
         if (data) {
         }
@@ -31,11 +31,11 @@ export const PtAuthedLanding: React.FC = () => {
         console.log("useEffect()");
         let isMounted = true;
 
-        if (!isMounted || auth.username==="") {
+        if (!isMounted || auth.sub==="") {
         return;
         }
-        console.log("Trying with: ", auth.username)
-        const data=getMessageUserProfile(auth.username);
+        console.log("Trying with: ", auth.sub)
+        const data=getMessageUserProfile(auth.sub);
 
         data.then(svalue => { 
             let key:string = "state"
@@ -65,12 +65,12 @@ export const PtAuthedLanding: React.FC = () => {
             <PrivateRoute>
                 
                     { profile_state === "INIT" ?
-                        <ProfileSetup uid={auth.username} profile={profile}/>
+                        <ProfileSetup uid={auth.sub} email={auth.username} profile={profile}/>
                     :
                     ""
                     }
                     { profile_state === "STAGED" ?
-                        <ProfileSetup uid={auth.username} profile={profile}/>
+                        <ProfileSetup uid={auth.sub} email={auth.username} profile={profile}/>
                     :
                     ""
                     }

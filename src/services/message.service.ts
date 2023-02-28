@@ -11,10 +11,10 @@ const apiServerUrl = process.env.REACT_APP_API_SERVER_URL + "";
 // We can drop api x token and api token here after we iterate.
 
 
-export const getUserProfile = async (email:string): Promise<ApiResponse> => {
-  console.log("In message.service. Calling user with: ", email)
+export const getUserProfile = async (sub:string): Promise<ApiResponse> => {
+  console.log("In message.service. Calling user with: ", sub)
   const config: AxiosRequestConfig = {
-    url: `${apiServerUrl}/user/${email}`,
+    url: `${apiServerUrl}/user/${sub}`,
     method: "GET",
     headers: {
       "content-type": "application/json"

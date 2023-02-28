@@ -5,7 +5,7 @@ import { ProfileSetup } from "../components/profile-setup";
 
 export const FormTest: React.FC = () => (
   <PageLayout>
-    <ProfileSetup uid="test@email.com" profile={
+    <ProfileSetup uid="xx" email="test@email.com" profile={
         {
                 email: "test@email.com",
                 state: "STAGED",

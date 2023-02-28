@@ -10,6 +10,7 @@ interface UseAuth {
     isLoading: boolean;
     isAuthenticated: boolean;
     username: string;
+    sub: string;
     getChallenge: (username: string) => Promise<Result>;
     signIn: (code: string) => Promise<Result>;
     signUp: (email: string) => Promise<Result>;
@@ -43,6 +44,7 @@ const useProvideAuth = (): UseAuth => {
     const [isLoading, setIsLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [username, setUsername] = useState("");
+    const [sub, setSub] = useState("");
     const [session, setSession] = useState();
 
     useEffect(() => {
@@ -50,12 +52,14 @@ const useProvideAuth = (): UseAuth => {
             .then((result) => {
                 console.log("in use effect then");
                 setUsername(result.username);
+                setSub(result.attributes.sub);
                 setIsAuthenticated(true);
                 setIsLoading(false);
             })
             .catch(() => {
                 console.log("in use effect catch");
                 setUsername("");
+                setSub("");
                 setIsAuthenticated(false);
                 setIsLoading(false);
             });
@@ -93,6 +97,7 @@ const useProvideAuth = (): UseAuth => {
             console.log("RESULT:",result)
             //setUsername(result.username);
             //setSession(result);
+            setSub(result.attributes.sub);
             setIsAuthenticated(true);
             return { success: true, message: "" };
         } catch (error:any) {
@@ -169,6 +174,7 @@ const useProvideAuth = (): UseAuth => {
     const signOut = async () => {
         try {
             await Auth.signOut();
+            setSub("");
             setUsername("");
             setIsAuthenticated(false);
             return { success: true, message: "" };
@@ -184,6 +190,7 @@ const useProvideAuth = (): UseAuth => {
         isLoading,
         isAuthenticated,
         username,
+        sub,
         getChallenge,
         signOut,
         signUp,

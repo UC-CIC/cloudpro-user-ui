@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 
 export interface Props {
     uid: string;
+    email: string;
     profile: any;
 }
 
@@ -113,7 +114,8 @@ export const ProfileSetup: React.FC<Props> = (props) => {
 
     setFormSubbed(true);
     var profile_payload = {
-        email: props.uid,
+        sub: props.uid,
+        email: props.email,
         state: "COMPLETE",
         tfa: tfa,
         profile: {
@@ -363,7 +365,7 @@ export const ProfileSetup: React.FC<Props> = (props) => {
                 <Box>
                    <FormControl>
                     <FormLabel>Email</FormLabel>
-                    <Input type="text" disabled value={props.uid} />
+                    <Input type="text" disabled value={props.email} />
                   </FormControl>
 
                   <FormControl isInvalid={firstname_isError}>
