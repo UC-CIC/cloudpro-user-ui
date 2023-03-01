@@ -16,7 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { updateProfile } from "../services/message.service";
 import { useNavigate } from "react-router-dom";
-
+import { useAuth } from "../hooks/useAuth";
 export interface Props {
     uid: string;
     email: string;
@@ -24,6 +24,9 @@ export interface Props {
 }
 
 export const ProfileSetup: React.FC<Props> = (props) => {
+  const auth = useAuth();
+
+
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
 
@@ -139,7 +142,9 @@ export const ProfileSetup: React.FC<Props> = (props) => {
     }
     /* build out profile payload */
     console.log(profile_payload)
-    const { data, error } = await updateProfile(profile_payload);
+    let auth_token = await auth.getAccessToken();
+    console.log("AUTH TOKEN PROFILE SETUP: ", auth_token)
+    const { data, error } = await updateProfile(profile_payload,auth_token);
     console.log(data);
     console.log(error);
 

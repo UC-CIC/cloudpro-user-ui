@@ -16,7 +16,9 @@ export const PtAuthedLanding: React.FC = () => {
     const [profile, setProfile] = useState({});
 
     const getMessageUserProfile = async (sub:string) => {
-        const { data, error } = await getUserProfile(sub);
+        let auth_token = await auth.getAccessToken();
+        console.log(auth_token)
+        const { data, error } = await getUserProfile(sub,auth_token);
 
         if (data) {
         }
