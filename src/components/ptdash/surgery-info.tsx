@@ -12,7 +12,7 @@ import {
   export const SurgeryInfo = () => {
     return (
       <>
-        <Container minW="420px" bg="grey" color="#262626" borderWidth='1px' borderRadius='lg' overflow='hidden'>
+        <Container minW="400px" maxW="400px" bg="grey" color="#262626" borderWidth='1px' borderRadius='lg' overflow='hidden'>
           <Box bg="grey" color="white" w="100%" >
             <Heading pt="10px" pb="20px">
               <Text>Your Surgery</Text>

@@ -10,6 +10,9 @@ import {
   } from "@chakra-ui/react";
   
 import {SurgeryInfo} from "./surgery-info"
+import {SurveyGrouping} from "./survey-grouping"
+import {SurveyOpen} from "./survey-open"
+import {SurveyClosed} from "./survey-closed"
 
   export const PtNav = () => {
     return (
@@ -41,10 +44,15 @@ import {SurgeryInfo} from "./surgery-info"
                 </TabList>
                 <TabPanels>
                   <TabPanel>
-                    <p>test</p>
+                    <SurveyGrouping/>
+                    <SurveyOpen/>
+                    <SurveyOpen/>
                   </TabPanel>
                   <TabPanel>
-                    <p>two!</p>
+                    <SurveyGrouping/>
+                    <SurveyClosed/>
+                    <SurveyClosed/>
+                    <SurveyClosed/>
                   </TabPanel>
                 </TabPanels>
               </Tabs>
