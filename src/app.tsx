@@ -7,6 +7,7 @@ import { LoginPage } from './pages/login-page';
 import { PtAuthedLanding } from './pages/pt-authed-landing';
 import { Registered } from './pages/registered';
 import { FormTest } from './pages/form-test';
+import { PtLandTest} from './pages/ptland-test'
 
 export const App: React.FC = () => {
 
@@ -20,6 +21,7 @@ export const App: React.FC = () => {
       <Route path="/questionnaire" element={<Questionnaire />} />
 
       <Route path="/formtest" element={<FormTest />} />
+      <Route path="/ptlandtest" element={<PtLandTest />} />
     </Routes>
   );
 };
