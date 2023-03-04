@@ -18,6 +18,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { getSurvey } from "../../services/message.service";
 
 
+
 interface Survey {
   due: string;
   missed: string;
@@ -28,14 +29,23 @@ interface Survey {
   sid:string;
 }
 
-const survey_blank = {
-  due: "",
-  missed: "",
-  name: "",
-  description: "",
-  assigned:"",
-  completed:"",
-  sid:""
+interface SurveySet {
+  [grouping:string]: Survey[]
+}
+
+
+
+const survey_blank = {"": [
+  {
+    due: "",
+    missed: "",
+    name: "",
+    description: "",
+    assigned:"",
+    completed:"",
+    sid:""
+  }
+  ]
 }
 
 export interface Props {
@@ -49,9 +59,8 @@ export interface Props {
   export const PtNav: React.FC<Props> = (props)  => {
     const auth = useAuth();
 
-    const [missed_survey, setMissed] = useState<Survey[]>( [ survey_blank ] );
-    const [completed_survey, setCompleted] = useState<Survey[]>( [survey_blank] );
-    const [open_survey, setOpen] = useState<Survey[]>( [survey_blank] );
+    const [completed_survey, setCompleted] = useState<SurveySet[]>( [survey_blank] );
+    const [open_survey, setOpen] = useState<SurveySet[]>( [survey_blank] );
 
     const getSurveyData = async (sub:string) => {
       let auth_token = await auth.getAccessToken();
@@ -87,8 +96,9 @@ export interface Props {
           if( "open_surveys" in svalue ){
             setOpen(svalue.open_surveys) 
           }
-          if( "completed_survey" in svalue ){
-            setOpen(svalue.completd_surveys) 
+          if( "completed_surveys" in svalue ){
+            console.log("Completed: " , svalue.completed_surveys);
+            setCompleted(svalue.completed_surveys) 
           }
         }      
       });
@@ -131,23 +141,74 @@ export interface Props {
                   <TabPanel>
                     <>
                       {
-                        open_survey.map( (item) => (
-                            <SurveyOpen description={item.description}/>
-                          )
+                        Object.entries(open_survey).map( ([idx,group_set]) => {
+                            return(
+
+
+
+                              
+                                Object.entries(group_set).map( ([group_name,survey] ) => {
+                                    return( <Container>
+                                        <SurveyGrouping grouping={group_name}/>
+                                        
+                                      
+                                        {
+                                          survey.map(item => {
+                                            return( <SurveyOpen description={item.description} />)
+                                          })
+                                        }
+
+                                        </Container>
+
+
+
+                                    )
+                                  }
+                                )
+
+
+                              
+                            )
+                          }
                         )
                       }
                     </>
-                    {/*
-                    <SurveyGrouping/>
-                    <SurveyOpen/>
-                    <SurveyOpen/>
-                  */}
                   </TabPanel>
                   <TabPanel>
-                    <SurveyGrouping/>
-                    <SurveyClosed/>
-                    <SurveyClosed/>
-                    <SurveyClosed/>
+                  <>
+                      {
+                        Object.entries(completed_survey).map( ([idx,group_set]) => {
+                            return(
+
+
+
+                              
+                                Object.entries(group_set).map( ([group_name,survey] ) => {
+                                    return( <Container>
+                                        <SurveyGrouping grouping={group_name}/>
+                                        
+                                      
+                                        {
+                                          survey.map(item => {
+                                            return( <SurveyClosed description={item.description} />)
+                                          })
+                                        }
+
+                                        </Container>
+
+
+
+                                    )
+                                  }
+                                )
+
+
+                              
+                            )
+                          }
+                        )
+                      }
+                    </>
                   </TabPanel>
                 </TabPanels>
               </Tabs>

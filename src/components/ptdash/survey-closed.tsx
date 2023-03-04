@@ -7,9 +7,12 @@ import {
   } from "@chakra-ui/react";
   
   import { CheckIcon, CloseIcon } from '@chakra-ui/icons'
+  export interface Props {
+    description: string;
+}
 
 
-  export const SurveyClosed = () => {
+  export const SurveyClosed: React.FC<Props> = (props) => {
     return (
       <>
         <Container minW="420px" >
@@ -17,7 +20,7 @@ import {
             <HStack spacing="24px" pt="24px">
             <CheckIcon/>
               <Box w="100%"  bg="tan">
-                <Text align="left">Survey Type Name</Text>
+                <Text align="left">{props.description}</Text>
               </Box>
             </HStack>
           </Box>
