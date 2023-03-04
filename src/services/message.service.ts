@@ -11,6 +11,27 @@ const apiServerUrl = process.env.REACT_APP_API_SERVER_URL + "";
 // We can drop api x token and api token here after we iterate.
 
 
+export const getSurvey = async (sub:string,auth_token:String): Promise<ApiResponse> => {
+  console.log("In message.service. Calling user with: ", sub)
+  const config: AxiosRequestConfig = {
+    url: `${apiServerUrl}/survey/${sub}`,
+    method: "GET",
+    headers: {
+      "content-type": "application/json",
+      "Authorization": `Bearer ${auth_token}`
+    },
+  };
+
+  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
+
+  return {
+    data,
+    error,
+  };
+};
+
+
+
 export const getUserProfile = async (sub:string,auth_token:String): Promise<ApiResponse> => {
   console.log("In message.service. Calling user with: ", sub)
   const config: AxiosRequestConfig = {

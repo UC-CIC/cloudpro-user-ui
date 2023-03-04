@@ -9,7 +9,14 @@ import {
     Spacer
   } from "@chakra-ui/react";
   
-  export const SurgeryInfo = () => {
+  export interface Props {
+    hospital: string;
+    surgeon: string;
+    surgdate: string;
+  }
+  
+
+  export const SurgeryInfo: React.FC<Props> = (props)  => {
     return (
       <>
         <Container minW="400px" maxW="400px" bg="grey" color="#262626" borderWidth='1px' borderRadius='lg' overflow='hidden'>
@@ -23,7 +30,7 @@ import {
                 <Text align="left">Operation Date:</Text>
               </Box>
               <Box w="60%" h="40px">
-                <Text align="left">MMM DD, YYYY</Text>
+                <Text align="left">{props.surgdate}</Text>
               </Box>
             </HStack>
             <HStack spacing="24px">
@@ -31,7 +38,7 @@ import {
                 <Text align="left">Hospital:</Text>
               </Box>
               <Box w="60%" h="40px">
-                <Text align="left">Lorem Med Center</Text>
+                <Text align="left">{props.hospital}</Text>
               </Box>
             </HStack>
             <HStack spacing="24px" >
@@ -39,7 +46,7 @@ import {
                 <Text align="left">Surgeon:</Text>
               </Box>
               <Box w="60%" h="40px">
-                <Text align="left">Dr. Ipsum</Text>
+                <Text align="left">{props.surgeon}</Text>
               </Box>
             </HStack>
             <Divider/>

@@ -7,6 +7,7 @@ import { Box } from "@chakra-ui/react";
 import { PageLayout } from "../components/page-layout";
 import { ProfileSetup } from "../components/profile-setup";
 import { PtDash } from "../components/pt-dash";
+import { PtNav } from "../components/ptdash/pt-nav";
 
 export const PtAuthedLanding: React.FC = () => {
     const auth = useAuth();
@@ -14,6 +15,10 @@ export const PtAuthedLanding: React.FC = () => {
 
     const [profile_state, setProfileState] = useState<string>("");
     const [profile, setProfile] = useState({});
+
+    const [hospital, setHopital] = useState("");
+    const [surgeon, setSurgeon] = useState("");
+    const [surgdate, setSurgdate] = useState("");
 
     const getMessageUserProfile = async (sub:string) => {
         let auth_token = await auth.getAccessToken();
@@ -50,6 +55,10 @@ export const PtAuthedLanding: React.FC = () => {
                 console.log("state: ",svalue);
                 setProfileState(state);
                 setProfile(svalue);
+
+                setHopital(svalue.profile.hospital);
+                setSurgeon(svalue.profile.surgeon);
+                setSurgdate(svalue.profile.surgery_date);
             }
         });
 
@@ -77,7 +86,11 @@ export const PtAuthedLanding: React.FC = () => {
                     ""
                     }
                     { profile_state === "COMPLETE" ?
+                    <>
+                        
+                        <PtNav hospital={hospital} surgeon={surgeon} surgdate={surgdate}/>
                         <PtDash/>
+                    </>
                     : ""
                     }
                 

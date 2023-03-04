@@ -6,7 +6,12 @@ import {
     Button
   } from "@chakra-ui/react";
   
-  export const SurveyOpen = () => {
+  export interface Props {
+    description: string;
+}
+
+
+  export const SurveyOpen: React.FC<Props> = (props) => {
     return (
       <>
         <Container minW="420px" >
@@ -16,7 +21,7 @@ import {
                 <Button>Begin Survey</Button>
               </Box>
               <Box w="60%"  bg="tan">
-                <Text align="left">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam</Text>
+                <Text align="left">{props.description}</Text>
               </Box>
             </HStack>
           </Box>
