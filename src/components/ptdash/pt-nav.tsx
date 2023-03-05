@@ -19,11 +19,11 @@ import { getSurvey } from "../../services/message.service";
 
 interface Survey {
   due: string;
-  missed: string;
+  missed: boolean;
   name: string;
   description: string;
   assigned: string;
-  completed: string;
+  completed: boolean;
   sid: string;
 }
 
@@ -35,11 +35,11 @@ const survey_blank = {
   "": [
     {
       due: "",
-      missed: "",
+      missed: false,
       name: "",
       description: "",
       assigned: "",
-      completed: "",
+      completed: false,
       sid: "",
     },
   ],
@@ -167,7 +167,7 @@ export const PtNav: React.FC<Props> = (props) => {
                                 {survey.map((item) => {
                                   return (
                                     <SurveyClosed
-                                      description={item.description}
+                                      description={item.name} missed={item.missed}
                                     />
                                   );
                                 })}

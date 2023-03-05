@@ -89,7 +89,6 @@ export const PtAuthedLanding: React.FC = () => {
                     <>
                         
                         <PtNav hospital={hospital} surgeon={surgeon} surgdate={surgdate}/>
-                        <PtDash/>
                     </>
                     : ""
                     }

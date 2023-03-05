@@ -19,7 +19,7 @@ import {
   Divider,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon, MoonIcon, SunIcon, BellIcon } from "@chakra-ui/icons";
-
+import { useAuth } from "../../hooks/useAuth";
 import {
   NavLink as RouterLink, // <-- import the NavLink component
 } from "react-router-dom";
@@ -45,6 +45,10 @@ const Logo = (props: any) => {
 };
 
 export const NavBarAuthed = () => {
+
+  const auth = useAuth();
+
+
   const { colorMode, toggleColorMode } = useColorMode();
   const [display, changeDisplay] = useState("none");
   return (
@@ -141,6 +145,7 @@ export const NavBarAuthed = () => {
               aria-label="Home"
               my={5}
               w="100%"
+              onClick={() => auth.signOut()}
             >
               Logout
             </Button>
@@ -194,7 +199,7 @@ export const NavBarAuthed = () => {
                   <MenuDivider />
                   <MenuItem>Surveys</MenuItem>
                   <MenuItem>Account Settings</MenuItem>
-                  <MenuItem>Logout</MenuItem>
+                  <MenuItem onClick={() => auth.signOut()}>Logout</MenuItem>
                 </MenuList>
               </Menu>
             </Stack>

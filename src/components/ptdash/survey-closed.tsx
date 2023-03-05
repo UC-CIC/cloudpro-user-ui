@@ -9,6 +9,7 @@ import {
   import { CheckIcon, CloseIcon } from '@chakra-ui/icons'
   export interface Props {
     description: string;
+    missed: boolean;
 }
 
 
@@ -18,7 +19,8 @@ import {
         <Container minW="420px" >
           <Box w="100%" >
             <HStack spacing="24px" pt="24px">
-            <CheckIcon/>
+            { props.missed ? <CloseIcon/> :
+            <CheckIcon/> }
               <Box w="100%"  bg="tan">
                 <Text align="left">{props.description}</Text>
               </Box>
