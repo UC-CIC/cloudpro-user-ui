@@ -117,12 +117,13 @@ export const updateProfile = async (profile:any,auth_token:String): Promise<ApiR
 };
 
 
-export const getStateHello = async (): Promise<ApiResponse> => {
+export const getStateHello = async (auth_token:String): Promise<ApiResponse> => {
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/state/`,
     method: "GET",
     headers: {
-      "content-type": "application/json"
+      "content-type": "application/json",
+      "Authorization": `Bearer ${auth_token}`
     },
   };
 
@@ -134,12 +135,13 @@ export const getStateHello = async (): Promise<ApiResponse> => {
   };
 };
 
-export const getStateByStateHash = async (stateHash:string): Promise<ApiResponse> => {
+export const getStateByStateHash = async (stateHash:string,auth_token:String): Promise<ApiResponse> => {
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/state/${stateHash}`,
     method: "GET",
     headers: {
-      "content-type": "application/json"
+      "content-type": "application/json",
+      "Authorization": `Bearer ${auth_token}`
     },
   };
 
@@ -151,12 +153,13 @@ export const getStateByStateHash = async (stateHash:string): Promise<ApiResponse
   };
 };
 
-export const getQuestionnaireByProHash = async (pro_hash:string): Promise<ApiResponse> => {
+export const getQuestionnaireByProHash = async (pro_hash:string,auth_token:String): Promise<ApiResponse> => {
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/questionnaire/${pro_hash}`,
     method: "GET",
     headers: {
-      "content-type": "application/json"
+      "content-type": "application/json",
+      "Authorization": `Bearer ${auth_token}`
     },
   };
 
@@ -170,12 +173,13 @@ export const getQuestionnaireByProHash = async (pro_hash:string): Promise<ApiRes
 
 
 
-export const updateFullState = async (state:FormState): Promise<ApiResponse> => {
+export const updateFullState = async (state:FormState, auth_token:String): Promise<ApiResponse> => {
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/state/update`,
     method: "PUT",
     headers: {
-      "content-type": "application/json"
+      "content-type": "application/json",
+      "Authorization": `Bearer ${auth_token}`
     },
     data:state
   };

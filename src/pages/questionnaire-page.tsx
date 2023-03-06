@@ -8,13 +8,19 @@ import { getStateByStateHash, getStateHello, getQuestionnaireByProHash, updateFu
 import {FormCard} from "../components/form-card";
 
 import {FormState} from "../models/form-state"
+import { useAuth } from "../hooks/useAuth";
+
 
 export const Questionnaire: React.FC = () => {
+
+  const auth = useAuth();
   const [message, setMessage] = useState<string>("");
 
 
   const getMessageStateHello = async () => {
-    const { data, error } = await getStateHello();
+    let auth_token = await auth.getAccessToken();
+
+    const { data, error } = await getStateHello(auth_token);
 
     if (data) {
       setMessage(JSON.stringify(data, null, 2));
@@ -26,7 +32,9 @@ export const Questionnaire: React.FC = () => {
   };
 
   const getMessageStateByHash = async (stateHash:string) => {
-    const { data, error } = await getStateByStateHash(stateHash);
+    let auth_token = await auth.getAccessToken();
+
+    const { data, error } = await getStateByStateHash(stateHash,auth_token);
 
     if (data) {
       //setproFormState(data as FormState);
@@ -41,7 +49,9 @@ export const Questionnaire: React.FC = () => {
   };
 
   const getMessageQuestionnaireByProHash = async (pro_hash:string) => {
-    const { data, error } = await getQuestionnaireByProHash(pro_hash);
+    let auth_token = await auth.getAccessToken();
+
+    const { data, error } = await getQuestionnaireByProHash(pro_hash,auth_token);
 
     if (data) {
       setMessage(JSON.stringify(data, null, 2));
@@ -54,7 +64,9 @@ export const Questionnaire: React.FC = () => {
   };
 
   const putUpdateFullState = async (state:FormState) => {
-    const { data, error } = await updateFullState(state);
+    let auth_token = await auth.getAccessToken();
+
+    const { data, error } = await updateFullState(state,auth_token);
 
     if (data) {
       setMessage(JSON.stringify(data, null, 2));
