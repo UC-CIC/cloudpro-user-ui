@@ -24,6 +24,7 @@ interface Survey {
   description: string;
   assigned: string;
   completed: boolean;
+  propack: string;
   sid: string;
 }
 
@@ -39,6 +40,7 @@ const survey_blank = {
       name: "",
       description: "",
       assigned: "",
+      propack:"",
       completed: false,
       sid: "",
     },
@@ -144,7 +146,7 @@ export const PtNav: React.FC<Props> = (props) => {
 
                               {survey.map((item) => {
                                 return (
-                                  <SurveyOpen description={item.description} />
+                                  <SurveyOpen description={item.description} sid={item.sid} propack={item.propack} duedate={item.due}/>
                                 );
                               })}
                             </Container>

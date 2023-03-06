@@ -11,6 +11,51 @@ const apiServerUrl = process.env.REACT_APP_API_SERVER_URL + "";
 // We can drop api x token and api token here after we iterate.
 
 
+
+
+export const initState = async (state_hash:string,propack:string,auth_token:String): Promise<ApiResponse> => {
+  console.log("In message.service. Calling user with: ", state_hash)
+  const config: AxiosRequestConfig = {
+    url: `${apiServerUrl}/state/init/${state_hash}/${propack}`,
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "Authorization": `Bearer ${auth_token}`
+    },
+  };
+
+  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
+
+  return {
+    data,
+    error,
+  };
+};
+
+
+
+
+export const getState = async (state_hash:string,auth_token:String): Promise<ApiResponse> => {
+  console.log("In message.service. Calling user with: ", state_hash)
+  const config: AxiosRequestConfig = {
+    url: `${apiServerUrl}/state/${state_hash}`,
+    method: "GET",
+    headers: {
+      "content-type": "application/json",
+      "Authorization": `Bearer ${auth_token}`
+    },
+  };
+
+  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
+
+  return {
+    data,
+    error,
+  };
+};
+
+
+
 export const getSurvey = async (sub:string,auth_token:String): Promise<ApiResponse> => {
   console.log("In message.service. Calling user with: ", sub)
   const config: AxiosRequestConfig = {
