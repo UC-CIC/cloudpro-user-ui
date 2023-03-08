@@ -8,6 +8,7 @@ import { PtAuthedLanding } from './pages/pt-authed-landing';
 import { Registered } from './pages/registered';
 import { FormTest } from './pages/form-test';
 import { PtLandTest} from './pages/ptland-test'
+import { Survey } from './pages/survey-page';
 
 export const App: React.FC = () => {
 
@@ -19,6 +20,8 @@ export const App: React.FC = () => {
       <Route path="/registered" element={<Registered />} />
       <Route path="/pt-authed-landing" element={<PtAuthedLanding />} />
       <Route path="/questionnaire" element={<Questionnaire />} />
+      <Route path="/survey" element={<Survey />} />
+
 
       <Route path="/formtest" element={<FormTest />} />
       <Route path="/ptlandtest" element={<PtLandTest />} />

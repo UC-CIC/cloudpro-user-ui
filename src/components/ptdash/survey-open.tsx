@@ -5,11 +5,11 @@ import {
     Container,
     Button
   } from "@chakra-ui/react";
-  import { getState } from "../../services/message.service";
-  import { initState } from "../../services/message.service";
+import { getState } from "../../services/message.service";
+import { initState } from "../../services/message.service";
 
-  import { useAuth } from "../../hooks/useAuth";
-
+import { useAuth } from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom"
 
 export interface Props {
     description: string;
@@ -21,7 +21,7 @@ export interface Props {
 
 export const SurveyOpen: React.FC<Props> = (props) => {
     const auth = useAuth();
-
+    const navigate = useNavigate()
 
     const executeGetState = async (state_hash:string) => {
       let auth_token = await auth.getAccessToken();
@@ -50,26 +50,36 @@ export const SurveyOpen: React.FC<Props> = (props) => {
     return data;
 };
 
-  const beginSurvey = async() => {
-    let state_hash = props.sid + props.duedate;
-    const data = executeGetState( state_hash );
-    console.log("executeGetState",data)
-    data.then(svalue => {
-        console.log(svalue)
-        console.log( svalue !== null )
-        if( svalue !== null && !("state_hash" in svalue) ){ //init the state
-          const result = executeInitState(state_hash,props.propack)
-          result.then( ivalue => {
-            console.log(ivalue)
-          })
-          
-        }
-      }
-      
-    )
+const beginSurvey = async () => {
+  let state_hash = props.sid + props.duedate;
+  const data = executeGetState(state_hash);
+  console.log("executeGetState", data);
+  data.then((svalue) => {
+    console.log(svalue);
+    console.log(svalue !== null);
+    if (svalue !== null && !("state_hash" in svalue)) {
+      //init the state
+      const result = executeInitState(state_hash, props.propack);
+      result.then((ivalue) => {
+        console.log(ivalue);
+        navigate("/survey", {
+          state: {
+            shash: state_hash,
+          },
+        });
+      });
+    } else {
+      navigate("/survey", {
+        state: {
+          shash: state_hash,
+        },
+      });
+    }
+  });
 
-    return
-  };
+  return;
+};
+
 
 
     return (
