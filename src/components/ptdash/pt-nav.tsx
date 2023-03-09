@@ -143,7 +143,7 @@ export const PtNav: React.FC<Props> = (props) => {
                         ([group_name, survey]) => {
                           return (
                             <Container>
-                              <SurveyGrouping grouping={group_name} />
+                              <SurveyGrouping grouping={group_name} duedate={survey[0].due}/>
 
                               {survey.map((item) => {
                                 return (
@@ -165,7 +165,7 @@ export const PtNav: React.FC<Props> = (props) => {
                           ([group_name, survey]) => {
                             return (
                               <Container>
-                                <SurveyGrouping grouping={group_name} />
+                                <SurveyGrouping grouping={group_name} duedate={survey[0].due}/>
 
                                 {survey.map((item) => {
                                   return (

@@ -8,6 +8,7 @@ import {
 
   export interface Props {
     grouping: string;
+    duedate:string;
   }
 
   
@@ -20,10 +21,10 @@ import {
               <Box w="100%" h="40px">
                 <Text align="left">{props.grouping}</Text>
               </Box>
-              {/*
+              
               <Box w="60%" h="40px">
-                <Text align="right">Lorem</Text>
-              </Box>*/}
+                <Text align="right">{props.duedate}</Text>
+              </Box>
             </HStack>
           </Box>
         </Container>
