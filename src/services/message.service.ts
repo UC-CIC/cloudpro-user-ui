@@ -1,26 +1,27 @@
-import { AxiosRequestConfig } from "axios";
-import { ApiResponse } from "../models/api-response";
-import { callExternalApi } from "./external-api.service";
+import { AxiosRequestConfig } from 'axios';
+import { ApiResponse } from '../models/api-response';
+import { callExternalApi } from './external-api.service';
 
-import {FormState} from "../models/form-state"
+import { FormState } from '../models/form-state';
 
-const apiServerUrl = process.env.REACT_APP_API_SERVER_URL + "";
+const apiServerUrl = process.env.REACT_APP_API_SERVER_URL + '';
 //const apiXToken = process.env.REACT_APP_API_X_TOKEN  + "";
 //const apiToken = process.env.REACT_APP_API_TOKEN  + "";
 
 // We can drop api x token and api token here after we iterate.
 
-
-
-
-export const initState = async (state_hash:string,propack:string,auth_token:String): Promise<ApiResponse> => {
-  console.log("In message.service. Calling user with: ", state_hash)
+export const initState = async (
+  state_hash: string,
+  propack: string,
+  auth_token: String,
+): Promise<ApiResponse> => {
+  console.log('In message.service. Calling user with: ', state_hash);
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/state/init/${state_hash}/${propack}`,
-    method: "POST",
+    method: 'POST',
     headers: {
-      "content-type": "application/json",
-      "Authorization": `Bearer ${auth_token}`
+      'content-type': 'application/json',
+      Authorization: `Bearer ${auth_token}`,
     },
   };
 
@@ -32,17 +33,17 @@ export const initState = async (state_hash:string,propack:string,auth_token:Stri
   };
 };
 
-
-
-
-export const getState = async (state_hash:string,auth_token:String): Promise<ApiResponse> => {
-  console.log("In message.service. Calling user with: ", state_hash)
+export const getState = async (
+  state_hash: string,
+  auth_token: String,
+): Promise<ApiResponse> => {
+  console.log('In message.service. Calling user with: ', state_hash);
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/state/${state_hash}`,
-    method: "GET",
+    method: 'GET',
     headers: {
-      "content-type": "application/json",
-      "Authorization": `Bearer ${auth_token}`
+      'content-type': 'application/json',
+      Authorization: `Bearer ${auth_token}`,
     },
   };
 
@@ -54,16 +55,17 @@ export const getState = async (state_hash:string,auth_token:String): Promise<Api
   };
 };
 
-
-
-export const getSurvey = async (sub:string,auth_token:String): Promise<ApiResponse> => {
-  console.log("In message.service. Calling user with: ", sub)
+export const getSurvey = async (
+  sub: string,
+  auth_token: String,
+): Promise<ApiResponse> => {
+  console.log('In message.service. Calling user with: ', sub);
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/survey/${sub}`,
-    method: "GET",
+    method: 'GET',
     headers: {
-      "content-type": "application/json",
-      "Authorization": `Bearer ${auth_token}`
+      'content-type': 'application/json',
+      Authorization: `Bearer ${auth_token}`,
     },
   };
 
@@ -75,16 +77,17 @@ export const getSurvey = async (sub:string,auth_token:String): Promise<ApiRespon
   };
 };
 
-
-
-export const getUserProfile = async (sub:string,auth_token:String): Promise<ApiResponse> => {
-  console.log("In message.service. Calling user with: ", sub)
+export const getUserProfile = async (
+  sub: string,
+  auth_token: String,
+): Promise<ApiResponse> => {
+  console.log('In message.service. Calling user with: ', sub);
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/user/${sub}`,
-    method: "GET",
+    method: 'GET',
     headers: {
-      "content-type": "application/json",
-      "Authorization": `Bearer ${auth_token}`
+      'content-type': 'application/json',
+      Authorization: `Bearer ${auth_token}`,
     },
   };
 
@@ -96,16 +99,19 @@ export const getUserProfile = async (sub:string,auth_token:String): Promise<ApiR
   };
 };
 
-export const updateProfile = async (profile:any,auth_token:String): Promise<ApiResponse> => {
-  console.log("MSG SVC AUTH TOKEN: ", auth_token)
+export const updateProfile = async (
+  profile: any,
+  auth_token: String,
+): Promise<ApiResponse> => {
+  console.log('MSG SVC AUTH TOKEN: ', auth_token);
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/user`,
-    method: "PUT",
+    method: 'PUT',
     headers: {
-      "content-type": "application/json",
-      "Authorization": `Bearer ${auth_token}`
+      'content-type': 'application/json',
+      Authorization: `Bearer ${auth_token}`,
     },
-    data:profile
+    data: profile,
   };
 
   const { data, error } = (await callExternalApi({ config })) as ApiResponse;
@@ -116,14 +122,15 @@ export const updateProfile = async (profile:any,auth_token:String): Promise<ApiR
   };
 };
 
-
-export const getStateHello = async (auth_token:String): Promise<ApiResponse> => {
+export const getStateHello = async (
+  auth_token: String,
+): Promise<ApiResponse> => {
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/state/`,
-    method: "GET",
+    method: 'GET',
     headers: {
-      "content-type": "application/json",
-      "Authorization": `Bearer ${auth_token}`
+      'content-type': 'application/json',
+      Authorization: `Bearer ${auth_token}`,
     },
   };
 
@@ -135,13 +142,16 @@ export const getStateHello = async (auth_token:String): Promise<ApiResponse> => 
   };
 };
 
-export const getStateByStateHash = async (stateHash:string,auth_token:String): Promise<ApiResponse> => {
+export const getStateByStateHash = async (
+  stateHash: string,
+  auth_token: String,
+): Promise<ApiResponse> => {
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/state/${stateHash}`,
-    method: "GET",
+    method: 'GET',
     headers: {
-      "content-type": "application/json",
-      "Authorization": `Bearer ${auth_token}`
+      'content-type': 'application/json',
+      Authorization: `Bearer ${auth_token}`,
     },
   };
 
@@ -153,13 +163,16 @@ export const getStateByStateHash = async (stateHash:string,auth_token:String): P
   };
 };
 
-export const getQuestionnaireByProHash = async (pro_hash:string,auth_token:String): Promise<ApiResponse> => {
+export const getQuestionnaireByProHash = async (
+  pro_hash: string,
+  auth_token: String,
+): Promise<ApiResponse> => {
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/questionnaire/${pro_hash}`,
-    method: "GET",
+    method: 'GET',
     headers: {
-      "content-type": "application/json",
-      "Authorization": `Bearer ${auth_token}`
+      'content-type': 'application/json',
+      Authorization: `Bearer ${auth_token}`,
     },
   };
 
@@ -171,17 +184,18 @@ export const getQuestionnaireByProHash = async (pro_hash:string,auth_token:Strin
   };
 };
 
-
-
-export const updateFullState = async (state:FormState, auth_token:String): Promise<ApiResponse> => {
+export const updateFullState = async (
+  state: FormState,
+  auth_token: String,
+): Promise<ApiResponse> => {
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/state/update`,
-    method: "PUT",
+    method: 'PUT',
     headers: {
-      "content-type": "application/json",
-      "Authorization": `Bearer ${auth_token}`
+      'content-type': 'application/json',
+      Authorization: `Bearer ${auth_token}`,
     },
-    data:state
+    data: state,
   };
 
   const { data, error } = (await callExternalApi({ config })) as ApiResponse;
@@ -191,7 +205,3 @@ export const updateFullState = async (state:FormState, auth_token:String): Promi
     error,
   };
 };
-
-
-
-

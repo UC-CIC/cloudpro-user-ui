@@ -1,25 +1,32 @@
-import React from "react";
-import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
-import { App } from "./app";
-import { ProvideAuth } from "./hooks/useAuth";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import { ChakraProvider } from '@chakra-ui/react';
+
+import { App } from './app';
+import theme from './config/theme';
+import { ProvideAuth } from './hooks/useAuth';
 
 /* import "./styles/styles.css"; */
 
-import { ChakraProvider } from '@chakra-ui/react'
+if (process.env.NODE_ENV !== 'production') {
+  const axe = require('@axe-core/react');
+  axe(React, ReactDOM, 1000);
+}
 
-const container = document.getElementById("root") as HTMLElement;
+const container = document.getElementById('root') as HTMLElement;
 
 const root = createRoot(container);
 
 root.render(
   <React.StrictMode>
-    <ChakraProvider>
+    <ChakraProvider theme={theme}>
       <ProvideAuth>
         <BrowserRouter>
-            <App />
+          <App />
         </BrowserRouter>
       </ProvideAuth>
     </ChakraProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
