@@ -3,7 +3,7 @@ import { CartesianMarkerProps, DatumValue } from "@nivo/core";
 import data from "./sample-data-pt";
 import { Checkbox, CheckboxGroup, Stack } from "@chakra-ui/react";
 //import CSS from "csstype";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 
 export const BarChart = () => {
   let keys = ["y"];
@@ -36,39 +36,46 @@ export const BarChart = () => {
   ]);
   
 
-  const markerManagement = () => {
-    const buildmark=[]
 
-    if( tscore || spec ){
-      if( tscore ){
-        buildmark.push({
-          axis: "y",
-          value: 65,
-          lineStyle: { stroke: "rgba(255, 255, 0, .75)", strokeWidth: 4 },
-          legend: "T-Score Base",
-          textStyle: { fill: "rgba(0, 0, 0, .75)", fontWeight: "bold" },
-          legendOrientation: "horizontal",
-        });
+  useEffect(() => {
+    const markerManagement = () => {
+      console.log(tscore);
+      const buildmark=[]
+  
+      if( tscore || spec ){
+        if( tscore ){
+          buildmark.push({
+            axis: "y",
+            value: 65,
+            lineStyle: { stroke: "rgba(255, 255, 0, .75)", strokeWidth: 4 },
+            legend: "T-Score Base",
+            textStyle: { fill: "rgba(0, 0, 0, .75)", fontWeight: "bold" },
+            legendOrientation: "horizontal",
+          });
+        }
+        if( spec ){
+          buildmark.push({
+            axis: "y",
+            value: 80,
+            lineStyle: { stroke: "rgba(255, 0, 0, .35)", strokeWidth: 4 },
+            legend: "Speciality Base",
+            textStyle: { fill: "rgba(0, 0, 0, .75)", fontWeight: "bold" },
+            legendOrientation: "horizontal",
+          })
+        }
+  
+        setMarkers(buildmark as CartesianMarkerProps<DatumValue>[])
+        setShowmark(true);
       }
-      if( spec ){
-        buildmark.push({
-          axis: "y",
-          value: 80,
-          lineStyle: { stroke: "rgba(255, 0, 0, .35)", strokeWidth: 4 },
-          legend: "Speciality Base",
-          textStyle: { fill: "rgba(0, 0, 0, .75)", fontWeight: "bold" },
-          legendOrientation: "horizontal",
-        })
+      else{
+        setMarkers([])
+        setShowmark(false);
       }
+    };
 
-      setMarkers(buildmark as CartesianMarkerProps<DatumValue>[])
-      setShowmark(true);
-    }
-    else{
-      setMarkers([])
-      setShowmark(false);
-    }
-  };
+    markerManagement();
+    console.log(tscore);
+  },[tscore,spec])
 
   return (
     <>
@@ -84,7 +91,6 @@ export const BarChart = () => {
           <Checkbox
             onChange={() => {
               setTscore( prevState=>!prevState );
-              markerManagement();
             }}
             value="show_t"
           >
@@ -93,7 +99,6 @@ export const BarChart = () => {
           <Checkbox
             onChange={() => {
               setSpec( prevState=>!prevState );
-              markerManagement();
             }}
             value="show_spec"
           >
