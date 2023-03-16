@@ -6,7 +6,7 @@ import CSS from "csstype";
 import { useState,useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { getAggregateByAgg,getPtReportBySub } from "../../services/message.service";
-
+import { Center,Flex } from '@chakra-ui/react'
 
 export const BarChart = () => {
 
@@ -195,6 +195,9 @@ export const BarChart = () => {
 
   return (
     <>
+      {/* Centering needs fixed.  Both with center and div you end up with a 0x0 container for bar */}
+
+      {/*<Center>*/}
       {/*<div style={parentStyle}>*/}
         <ResponsiveBar
           {...commonProperties}
@@ -203,7 +206,7 @@ export const BarChart = () => {
           
         />
         {/*</div>*/}
-      
+        {/*</Center>*/}
       <CheckboxGroup colorScheme="green">
         <Stack spacing={[1, 5]} direction={["column", "row"]}>
           <Checkbox
