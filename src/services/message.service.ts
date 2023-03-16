@@ -12,6 +12,28 @@ const apiServerUrl = process.env.REACT_APP_API_SERVER_URL + '';
 
 
 
+export const getPtReportBySub = async (
+  sub: string,
+  auth_token: String,
+): Promise<ApiResponse> => {
+  const config: AxiosRequestConfig = {
+    url: `${apiServerUrl}/ptreporting/${sub}`,
+    method: 'GET',
+    headers: {
+      'content-type': 'application/json',
+      Authorization: `Bearer ${auth_token}`,
+    },
+  };
+
+  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
+
+  return {
+    data,
+    error,
+  };
+};
+
+
 export const getAggregateByAgg = async (
   agg: string,
   auth_token: String,

@@ -5,7 +5,7 @@ import { Checkbox, CheckboxGroup, Stack } from "@chakra-ui/react";
 import CSS from "csstype";
 import { useState,useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
-import { getAggregateByAgg } from "../../services/message.service";
+import { getAggregateByAgg,getPtReportBySub } from "../../services/message.service";
 
 
 export const BarChart = () => {
@@ -13,19 +13,24 @@ export const BarChart = () => {
   const auth = useAuth();
 
 
+  const [apidata, setApidata] = useState(
+    [{}]
+  );
+
   let keys = ["y"];
   //let genData =  generateCountriesData(keys, { size: 12 })
   const commonProperties = {
     width: 750,
     height: 400,
     margin: { top: 60, right: 80, bottom: 60, left: 80 },
-    data: data,
+    data: apidata,
     indexBy: "x",
     keys,
     padding: 0.2,
     labelTextColor: "inherit:darker(1.4)",
     labelSkipWidth: 16,
     labelSkipHeight: 16,
+    maxValue: 100
   };
 
   
@@ -64,6 +69,20 @@ export const BarChart = () => {
     return data;
   };
 
+  const getPtreport = async (sub:string) => {
+    let auth_token = await auth.getAccessToken();
+
+    const { data, error } = await getPtReportBySub(sub,auth_token);
+
+    if (data) {
+    }
+
+    if (error) {
+    }
+
+    return data;
+  };
+
 
   useEffect(() => {
     let isMounted = true;
@@ -73,8 +92,8 @@ export const BarChart = () => {
     }
 
 
-    const data=getAggregate("t_score");
-    data.then(svalue => {
+    const aggdata=getAggregate("t_score");
+    aggdata.then(svalue => {
       if( svalue !== null && "value" in svalue ){
         setTscoreValue(svalue.value)
       }
@@ -93,7 +112,38 @@ export const BarChart = () => {
       }
     });
 
-    console.log(tscoreValue)
+    console.log(tscoreValue);
+    console.log("SUB", auth.sub);
+    const ptreportdata=getPtreport(auth.sub);
+    const builder:any = [];
+    ptreportdata.then( svalue => {
+      if( svalue !== null && "surveys" in svalue ){
+        const iterable:any = svalue;
+
+        iterable.surveys.forEach( ( survey:any ) => {
+            console.log( survey.date );
+            
+            builder.push(
+              {
+                x: survey.date,
+                y: survey.score
+              }
+            )
+
+          }
+        );
+
+        setApidata(builder);
+        console.log("builder",builder);
+        console.log("apidata",apidata);
+        console.log("data:",data);
+
+      }
+      else{
+
+      }
+    });
+
 
 
     return () => {
