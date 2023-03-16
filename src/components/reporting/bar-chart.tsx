@@ -2,10 +2,17 @@ import { ResponsiveBar } from "@nivo/bar";
 import { CartesianMarkerProps, DatumValue } from "@nivo/core";
 import data from "./sample-data-pt";
 import { Checkbox, CheckboxGroup, Stack } from "@chakra-ui/react";
-//import CSS from "csstype";
+import CSS from "csstype";
 import { useState,useEffect } from "react";
+import { useAuth } from "../../hooks/useAuth";
+import { getAggregateByAgg } from "../../services/message.service";
+
 
 export const BarChart = () => {
+
+  const auth = useAuth();
+
+
   let keys = ["y"];
   //let genData =  generateCountriesData(keys, { size: 12 })
   const commonProperties = {
@@ -21,20 +28,79 @@ export const BarChart = () => {
     labelSkipHeight: 16,
   };
 
-  /*
+  
   const parentStyle: CSS.Properties = {
+    height: "100%",
+    margin: "0 auto",
     textAlign: "center",
+    background: "#eeeeee"
   };
-  */
+  
 
   const [showmark, setShowmark] = useState(false);
   const [tscore, setTscore] = useState(false);
   const [spec, setSpec] = useState(false);
   
+  const [tscoreValue, setTscoreValue]=useState(0);
+  const [specValue, setSpecValue]=useState(0);
+
+
   const [marks, setMarkers] = useState<CartesianMarkerProps<DatumValue>[]>([
 
   ]);
   
+
+  const getAggregate = async (agg:string) => {
+    let auth_token = await auth.getAccessToken();
+
+    const { data, error } = await getAggregateByAgg(agg,auth_token);
+
+    if (data) {
+    }
+
+    if (error) {
+    }
+
+    return data;
+  };
+
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!isMounted) {
+      return;
+    }
+
+
+    const data=getAggregate("t_score");
+    data.then(svalue => {
+      if( svalue !== null && "value" in svalue ){
+        setTscoreValue(svalue.value)
+      }
+      else{
+        setTscoreValue(0)
+      }
+    });
+
+    const specdata=getAggregate("spec");
+    specdata.then(svalue => {
+      if( svalue !== null && "value" in svalue ){
+        setSpecValue(svalue.value)
+      }
+      else{
+        setSpecValue(0)
+      }
+    });
+
+    console.log(tscoreValue)
+
+
+    return () => {
+      isMounted = false;
+  };
+  },[]);
+
 
 
   useEffect(() => {
@@ -46,7 +112,7 @@ export const BarChart = () => {
         if( tscore ){
           buildmark.push({
             axis: "y",
-            value: 65,
+            value: tscoreValue,
             lineStyle: { stroke: "rgba(255, 255, 0, .75)", strokeWidth: 4 },
             legend: "T-Score Base",
             textStyle: { fill: "rgba(0, 0, 0, .75)", fontWeight: "bold" },
@@ -56,7 +122,7 @@ export const BarChart = () => {
         if( spec ){
           buildmark.push({
             axis: "y",
-            value: 80,
+            value: specValue,
             lineStyle: { stroke: "rgba(255, 0, 0, .35)", strokeWidth: 4 },
             legend: "Speciality Base",
             textStyle: { fill: "rgba(0, 0, 0, .75)", fontWeight: "bold" },
@@ -79,12 +145,14 @@ export const BarChart = () => {
 
   return (
     <>
-      
+      {/*<div style={parentStyle}>*/}
         <ResponsiveBar
           {...commonProperties}
           colors={{ scheme: "category10" }}
           markers={ showmark ? marks : [] }
+          
         />
+        {/*</div>*/}
       
       <CheckboxGroup colorScheme="green">
         <Stack spacing={[1, 5]} direction={["column", "row"]}>
