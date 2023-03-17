@@ -8,6 +8,8 @@ import { useAuth } from "../../hooks/useAuth";
 import { getAggregateByAgg,getPtReportBySub } from "../../services/message.service";
 import { Center,Flex } from '@chakra-ui/react'
 
+import { Select } from '@chakra-ui/react'
+
 export const BarChart = () => {
 
   const auth = useAuth();
@@ -48,7 +50,7 @@ export const BarChart = () => {
   
   const [tscoreValue, setTscoreValue]=useState(0);
   const [specValue, setSpecValue]=useState(0);
-
+  const [options, setOptions]=useState<string[]>([]);
 
   const [marks, setMarkers] = useState<CartesianMarkerProps<DatumValue>[]>([
 
@@ -83,7 +85,9 @@ export const BarChart = () => {
     return data;
   };
 
-
+  
+  const [chartdata, setChartdata] = useState({});
+  
   useEffect(() => {
     let isMounted = true;
 
@@ -112,29 +116,63 @@ export const BarChart = () => {
       }
     });
 
+
+
+    /*
+    console.log( survey.date );
+    
+    builder.push(
+      {
+        x: survey.date,
+        y: survey.score
+      }
+    )
+    */
+           
     console.log(tscoreValue);
     console.log("SUB", auth.sub);
     const ptreportdata=getPtreport(auth.sub);
-    const builder:any = [];
+    const builder:any ={}
+    const keys:any = [];
+
     ptreportdata.then( svalue => {
+      console.log("PTREPORT DATA:", svalue);
       if( svalue !== null && "surveys" in svalue ){
         const iterable:any = svalue;
+        console.log("ITERABLE:",iterable)
 
         iterable.surveys.forEach( ( survey:any ) => {
-            console.log( survey.date );
-            
-            builder.push(
-              {
-                x: survey.date,
-                y: survey.score
-              }
-            )
+          Object.keys(survey).forEach( (key) => {
+            keys.push(key)
+            if (Array.isArray(survey[key])) {
+              survey[key].forEach( (result:any) => {
+                if( key in builder ){
+                  builder[key].push( { "x": result.date, "y": result.score})
+                }
+                else{
+                  builder[key]=[{ "x": result.date, "y": result.score}]
+                }
+                console.log( `Survey: ${key}, ${result.date}` );
+              });
+            }
+          });
+        });
+        console.log("builder", builder)
+        console.log("sval:", svalue.surveys[0][keys[0]])
 
-          }
-        );
+        if( Object.keys(builder).length !== 0 ){
+          setApidata(builder[keys[0]]);
 
-        setApidata(builder);
-        console.log("builder",builder);
+          const uniqueKeys = keys.filter((value:string, index:number) => keys.indexOf(value) === index);
+          setOptions(uniqueKeys);
+          setChartdata(builder)
+          console.log("UK: ", uniqueKeys)
+          console.log("OPTIONS:", options)
+        }
+        else{
+          setApidata([]);
+        }
+
         console.log("apidata",apidata);
         console.log("data:",data);
 
@@ -193,6 +231,23 @@ export const BarChart = () => {
     console.log(tscore);
   },[tscore,spec])
 
+
+  const handleOptionChange = (event:any) => {
+    console.log("TARGET:", event.target.value);
+    console.log("BUILDER: ", chartdata)
+    const chart_key:string = event.target.value
+    const updater:{[key:string]:[data:any]} = chartdata
+    console.log("UPDATE_DATA:", updater);
+    console.log("KEYED:", updater[chart_key])
+    if( chart_key in updater) {
+      setApidata(updater[chart_key]);
+    }
+    else{
+      setApidata([]);
+    }
+
+  }
+
   return (
     <>
       {/* Centering needs fixed.  Both with center and div you end up with a 0x0 container for bar */}
@@ -207,6 +262,16 @@ export const BarChart = () => {
         />
         {/*</div>*/}
         {/*</Center>*/}
+        <Select onChange={handleOptionChange}>
+          {
+            options.map( (option:any) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+            ))
+          }
+        
+        </Select>
       <CheckboxGroup colorScheme="green">
         <Stack spacing={[1, 5]} direction={["column", "row"]}>
           <Checkbox
