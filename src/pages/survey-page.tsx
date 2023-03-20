@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 
 import { getStateByStateHash, getStateHello, getQuestionnaireByProHash, updateFullState } from "../services/message.service";
+import { QuestionnaireForm } from '../components/QuestionnaireForm/QuestionnaireForm';
+
 
 import { PageLayout } from "../components/page-layout";
 import PrivateRoute from "../components/PrivateRoute";
@@ -305,7 +307,7 @@ export const Survey: React.FC = () => {
                 <div className="content__body">
                   <h3 className="content__title">Form</h3>
                   <div>
-                    <FormCard saveState={saveState} steps={proFormQuestions} />
+                    <QuestionnaireForm saveState={saveState} steps={proFormQuestions} />
                   </div>
                 </div>
               </div>
