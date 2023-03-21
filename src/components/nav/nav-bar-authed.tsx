@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect,useState } from "react";
 
 import {
   Box,
@@ -23,6 +23,9 @@ import { useAuth } from "../../hooks/useAuth";
 import {
   NavLink as RouterLink, // <-- import the NavLink component
 } from "react-router-dom";
+
+import { getNotificationsBySub } from "../../services/message.service"
+import { Notifications} from "../notifications/notification"
 
 const Logo = (props: any) => {
   return (
@@ -51,6 +54,77 @@ export const NavBarAuthed = () => {
 
   const { colorMode, toggleColorMode } = useColorMode();
   const [display, changeDisplay] = useState("none");
+  const [notificationDisplay, setNotificationDisplay] = useState(false);
+  const [notifications,setNotifications] = useState<iUserNotifications>(
+    {
+     sub:"",
+     notifications:{
+      "empty":{
+        date:"",
+        notification_status:"",
+        notification_type:"",
+        notification:""
+      }
+     }
+    }
+
+  )
+
+  const getNotfications = async (sub:string) => {
+    let auth_token = await auth.getAccessToken();
+    console.log(auth_token)
+    const { data, error } = await getNotificationsBySub(sub,auth_token);
+
+    if (data) {
+    }
+
+    if (error) {
+    }
+
+    return data;
+};
+
+interface iNotification {
+  date:string;
+  notification_status:string;
+  notification:string;
+  notification_type:string;
+}
+interface iNotifications {
+  [id:string]:iNotification;
+}
+interface iUserNotifications{
+  sub:string;
+  notifications:iNotifications;
+}
+  useEffect(() => {
+      console.log("useEffect() on nav bar authed");
+        let isMounted = true;
+
+        if (!isMounted || auth.sub==="") {
+          return;
+        }
+
+        console.log("Trying with: ", auth.sub)
+        const rdata=getNotfications(auth.sub);
+        rdata.then(svalue => {
+          //do stuff
+          console.log("NOTIFICAITON DATA:", svalue);
+          setNotifications(svalue as iUserNotifications);
+        })
+
+
+        return () => {
+          isMounted = false;
+      };
+  },[]);
+
+  const handleNotificationClick = () => {
+    setNotificationDisplay(true);
+  };
+  const handleNotificationClose = () => {
+    setNotificationDisplay(false);
+  }
   return (
     <>
       <Box
@@ -81,6 +155,9 @@ export const NavBarAuthed = () => {
             <Stack direction={"row"} spacing={7}>
               <Button onClick={toggleColorMode}>
                 {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
+              </Button>
+              <Button>
+                <BellIcon/>
               </Button>
             </Stack>
           </Flex>
@@ -169,7 +246,11 @@ export const NavBarAuthed = () => {
               <Button onClick={toggleColorMode}>
                 {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
               </Button>
-              <Button><BellIcon/></Button>
+              <Button onClick={handleNotificationClick}>
+                <BellIcon/>
+                <Notifications notifications={notifications} isOpen={notificationDisplay} onClose={handleNotificationClose}/>
+              </Button>
+
               <Menu>
                 <MenuButton
                   as={Button}
