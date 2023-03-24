@@ -16,6 +16,7 @@ interface UseAuth {
   signUp: (email: string) => Promise<Result>;
   verify: (username: string, code: string) => Promise<Result>;
   getAccessToken: () => Promise<String>;
+  currentUserInfo: () => Promise<any>;
   signOut: () => void;
 }
 
@@ -67,6 +68,11 @@ const useProvideAuth = (): UseAuth => {
   const getAccessToken = async () => {
     return (await Auth.currentSession()).getAccessToken().getJwtToken();
   };
+
+  const currentUserInfo = async () => {
+    return (await Auth.currentUserInfo());
+  };
+
   const getChallenge = async (username: string) => {
     console.log('USER', username);
     try {
@@ -194,5 +200,6 @@ const useProvideAuth = (): UseAuth => {
     signIn,
     getAccessToken,
     verify,
+    currentUserInfo,
   };
 };

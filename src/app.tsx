@@ -9,6 +9,7 @@ import { Registered } from './pages/registered';
 import { FormTest } from './pages/form-test';
 import { PtLandTest } from './pages/ptland-test';
 import { Survey } from './pages/survey-page';
+import { Surgeon } from './pages/surgeon-page';
 import { PtReporting } from './pages/pt-reporting-page';
 
 
@@ -23,6 +24,8 @@ export const App: React.FC = () => {
       <Route path="/pt-authed-reporting" element={<PtReporting />} />
       <Route path="/questionnaire/:stateHash" element={<Questionnaire />} />
       <Route path="/survey" element={<Survey />} />
+
+      <Route path="/surgeon" element={<Surgeon />} />
 
       <Route path="/formtest" element={<FormTest />} />
       <Route path="/ptlandtest" element={<PtLandTest />} />
