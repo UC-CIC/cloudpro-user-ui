@@ -12,6 +12,47 @@ const apiServerUrl = process.env.REACT_APP_API_SERVER_URL + '';
 
 
 
+export const getHospitalByHid = async (
+  hid: string,
+  auth_token: String,
+): Promise<ApiResponse> => {
+  const config: AxiosRequestConfig = {
+    url: `${apiServerUrl}/hospital/hid/${hid}`,
+    method: 'GET',
+    headers: {
+      'content-type': 'application/json',
+      Authorization: `Bearer ${auth_token}`,
+    },
+  };
+
+  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
+
+  return {
+    data,
+    error,
+  };
+};
+export const getHospitalList = async (
+  auth_token: String,
+): Promise<ApiResponse> => {
+  const config: AxiosRequestConfig = {
+    url: `${apiServerUrl}/hospital/list`,
+    method: 'GET',
+    headers: {
+      'content-type': 'application/json',
+      Authorization: `Bearer ${auth_token}`,
+    },
+  };
+
+  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
+
+  return {
+    data,
+    error,
+  };
+};
+
+
 export const getNotificationsBySub = async (
   sub: string,
   auth_token: String,

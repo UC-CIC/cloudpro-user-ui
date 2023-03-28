@@ -17,6 +17,10 @@ import {
 import { updateProfile } from "../services/message.service";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+
+import { getHospitalByHid } from "../services/message.service";
+import { getHospitalList } from "../services/message.service";
+
 export interface Props {
     uid: string;
     email: string;
@@ -52,10 +56,91 @@ export const ProfileSetup: React.FC<Props> = (props) => {
 
   const [formsubbed, setFormSubbed] = useState(false);
 
+  interface HospitalEntity {
+    hid:string;
+    hospital_name:string;
+    surgeons?: any;
+  }
+  const [surgdisabled,setSurgDisabled] = useState(true);
+
+  const [surgeon_list,setSurgeonList] = useState<HospitalEntity>(
+    { 
+      hid:"",
+      hospital_name:"",
+      surgeons:[
+        {
+          name:"",
+          sub:""
+        }
+      ]
+    }
+  )
+
+
+  const [hospital_list, setHospitalList] = useState<HospitalEntity[]>(
+    [
+      {
+        hid:"",
+        hospital_name:""
+      }
+    ]
+  );
+
+
+  const executeHospitalList = async () => {
+    let auth_token = await auth.getAccessToken();
+    console.log(auth_token)
+    const { data, error } = await getHospitalList(auth_token);
+
+    if (data) {
+    }
+
+    if (error) {
+    }
+
+    return data;
+};
+const executeHospitalByHid = async (hid:string) => {
+  let auth_token = await auth.getAccessToken();
+  console.log(auth_token)
+  const { data, error } = await getHospitalByHid(hid,auth_token);
+
+  if (data) {
+  }
+
+  if (error) {
+  }
+
+  return data;
+};
+
+
+   useEffect(() => {
+    console.log("<profile-setup use effect for initi hospital>");
+
+    let isMounted = true;
+
+    const data = executeHospitalList();
+    data.then(svalue => {
+      console.log(svalue);
+      setHospitalList(svalue as HospitalEntity[]);
+    })
+
+    if (!isMounted ) {
+    return;
+    }
+   },[])
+
   useEffect(() => {
     console.log("<profile-setup use effect>");
 
     let isMounted = true;
+
+
+
+
+
+
 
     if (!isMounted ) {
     return;
@@ -337,6 +422,26 @@ export const ProfileSetup: React.FC<Props> = (props) => {
     setter(value);
     field_error(false);
   }
+  
+  const setFieldHospital = (setter:Function,field_error:Function, value:string) => {
+    
+    setter(value);
+
+    
+    const hospArray = value.split(";");
+    const hospHid = hospArray[0];
+
+    const data = executeHospitalByHid(hospHid);
+    data.then( svalue => {
+      console.log("HID_DATA:", svalue )
+      setSurgeonList( svalue as HospitalEntity )
+    }
+    )
+
+    setSurgDisabled(false);
+    console.log("HOSPITAL VALUE:",value)
+    field_error(false);
+  }
 
   return (
     <Container maxW={"5xl"}>
@@ -423,10 +528,21 @@ export const ProfileSetup: React.FC<Props> = (props) => {
                   </FormControl>
                   <FormControl isInvalid={hospital_isError}>
                     <FormLabel>Hospital</FormLabel>
-                    <Select placeholder="Select option" value={hospital} onChange={(e) => setField(setHospital,setHospitalError,e.target.value)}>
+                    <Select placeholder={surgdisabled ? "Select option" : "" } value={hospital} onChange={(e) => setFieldHospital(setHospital,setHospitalError,e.target.value)}>
+                      {
+                        hospital_list.map( (hospital:any) => (
+                        <option key={hospital.hid} value={hospital.hid + ";" + hospital.hospital_name}>
+                          {hospital.hospital_name}
+                        </option>
+
+                      ))
+                      
+                      }
+                      {/*
                       <option value="h1">H 1</option>
                       <option value="h2">H 2</option>
                       <option value="h3">H 3</option>
+                      */}
                     </Select>
                     { hospital_isError ?
                       <FormErrorMessage>{hospital_error_msg}</FormErrorMessage>
@@ -435,10 +551,19 @@ export const ProfileSetup: React.FC<Props> = (props) => {
                   </FormControl>
                   <FormControl isInvalid={surgeon_isError}>
                     <FormLabel>Surgeon</FormLabel>
-                    <Select placeholder="Select option" value={surgeon} onChange={(e) => setField(setSurgeon,setSurgeonError,e.target.value)}>
+                    <Select placeholder="Select option" disabled={surgdisabled} value={surgeon} onChange={(e) => setField(setSurgeon,setSurgeonError,e.target.value)}>
+                      
+                      { surgeon_list.surgeons.map( (surgeon:any) => (
+                                       <option key={surgeon.sub} value={surgeon.sub + ";" + surgeon.name}>
+                                       {surgeon.name}
+                                     </option>         
+                      ))}
+                      {/*
                       <option value="s1">S 1</option>
                       <option value="s2">S 2</option>
                       <option value="s3">S 3</option>
+                      */}
+
                     </Select>
                     { surgeon_isError ?
                       <FormErrorMessage>{surgeon_error_msg}</FormErrorMessage>
