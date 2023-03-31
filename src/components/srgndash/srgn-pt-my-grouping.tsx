@@ -5,11 +5,11 @@ import {
     Container,
   } from "@chakra-ui/react";
   
-import { SrgnUpcomingReady } from "./srgn-pt-upc-ready";
+import { SurgeonMyPtSurveyDetail } from "./srgn-pt-my-detail";
 import { SrgnUpcomingPending} from "./srgn-pt-upc-pending";
 
 
-  export const SrgnUpcomingGrouping: React.FC = ()  => {
+  export const SrgnMyPtGrouping: React.FC = ()  => {
     return (
       <>
         <Container minW="420px" bg="purple" color="#262626" borderWidth='1px' borderRadius='lg' overflow='hidden'>
@@ -20,11 +20,11 @@ import { SrgnUpcomingPending} from "./srgn-pt-upc-pending";
               </Box>
               
               <Box w="60%" h="40px">
-                <Text align="right">Surv. Date Ipsum</Text>
+                <Text align="right">Compliance: 100%</Text>
               </Box>
             </HStack>
           </Box>
-          <SrgnUpcomingReady/>
+          <SurgeonMyPtSurveyDetail/>
         </Container>
 
          <Container minW="420px" bg="purple" color="#262626" borderWidth='1px' borderRadius='lg' overflow='hidden'>
@@ -35,11 +35,11 @@ import { SrgnUpcomingPending} from "./srgn-pt-upc-pending";
               </Box>
               
               <Box w="60%" h="40px">
-                <Text align="right">Surv. Date Ipsum</Text>
+                <Text align="right">Compliance: 90%</Text>
               </Box>
             </HStack>
           </Box>
-          <SrgnUpcomingPending/>
+          <SurgeonMyPtSurveyDetail/>
         </Container>       
       </>
     );
