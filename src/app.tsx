@@ -10,6 +10,7 @@ import { FormTest } from './pages/form-test';
 import { PtLandTest } from './pages/ptland-test';
 import { Survey } from './pages/survey-page';
 import { Surgeon } from './pages/surgeon-page';
+import { SurgeonTester } from './pages/surgeon-page-test';
 import { PtReporting } from './pages/pt-reporting-page';
 
 
@@ -26,7 +27,7 @@ export const App: React.FC = () => {
       <Route path="/survey" element={<Survey />} />
 
       <Route path="/surgeon" element={<Surgeon />} />
-
+      <Route path="/surgeon-test" element={<SurgeonTester />} />
       <Route path="/formtest" element={<FormTest />} />
       <Route path="/ptlandtest" element={<PtLandTest />} />
     </Routes>
