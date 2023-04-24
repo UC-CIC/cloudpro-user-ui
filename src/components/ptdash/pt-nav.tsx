@@ -1,22 +1,27 @@
+import React from 'react';
+import { useQuery } from 'react-query';
 import {
-  Tabs,
+  Box,
+  Container,
+  Divider,
+  Stack,
+  Tab,
+  TabIndicator,
   TabList,
   TabPanels,
-  Tab,
   TabPanel,
-  Stack,
-  Container,
-  Flex,
-} from "@chakra-ui/react";
+  Tabs,
+  Text,
+} from '@chakra-ui/react';
 
-import React, { useEffect, useState } from "react";
-import { SurgeryInfo } from "./surgery-info";
-import { SurveyGrouping } from "./survey-grouping";
-import { SurveyOpen } from "./survey-open";
-import { SurveyClosed } from "./survey-closed";
-import { useAuth } from "../../hooks/useAuth";
-import { getSurvey } from "../../services/message.service";
-
+import { SurveyClosed } from './survey-closed';
+import { SurveyGrouping } from './survey-grouping';
+import { SurgeryInfo } from './surgery-info';
+import { SurveyOpen } from './survey-open';
+import { useAuth } from '../../hooks/useAuth';
+import Loader from '../../components/Loader/Loader';
+import { PageLayout } from '../../components/page-layout';
+import { getSurvey } from '../../services/message.service';
 
 interface Survey {
   due: string;
@@ -33,21 +38,6 @@ interface SurveySet {
   [grouping: string]: Survey[];
 }
 
-const survey_blank = {
-  "": [
-    {
-      due: "",
-      missed: false,
-      name: "",
-      description: "",
-      assigned: "",
-      propack:"",
-      completed: false,
-      sid: "",
-    },
-  ],
-};
-
 export interface Props {
   hospital: string;
   surgeon: string;
@@ -57,136 +47,123 @@ export interface Props {
 export const PtNav: React.FC<Props> = (props) => {
   const auth = useAuth();
 
-  const [completed_survey, setCompleted] = useState<SurveySet[]>( [survey_blank] );
-  const [open_survey, setOpen] = useState<SurveySet[]>( [survey_blank] );
-
-
-  const getSurveyData = async (sub: string) => {
-    let auth_token = await auth.getAccessToken();
-    console.log(auth_token);
-    const { data, error } = await getSurvey(sub, auth_token);
-
-    console.log(data);
-
-    if (data) {
-    }
-
-    if (error) {
-    }
-
+  const { data, isLoading } = useQuery('patientSurveys', async () => {
+    const token = await auth.getAccessToken();
+    const { data, error } = await getSurvey(auth.sub, token);
+    if (!data && error) throw error;
     return data;
-  };
+  });
 
-  useEffect(() => {
-    console.log("useEffect() pt-nav");
-    let isMounted = true;
-
-    if (!isMounted) {
-      return;
-    }
-
-    const data = getSurveyData(auth.sub);
-    console.log(data);
-    data.then((svalue) => {
-      if (svalue !== null) {
-        if ("open_surveys" in svalue) {
-          setOpen(svalue.open_surveys);
-        }
-        if ("completed_surveys" in svalue) {
-          console.log("Completed: ", svalue.completed_surveys);
-          setCompleted(svalue.completed_surveys);
-        }
-      }
-    });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  const { completedSurveys = [], openSurveys = [] } = (data || {}) as any;
 
   return (
-    <Container maxW={"5xl"}>
-      <Stack
-        textAlign={"center"}
-        align={"center"}
-        spacing={{ base: 8, md: 10 }}
-        py={{ base: 20, md: 28 }}
-      >
-        <Flex
-          flexDirection="column"
-          width="100wh"
-          height="100vh"
+    <PageLayout>
+      <Container maxW="3xl">
+        <Stack
+          direction="column"
           justifyContent="top"
-          alignItems="center"
-          display="flex"
+          align="center"
+          spacing="8"
+          mb="2"
+          textAlign="center"
         >
-          <Stack flexDir="column" mb="2" alignItems="center">
-            <SurgeryInfo
-              hospital={props.hospital}
-              surgeon={props.surgeon}
-              surgdate={props.surgdate}
-            />
-            <Tabs isFitted variant="enclosed-colored">
-              <TabList mb="1em">
-                <Tab _selected={{ color: "white", bg: "blue.500" }}>
-                  Pending Surveys
-                </Tab>
-                <Tab _selected={{ color: "white", bg: "blue.500" }}>
-                  Completed Surveys
-                </Tab>
-              </TabList>
-              <TabPanels>
-                <TabPanel>
-                  <>
-                    {Object.entries(open_survey).map(([idx, group_set]) => {
-                      return Object.entries(group_set).map(
-                        ([group_name, survey]) => {
-                          return (
-                            <Container>
-                              <SurveyGrouping grouping={group_name} duedate={survey[0].due}/>
+          {isLoading ? (
+            <Loader />
+          ) : (
+            <>
+              {/* Top-level surgery info card */}
+              <SurgeryInfo
+                hospital={props.hospital}
+                surgeon={props.surgeon}
+                surgeryDate={props.surgdate}
+              />
 
-                              {survey.map((item) => {
-                                return (
-                                  <SurveyOpen description={item.description} sid={item.sid} propack={item.propack} duedate={item.due}/>
-                                );
-                              })}
-                            </Container>
-                          );
-                        }
-                      );
-                    })}
-                  </>
-                </TabPanel>
-                <TabPanel>
-                  <>
-                    {Object.entries(completed_survey).map(
-                      ([idx, group_set]) => {
-                        return Object.entries(group_set).map(
-                          ([group_name, survey]) => {
-                            return (
-                              <Container>
-                                <SurveyGrouping grouping={group_name} duedate={survey[0].due}/>
+              {/* Navigation tabs */}
+              <Tabs isFitted variant="unstyled" width="100%">
+                <Box pb="4">
+                  <TabList borderBottom="1px" borderColor="gray.300">
+                    <NavTab
+                      isDisabled={!openSurveys.length}
+                      text="Pending Surveys"
+                    />
+                    <NavTab
+                      isDisabled={!completedSurveys.length}
+                      text="Completed Surveys"
+                    />
+                  </TabList>
+                  <TabIndicator height="2px" bg="teal" borderRadius="1px" />
+                </Box>
 
-                                {survey.map((item) => {
-                                  return (
-                                    <SurveyClosed
-                                      description={item.name} missed={item.missed}
-                                    />
-                                  );
-                                })}
-                              </Container>
-                            );
-                          }
-                        );
-                      }
+                <TabPanels>
+                  {/* Pending surveys */}
+                  <SurveysPanel
+                    renderSurvey={(item: Survey) => (
+                      <SurveyOpen
+                        key={item.sid}
+                        description={item.description}
+                        sid={item.sid}
+                        propack={item.propack}
+                        duedate={item.due}
+                      />
                     )}
-                  </>
-                </TabPanel>
-              </TabPanels>
-            </Tabs>
-          </Stack>
-        </Flex>
-      </Stack>
-    </Container>
+                    surveys={openSurveys}
+                  />
+
+                  {/* Completed surveys */}
+                  <SurveysPanel
+                    renderSurvey={(item: Survey) => (
+                      <SurveyClosed
+                        key={item.sid}
+                        description={item.name}
+                        missed={item.missed}
+                      />
+                    )}
+                    surveys={completedSurveys}
+                  />
+                </TabPanels>
+              </Tabs>
+            </>
+          )}
+        </Stack>
+      </Container>
+    </PageLayout>
+  );
+};
+
+const NavTab: React.FC<{ isDisabled?: boolean; text: string }> = ({
+  isDisabled = false,
+  text,
+}) => (
+  <Tab isDisabled={isDisabled} fontWeight="bold">
+    {text}
+  </Tab>
+);
+
+const SurveysPanel: React.FC<{
+  renderSurvey: (survey: Survey) => React.ReactNode;
+  surveys: SurveySet[];
+}> = ({ renderSurvey, surveys }) => {
+  return (
+    <TabPanel>
+      {!surveys.length && <Text>Nothing yet to review.</Text>}
+
+      {surveys.map((groupSet: SurveySet) =>
+        Object.entries(groupSet).map(([groupName, survey]) => (
+          <Container key={groupName}>
+            {/* Group due date */}
+            <SurveyGrouping dueDate={survey[0].due} grouping={groupName} />
+
+            {/* Surveys */}
+            <Stack divider={<Divider />} pt="4">
+              {survey.map((item) => (
+                <React.Fragment key={item.sid}>
+                  {renderSurvey(item)}
+                </React.Fragment>
+              ))}
+            </Stack>
+          </Container>
+        )),
+      )}
+    </TabPanel>
   );
 };

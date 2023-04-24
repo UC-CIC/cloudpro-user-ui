@@ -22,10 +22,10 @@ export const App: React.FC = () => {
   return (
     <Routes>
       <Route element={<PublicRoutes />}>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/register" element={<RegisterPage />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="/registered" element={<RegisteredPage />} />
-      <Route path="/signin" element={<LoginPage />} />
+        <Route path="/signin" element={<LoginPage />} />
         <Route path="*" element={<Navigate replace to="/" />} />
       </Route>
 
@@ -38,7 +38,7 @@ export const App: React.FC = () => {
         ) : (
           <>
             <Route path="/home" element={<PatientHome />} />
-      <Route path="/pt-authed-reporting" element={<PtReporting />} />
+            <Route path="/pt-authed-reporting" element={<PtReporting />} />
             <Route path="/survey/:propack/:stateHash" element={<Survey />} />
             <Route path="*" element={<Navigate replace to="/home" />} />
           </>
