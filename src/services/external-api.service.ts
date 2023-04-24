@@ -1,35 +1,37 @@
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
-import { ApiResponse } from "../models/api-response";
-import { AppError } from "../models/app-error";
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-export const callExternalApi = async (options: {
+import { mapObjectKeys, snakeToCamelCase } from './helpers';
+import { ApiResponse } from '../models/api-response';
+import { AppError } from '../models/app-error';
+import { Message } from '../models/message';
+
+export const callExternalApi = async <T = Message>(options: {
   config: AxiosRequestConfig;
-}): Promise<ApiResponse> => {
+  transform?: boolean;
+}): Promise<ApiResponse<T>> => {
   try {
     const response: AxiosResponse = await axios(options.config);
     const { data } = response;
 
     return {
-      data,
+      data: options.transform ? mapObjectKeys(data, snakeToCamelCase) : data,
       error: null,
     };
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const axiosError = error as AxiosError;
-
       const { response } = axiosError;
 
-      let message = "http request failed";
-
+      let message = 'http request failed';
       if (response && response.statusText) {
         message = response.statusText;
-      }
-
-      if (axiosError.message) {
+      } else if (axiosError.message) {
         message = axiosError.message;
-      }
-
-      if (response && response.data && (response.data as AppError).message) {
+      } else if (
+        response &&
+        response.data &&
+        (response.data as AppError).message
+      ) {
         message = (response.data as AppError).message;
       }
 
