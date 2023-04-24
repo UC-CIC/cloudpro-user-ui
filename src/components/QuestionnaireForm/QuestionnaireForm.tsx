@@ -17,6 +17,12 @@ import { QuesitonnaireNumberInput } from './QuesitonnaireNumberInput';
 import { QuestionnaireRadio } from './QuestionnaireRadio';
 import { QuestionnaireTextInput } from './QuestionnaireTextInput';
 
+type Props = {
+  onFormSave: (data: FormData) => any;
+  onFormSubmit: (data: FormData) => any;
+  steps: Step[];
+};
+
 interface FormData {
   [key: string]: {
     [key: string]: string | number;
@@ -28,7 +34,7 @@ interface Field {
   description?: string | undefined;
   text: string;
   type: string;
-  value: any;
+  value?: any;
   state?: any;
 }
 
@@ -72,10 +78,11 @@ const mapValuesToString = (val: any): any =>
 const mapValuesToNumber = (val: any) =>
   mapValues(val, (v: any) => (Number.isNaN(Number(v)) ? v : Number(v)));
 
-export const QuestionnaireForm: React.FC<{
-  saveState: Function;
-  steps: Step[];
-}> = ({ saveState, steps }) => {
+export const QuestionnaireForm: React.FC<Props> = ({
+  onFormSave,
+  onFormSubmit,
+  steps,
+}) => {
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [fadeOffset, setFadeOffset] = useState('-1rem');
   const {
@@ -90,12 +97,12 @@ export const QuestionnaireForm: React.FC<{
     formState: { errors, isValid: isFormValid },
   } = useForm<FormData>({ mode: 'onTouched' });
 
-  const onSubmit = (data: FormData) => {
-    console.log(mapValuesToNumber(data));
+  const onSubmit = async (data: FormData) => {
+    return onFormSubmit(mapValuesToNumber(data));
   };
 
-  const onSave = (data: FormData) => {
-    saveState(mapValuesToNumber(data));
+  const onSave = async (data: FormData) => {
+    return onFormSave(mapValuesToNumber(data));
   };
 
   // TODO - How should we handle hidden fields? e.g. at end of questionnaire
@@ -164,6 +171,7 @@ export const QuestionnaireForm: React.FC<{
             return <div key={field.name}>Not implemented yet</div>;
           default:
             console.error(`Invalid type of ${field.type}`);
+            return null;
         }
       })
       .filter(Boolean);
@@ -220,7 +228,7 @@ export const QuestionnaireForm: React.FC<{
               type="button"
               variant="link"
             >
-              Save progress
+              Save and quit
             </Button>
             {currentStepIdx === steps.length - 1 && (
               <Button
