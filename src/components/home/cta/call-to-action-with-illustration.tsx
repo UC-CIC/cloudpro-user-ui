@@ -7,60 +7,54 @@ import {
   Button,
   Icon,
   IconProps,
-} from "@chakra-ui/react";
-
+} from '@chakra-ui/react';
 
 import {
   NavLink as RouterLink, // <-- import the NavLink component
-} from "react-router-dom";
-
-
+} from 'react-router-dom';
 
 export const CallToActionWithIllustration = () => {
   return (
-    <Container maxW={"5xl"}>
+    <Container maxW={'5xl'}>
       <Stack
-        textAlign={"center"}
-        align={"center"}
+        textAlign={'center'}
+        align={'center'}
         spacing={{ base: 8, md: 10 }}
-        py={{ base: 20, md: 28 }}
+        py="16"
       >
         <Heading
           fontWeight={600}
-          fontSize={{ base: "3xl", sm: "4xl", md: "6xl" }}
-          lineHeight={"110%"}
+          fontSize={{ base: '3xl', sm: '4xl', md: '6xl' }}
+          lineHeight={'110%'}
         >
-          Your recovery story{" "}
-          <Text as={"span"} color={"orange.400"}>
+          Your recovery story{' '}
+          <Text as={'span'} color={'orange.400'}>
             made easy
           </Text>
         </Heading>
-        <Text color={"gray.500"} maxW={"3xl"}>
-          Track your recovery journey through regular surveys. Unlock your care teams full potential through providing valuable insights.
+        <Text color={'gray.500'} maxW={'3xl'}>
+          Track your recovery journey through regular surveys. Unlock your care
+          teams full potential through providing valuable insights.
         </Text>
-        <Stack spacing={6} direction={"row"}>
+        <Stack spacing={6} direction={'row'}>
           <Button
-            rounded={"full"}
+            rounded={'full'}
             px={6}
-            colorScheme={"orange"}
-            bg={"orange.400"}
-            _hover={{ bg: "orange.500" }}
+            colorScheme={'orange'}
+            bg={'orange.400'}
+            _hover={{ bg: 'orange.500' }}
             as={RouterLink}
             to="/register"
           >
             Register now
           </Button>
-          <Button 
-          rounded={"full"} 
-          px={6}
-          as={RouterLink}
-          to="/signin">
+          <Button rounded={'full'} px={6} as={RouterLink} to="/signin">
             Login
           </Button>
         </Stack>
-        <Flex w={"full"}>
+        <Flex w={'full'}>
           <Illustration
-            height={{ sm: "24rem", lg: "28rem" }}
+            height={{ sm: '24rem', lg: '28rem' }}
             mt={{ base: 12, sm: 16 }}
           />
         </Flex>
