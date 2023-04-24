@@ -9,6 +9,7 @@ Amplify.configure({ Auth: AwsConfigAuth });
 interface UseAuth {
   isLoading: boolean;
   isAuthenticated: boolean;
+  isEmployee: boolean;
   username: string;
   sub: string;
   getChallenge: (username: string) => Promise<Result>;
@@ -43,54 +44,47 @@ export const useAuth = () => {
 const useProvideAuth = (): UseAuth => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isEmployee, setIsEmployee] = useState(false);
   const [username, setUsername] = useState('');
   const [sub, setSub] = useState('');
   const [session, setSession] = useState();
 
   useEffect(() => {
-    Auth.currentAuthenticatedUser()
-      .then((result) => {
-        console.log('in use effect then');
-        setUsername(result.username);
-        setSub(result.attributes.sub);
+    const getAuthenticatedUser = async () => {
+      try {
+        const { attributes, username } = await Auth.currentAuthenticatedUser();
+        setUsername(username);
+        setSub(attributes.sub);
+        setIsEmployee(attributes['custom:isEmployee'] === '1');
         setIsAuthenticated(true);
         setIsLoading(false);
-      })
-      .catch(() => {
-        console.log('in use effect catch');
+      } catch (err) {
+        console.error(err);
         setUsername('');
         setSub('');
+        setIsEmployee(false);
         setIsAuthenticated(false);
         setIsLoading(false);
-      });
+      }
+    };
+    getAuthenticatedUser();
   }, []);
 
   const getAccessToken = async () => {
     return (await Auth.currentSession()).getAccessToken().getJwtToken();
   };
 
-  const currentUserInfo = async () => {
-    return (await Auth.currentUserInfo());
-  };
+  const currentUserInfo = async () => Auth.currentUserInfo();
 
   const getChallenge = async (username: string) => {
-    console.log('USER', username);
     try {
       const result = await Auth.signIn(username);
-      console.log(result);
       setSession(result);
       setUsername(result.username);
-      //setUsername(username);
       //setIsAuthenticated(true);
-      return {
-        success: true,
-        message: '',
-      };
+      return { success: true, message: '' };
     } catch (error) {
-      return {
-        success: false,
-        message: 'LOGIN FAIL',
-      };
+      return { success: false, message: 'LOGIN FAIL' };
     }
   };
 
@@ -100,18 +94,14 @@ const useProvideAuth = (): UseAuth => {
     const user = session;
     try {
       const result = await Auth.sendCustomChallengeAnswer(user, code);
-      console.log('RESULT:', result);
       //setUsername(result.username);
       //setSession(result);
       setSub(result.attributes.sub);
       setIsAuthenticated(true);
       return { success: true, message: '' };
     } catch (error: any) {
-      console.log(error);
-      return {
-        success: false,
-        message: 'OTP FAIL',
-      };
+      console.error(error);
+      return { success: false, message: 'OTP FAIL' };
     }
   };
 
@@ -121,11 +111,8 @@ const useProvideAuth = (): UseAuth => {
       console.log('RESULT:', result);
       return { success: true, message: '' };
     } catch (error: any) {
-      console.log(error);
-      return {
-        success: false,
-        message: 'OTP FAIL',
-      };
+      console.error(error);
+      return { success: false, message: 'OTP FAIL' };
     }
   };
 
@@ -156,8 +143,6 @@ const useProvideAuth = (): UseAuth => {
     password += symbol.substring(rsymbol, rsymbol + 1);
     password += anumber.substring(rnumber, rnumber + 1);
 
-    //console.log("Generated PW: ", password);
-
     try {
       const { user } = await Auth.signUp({
         username: email,
@@ -182,16 +167,14 @@ const useProvideAuth = (): UseAuth => {
       setIsAuthenticated(false);
       return { success: true, message: '' };
     } catch (error) {
-      return {
-        success: false,
-        message: 'LOGOUT FAIL',
-      };
+      return { success: false, message: 'LOGOUT FAIL' };
     }
   };
 
   return {
     isLoading,
     isAuthenticated,
+    isEmployee,
     username,
     sub,
     getChallenge,
