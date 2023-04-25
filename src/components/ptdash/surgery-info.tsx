@@ -1,86 +1,84 @@
-import React, { useState,useEffect } from "react";
-
+import React, { useMemo } from 'react';
 import {
-    HStack,
-    Box,
-    Heading,
-    Text,
-    Divider,
-    Container,
-    Progress,
-    Spacer
-  } from "@chakra-ui/react";
-  
-  export interface Props {
-    hospital: string;
-    surgeon: string;
-    surgdate: string;
-  }
-  
+  Box,
+  Card,
+  CardBody,
+  CardHeader,
+  Divider,
+  Heading,
+  HStack,
+  Progress,
+  Text,
+} from '@chakra-ui/react';
 
-  export const SurgeryInfo: React.FC<Props> = (props)  => {
-    const [monthsleft, setMonthsLeft] = useState(0);
+export interface Props {
+  hospital: string;
+  surgeon: string;
+  surgeryDate: string;
+}
 
-
-    useEffect(() => {
-      function diff_months(dt2:Date, dt1:Date) 
-      {
-     
-       var diff =(dt2.getTime() - dt1.getTime()) / 1000;
-        diff /= (60 * 60 * 24 * 7 * 4);
-       return Math.abs(Math.round(diff));
-       
-      }
-
-      let surgdate = new Date(props.surgdate.replace('-','/') );
-      console.log("surgdate: ",surgdate)
-      let endDate = new Date(surgdate.setMonth(surgdate.getMonth()+11)); 
-      console.log("enddate: ",endDate)
-      let today = new Date();
-      setMonthsLeft( diff_months(today,endDate) )
-
-    },[props.surgdate]);
-
+export const SurgeryInfo: React.FC<Props> = ({
+  hospital,
+  surgeon,
+  surgeryDate,
+}) => {
+  // Calculate the number of months left for the observation period
+  const monthsLeft = useMemo(() => {
+    const surgDate = new Date(surgeryDate.replace('-', '/'));
+    const endDate = new Date(surgDate.setMonth(surgDate.getMonth() + 11));
+    const today = new Date();
     return (
-      <>
-        <Container minW="400px" maxW="400px" bg="grey" color="#262626" borderWidth='1px' borderRadius='lg' overflow='hidden'>
-          <Box bg="grey" color="white" w="100%" >
-            <Heading pt="10px" pb="20px">
-              <Text>Your Surgery</Text>
-            </Heading>
-            <Divider />
-            <HStack spacing="24px" pt="24px">
-              <Box w="40%" h="40px">
-                <Text align="left">Operation Date:</Text>
-              </Box>
-              <Box w="60%" h="40px">
-                <Text align="left">{props.surgdate}</Text>
-              </Box>
-            </HStack>
-            <HStack spacing="24px">
-              <Box w="40%" h="40px">
-                <Text align="left">Hospital:</Text>
-              </Box>
-              <Box w="60%" h="40px">
-                <Text align="left">{props.hospital}</Text>
-              </Box>
-            </HStack>
-            <HStack spacing="24px" >
-              <Box w="40%" h="40px">
-                <Text align="left">Surgeon:</Text>
-              </Box>
-              <Box w="60%" h="40px">
-                <Text align="left">{props.surgeon}</Text>
-              </Box>
-            </HStack>
-            <Divider/>
-            <Spacer pb="24px"/>
-            <Progress value={( Math.max(0,12-monthsleft) /12)*100} />
-            <Text>{monthsleft} Months of Observation Remain</Text>
-            <Spacer pt="24px"/>
-          </Box>
-        </Container>
-      </>
+      (endDate.getFullYear() - today.getFullYear()) * 12 -
+      today.getMonth() +
+      endDate.getMonth()
     );
-  };
-  
+  }, [surgeryDate]);
+
+  return (
+    <Card overflow="hidden" minW="400px" borderRadius="lg" bgColor="gray.50">
+      <CardHeader py="4" backgroundColor="teal">
+        <Heading fontSize="2xl" color="white">
+          Your Surgery
+        </Heading>
+      </CardHeader>
+
+      <CardBody py="6">
+        <Box pb="4">
+          <SurgeryInfoDetail label="Operation Date" text={surgeryDate} />
+          <SurgeryInfoDetail label="Hospital" text={hospital} />
+          <SurgeryInfoDetail label="Surgeon" text={surgeon} />
+        </Box>
+        <Divider borderColor="gray.300" />
+        <Box px="8" pt="4">
+          <Text mb="2" fontSize="sm">
+            {monthsLeft} months of observation remain
+          </Text>
+          <Progress
+            colorScheme="blue"
+            value={(Math.max(0, 12 - monthsLeft) / 12) * 100}
+          />
+        </Box>
+      </CardBody>
+    </Card>
+  );
+};
+
+type DetailProps = {
+  label: string;
+  text: string;
+};
+
+const SurgeryInfoDetail: React.FC<DetailProps> = ({ label, text }) => (
+  <HStack spacing="8">
+    <Box w="40%" h="8">
+      <Text align="left">{label}:</Text>
+    </Box>
+    <Box w="60%" h="8">
+      <Text align="left" fontWeight="normal">
+        {text}
+      </Text>
+    </Box>
+  </HStack>
+);
+
+export default SurgeryInfo;

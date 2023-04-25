@@ -1,8 +1,10 @@
 import { AxiosRequestConfig } from 'axios';
-import { ApiResponse } from '../models/api-response';
-import { callExternalApi } from './external-api.service';
 
-import { FormState } from '../models/form-state';
+import { callExternalApi } from './external-api.service';
+import { camelToSnakeCase, mapObjectKeys, snakeToCamelCase } from './helpers';
+import { ApiResponse } from '../models/api-response';
+import { FormState, Questionnaire } from '../models/form-state';
+import { UserNotifications } from '../models/notifications';
 
 const apiServerUrl = process.env.REACT_APP_API_SERVER_URL + '';
 //const apiXToken = process.env.REACT_APP_API_X_TOKEN  + "";
@@ -10,7 +12,30 @@ const apiServerUrl = process.env.REACT_APP_API_SERVER_URL + '';
 
 // We can drop api x token and api token here after we iterate.
 
-
+export interface PatientProfile {
+  challenge: {
+    c1a: string;
+    c1q: string;
+    c2a: string;
+    c2q: string;
+    c3a: string;
+    c3q: string;
+  };
+  email: string;
+  profile: {
+    birthDate: string;
+    birthSex: string;
+    firstName: string;
+    hospital: string;
+    lastName: string;
+    phone: string;
+    surgeon: string;
+    surgeryDate: string;
+  };
+  state: 'INIT' | 'STAGED' | 'COMPLETE';
+  sub: string;
+  tfa: string;
+}
 
 export const getHospitalByHid = async (
   hid: string,
@@ -25,12 +50,7 @@ export const getHospitalByHid = async (
     },
   };
 
-  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
-
-  return {
-    data,
-    error,
-  };
+  return callExternalApi({ config, transform: true });
 };
 export const getHospitalList = async (
   auth_token: String,
@@ -44,36 +64,23 @@ export const getHospitalList = async (
     },
   };
 
-  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
-
-  return {
-    data,
-    error,
-  };
+  return callExternalApi({ config, transform: true });
 };
-
 
 export const getNotificationsBySub = async (
   sub: string,
-  auth_token: String,
-): Promise<ApiResponse> => {
+  authToken: String,
+): Promise<ApiResponse<UserNotifications>> => {
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/notifications/${sub}`,
     method: 'GET',
     headers: {
       'content-type': 'application/json',
-      Authorization: `Bearer ${auth_token}`,
+      Authorization: `Bearer ${authToken}`,
     },
   };
-
-  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
-
-  return {
-    data,
-    error,
-  };
+  return callExternalApi<UserNotifications>({ config, transform: true });
 };
-
 
 export const getPtReportBySub = async (
   sub: string,
@@ -96,7 +103,6 @@ export const getPtReportBySub = async (
   };
 };
 
-
 export const getAggregateByAgg = async (
   agg: string,
   auth_token: String,
@@ -118,56 +124,25 @@ export const getAggregateByAgg = async (
   };
 };
 
-
-
 export const initState = async (
-  state_hash: string,
   propack: string,
-  auth_token: String,
-): Promise<ApiResponse> => {
-  console.log('In message.service. Calling user with: ', state_hash);
+  stateHash: string,
+  authToken: String,
+): Promise<ApiResponse<FormState>> => {
   const config: AxiosRequestConfig = {
-    url: `${apiServerUrl}/state/init/${state_hash}/${propack}`,
+    url: `${apiServerUrl}/state/init/${propack}/${stateHash}`,
     method: 'POST',
     headers: {
       'content-type': 'application/json',
-      Authorization: `Bearer ${auth_token}`,
+      Authorization: `Bearer ${authToken}`,
     },
   };
-
-  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
-
-  return {
-    data,
-    error,
-  };
-};
-
-export const getState = async (
-  state_hash: string,
-  auth_token: String,
-): Promise<ApiResponse> => {
-  console.log('In message.service. Calling user with: ', state_hash);
-  const config: AxiosRequestConfig = {
-    url: `${apiServerUrl}/state/${state_hash}`,
-    method: 'GET',
-    headers: {
-      'content-type': 'application/json',
-      Authorization: `Bearer ${auth_token}`,
-    },
-  };
-
-  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
-
-  return {
-    data,
-    error,
-  };
+  return callExternalApi<FormState>({ config, transform: true });
 };
 
 export const getSurvey = async (
   sub: string,
-  auth_token: String,
+  authToken: String,
 ): Promise<ApiResponse> => {
   console.log('In message.service. Calling user with: ', sub);
   const config: AxiosRequestConfig = {
@@ -175,11 +150,14 @@ export const getSurvey = async (
     method: 'GET',
     headers: {
       'content-type': 'application/json',
-      Authorization: `Bearer ${auth_token}`,
+      Authorization: `Bearer ${authToken}`,
     },
   };
 
-  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
+  const { data, error } = (await callExternalApi({
+    config,
+    transform: true,
+  })) as ApiResponse;
 
   return {
     data,
@@ -189,129 +167,92 @@ export const getSurvey = async (
 
 export const getUserProfile = async (
   sub: string,
-  auth_token: String,
+  authToken: String,
 ): Promise<ApiResponse> => {
-  console.log('In message.service. Calling user with: ', sub);
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/user/${sub}`,
     method: 'GET',
     headers: {
       'content-type': 'application/json',
-      Authorization: `Bearer ${auth_token}`,
+      Authorization: `Bearer ${authToken}`,
     },
   };
 
-  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
-
-  return {
-    data,
-    error,
-  };
+  return callExternalApi({ config, transform: true });
 };
 
 export const updateProfile = async (
   profile: any,
-  auth_token: String,
-): Promise<ApiResponse> => {
-  console.log('MSG SVC AUTH TOKEN: ', auth_token);
+  authToken: String,
+): Promise<ApiResponse<PatientProfile>> => {
+  // Transform data keys
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/user`,
     method: 'PUT',
     headers: {
       'content-type': 'application/json',
-      Authorization: `Bearer ${auth_token}`,
+      Authorization: `Bearer ${authToken}`,
     },
-    data: profile,
+    data: mapObjectKeys(profile, camelToSnakeCase),
   };
-
-  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
-
-  return {
-    data,
-    error,
-  };
+  return callExternalApi<PatientProfile>({ config, transform: true });
 };
 
-export const getStateHello = async (
-  auth_token: String,
-): Promise<ApiResponse> => {
-  const config: AxiosRequestConfig = {
-    url: `${apiServerUrl}/state/`,
-    method: 'GET',
-    headers: {
-      'content-type': 'application/json',
-      Authorization: `Bearer ${auth_token}`,
-    },
-  };
-
-  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
-
-  return {
-    data,
-    error,
-  };
+const transformState = (
+  state: FormState,
+  transform: (str: string) => string,
+): FormState => {
+  // Transform all props except state
+  const { states, ...rest } = state;
+  return Object.assign({ states }, mapObjectKeys(rest, transform));
 };
 
 export const getStateByStateHash = async (
   stateHash: string,
-  auth_token: String,
-): Promise<ApiResponse> => {
+  authToken: String,
+): Promise<ApiResponse<FormState>> => {
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/state/${stateHash}`,
     method: 'GET',
     headers: {
       'content-type': 'application/json',
-      Authorization: `Bearer ${auth_token}`,
+      Authorization: `Bearer ${authToken}`,
     },
   };
-
-  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
-
-  return {
-    data,
-    error,
-  };
+  let { data, error } = await callExternalApi<FormState>({ config });
+  if (data) data = transformState(data, snakeToCamelCase);
+  return { data, error };
 };
 
 export const getQuestionnaireByProHash = async (
-  pro_hash: string,
-  auth_token: String,
-): Promise<ApiResponse> => {
+  proHash: string,
+  authToken: String,
+): Promise<ApiResponse<Questionnaire>> => {
   const config: AxiosRequestConfig = {
-    url: `${apiServerUrl}/questionnaire/${pro_hash}`,
+    url: `${apiServerUrl}/questionnaire/${proHash}`,
     method: 'GET',
     headers: {
       'content-type': 'application/json',
-      Authorization: `Bearer ${auth_token}`,
+      Authorization: `Bearer ${authToken}`,
     },
   };
-
-  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
-
-  return {
-    data,
-    error,
-  };
+  return callExternalApi<Questionnaire>({ config, transform: true });
 };
 
 export const updateFullState = async (
   state: FormState,
-  auth_token: String,
-): Promise<ApiResponse> => {
+  authToken: String,
+): Promise<ApiResponse<FormState>> => {
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/state/update`,
     method: 'PUT',
     headers: {
       'content-type': 'application/json',
-      Authorization: `Bearer ${auth_token}`,
+      Authorization: `Bearer ${authToken}`,
     },
-    data: state,
+    data: transformState(state, camelToSnakeCase),
   };
-
-  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
-
-  return {
-    data,
-    error,
-  };
+  let { data, error } = await callExternalApi<FormState>({ config });
+  if (data) data = transformState(data, camelToSnakeCase);
+  return { data, error };
 };

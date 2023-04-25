@@ -1,34 +1,27 @@
-import {
-    HStack,
-    Box,
-    Text,
-    Container,
-  } from "@chakra-ui/react";
-  
+import { Box, Container, HStack, Text } from '@chakra-ui/react';
 
-  export interface Props {
-    grouping: string;
-    duedate:string;
-  }
+export interface Props {
+  dueDate: string;
+  grouping: string;
+}
 
-  
-  export const SurveyGrouping: React.FC<Props> = (props)  => {
-    return (
-      <>
-        <Container minW="420px" bg="purple" color="#262626" borderWidth='1px' borderRadius='lg' overflow='hidden'>
-          <Box bg="purple" color="white" w="100%" >
-            <HStack spacing="24px" pt="24px">
-              <Box w="100%" h="40px">
-                <Text align="left">{props.grouping}</Text>
-              </Box>
-              
-              <Box w="60%" h="40px">
-                <Text align="right">{props.duedate}</Text>
-              </Box>
-            </HStack>
-          </Box>
-        </Container>
-      </>
-    );
-  };
-  
+export const SurveyGrouping: React.FC<Props> = ({ dueDate, grouping }) => {
+  return (
+    <Container
+      bg="gray.50"
+      borderWidth="1px"
+      borderRadius="lg"
+      overflow="hidden"
+    >
+      <HStack spacing="4" py="4">
+        <Box w="100%">
+          <Text align="left">{grouping}</Text>
+        </Box>
+
+        <Box w="60%">
+          <Text align="right">{dueDate}</Text>
+        </Box>
+      </HStack>
+    </Container>
+  );
+};

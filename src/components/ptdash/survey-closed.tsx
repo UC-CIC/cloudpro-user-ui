@@ -1,33 +1,20 @@
-import {
-    HStack,
-    Box,
-    Text,
-    Container,
-    Button
-  } from "@chakra-ui/react";
-  
-  import { CheckIcon, CloseIcon } from '@chakra-ui/icons'
-  export interface Props {
-    description: string;
-    missed: boolean;
+import { Box, Container, HStack, Text } from '@chakra-ui/react';
+import { CheckIcon, CloseIcon } from '@chakra-ui/icons';
+
+export interface Props {
+  description: string;
+  missed: boolean;
 }
 
-
-  export const SurveyClosed: React.FC<Props> = (props) => {
-    return (
-      <>
-        <Container minW="420px" >
-          <Box w="100%" >
-            <HStack spacing="24px" pt="24px">
-            { props.missed ? <CloseIcon/> :
-            <CheckIcon/> }
-              <Box w="100%"  bg="tan">
-                <Text align="left">{props.description}</Text>
-              </Box>
-            </HStack>
-          </Box>
-        </Container>
-      </>
-    );
-  };
-  
+export const SurveyClosed: React.FC<Props> = ({ description, missed }) => {
+  return (
+    <Container>
+      <HStack spacing="10" py="2">
+        {missed ? <CloseIcon /> : <CheckIcon />}
+        <Box>
+          <Text align="left">{description}</Text>
+        </Box>
+      </HStack>
+    </Container>
+  );
+};

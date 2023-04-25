@@ -1,35 +1,36 @@
-import { Text, VStack, Link,Box } from "@chakra-ui/react";
+import { Text, VStack } from '@chakra-ui/react';
 
-import React, { useEffect,useState } from "react";
-
-import { useAuth } from "../hooks/useAuth";
+import React from 'react';
 
 export const Surgeon: React.FC = () => {
-    const auth = useAuth();
+  return (
+    <VStack h={500} justify="center" spacing={8}>
+      <Text fontSize="5xl">Welcome</Text>
+      <Text fontSize="4xl">I am Surgeon 👩‍⚕️</Text>
+    </VStack>
+  );
+};
 
-    const [isEmployee, setIsEmployee] = useState<string>("");
+// import React, { useEffect, useState } from "react";
+// import { PageLayout } from "../components/page-layout";
+// import { Container, Stack, Flex } from "@chakra-ui/react";
+// import { SrgnTab } from "../components/srgndash/srgn-tab"
 
-    useEffect(() => {
-        const data = auth.currentUserInfo();
-        data.then(svalue => {
-            console.log(svalue)
-            console.log(svalue.attributes["custom:isEmployee"]);
-            setIsEmployee(svalue.attributes["custom:isEmployee"] as string)
-        });
-        
-    }, [auth]);
+// export const SurgeonTester: React.FC = () => {
+//   return (
+//     <PageLayout>
+//       <Container maxW={"5xl"}>
+//         <Stack
+//           textAlign={"center"}
+//           align={"center"}
+//           spacing={{ base: 8, md: 10 }}
+//           py={{ base: 20, md: 28 }}
+//         >
 
-    if (auth.isLoading) {
-        return <Box />;
-    }
-    return (
-            <VStack h={500} justify="center" spacing={8}>
-                <Text fontSize="5xl">Welcome</Text>
-                 { isEmployee === "1" ?
-                    <Text fontSize="4xl">I am Surgeon 👩‍⚕️</Text>
-                : <Text fontSize="4xl">I am Patient 😷 </Text>
-                }
-            </VStack>
+//           <SrgnTab/>
 
-    );
-}
+//         </Stack>
+//       </Container>
+//     </PageLayout>
+//   );
+// };
