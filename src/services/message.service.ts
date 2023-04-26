@@ -244,7 +244,7 @@ export const updateFullState = async (
   authToken: String,
 ): Promise<ApiResponse<FormState>> => {
   const config: AxiosRequestConfig = {
-    url: `${apiServerUrl}/state/update`,
+    url: `${apiServerUrl}/state`,
     method: 'PUT',
     headers: {
       'content-type': 'application/json',
