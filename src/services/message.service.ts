@@ -204,7 +204,26 @@ const transformState = (
 ): FormState => {
   // Transform all props except state
   const { states, ...rest } = state;
-  return Object.assign({ states }, mapObjectKeys(rest, transform));
+
+  console.log(" transformState PRE FOR: ",state)
+
+  if ( Object.keys(state).length === 0 ) 
+  {
+    return Object.assign( 
+      {states: {}}, 
+      mapObjectKeys(rest, transform)
+    );
+  }
+
+  const transformedStates: typeof states = {};
+  for (const [key, value] of Object.entries(states)) {
+      transformedStates[key] = mapObjectKeys(value, transform);
+  }
+
+  return Object.assign( 
+    {states: transformedStates}, 
+    mapObjectKeys(rest, transform)
+  );
 };
 
 export const getStateByStateHash = async (
@@ -221,6 +240,7 @@ export const getStateByStateHash = async (
   };
   let { data, error } = await callExternalApi<FormState>({ config });
   if (data) data = transformState(data, snakeToCamelCase);
+  console.log(" getStateByHash POST TRANSFORM: ",data)
   return { data, error };
 };
 
@@ -252,6 +272,8 @@ export const updateFullState = async (
     },
     data: transformState(state, camelToSnakeCase),
   };
+  
+  console.log(" updateFullState PRE TRANSFORM: ",state)
   let { data, error } = await callExternalApi<FormState>({ config });
   if (data) data = transformState(data, camelToSnakeCase);
   return { data, error };
