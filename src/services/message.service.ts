@@ -144,7 +144,6 @@ export const getSurvey = async (
   sub: string,
   authToken: String,
 ): Promise<ApiResponse> => {
-  console.log('In message.service. Calling user with: ', sub);
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/survey/${sub}`,
     method: 'GET',
@@ -205,7 +204,6 @@ const transformState = (
   // Transform all props except state
   const { states, ...rest } = state;
 
-  console.log(" transformState PRE FOR: ",state)
 
   if ( Object.keys(state).length === 0 ) 
   {
@@ -240,7 +238,7 @@ export const getStateByStateHash = async (
   };
   let { data, error } = await callExternalApi<FormState>({ config });
   if (data) data = transformState(data, snakeToCamelCase);
-  console.log(" getStateByHash POST TRANSFORM: ",data)
+
   return { data, error };
 };
 
@@ -273,7 +271,6 @@ export const updateFullState = async (
     data: transformState(state, camelToSnakeCase),
   };
   
-  console.log(" updateFullState PRE TRANSFORM: ",state)
   let { data, error } = await callExternalApi<FormState>({ config });
   if (data) data = transformState(data, camelToSnakeCase);
   return { data, error };

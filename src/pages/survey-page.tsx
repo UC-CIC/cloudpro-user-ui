@@ -164,7 +164,6 @@ export const Survey: React.FC = () => {
   }, [formState, questionnaire]);
 
   const saveState = async (data: FormData) => {
-    console.log("SPAGE DATA:" , data)
     if (!formState) return;
     const newState = { ...formState, states: { ...formState.states } };
     // Update local state
@@ -177,7 +176,6 @@ export const Survey: React.FC = () => {
         };
       }
     }
-    console.log("SPAGE MAPPED:", newState)
     setFormState(newState);
     // Save state to DB
     return updateState(newState);
