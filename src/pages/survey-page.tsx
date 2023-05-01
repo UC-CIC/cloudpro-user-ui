@@ -178,7 +178,7 @@ export const Survey: React.FC = () => {
     }
     setFormState(newState);
     // Save state to DB
-    return updateState(formState);
+    return updateState(newState);
   };
 
   const handleFormSave = async (formDate: FormData) => {

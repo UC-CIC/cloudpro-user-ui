@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect  } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   Box,
@@ -83,6 +83,35 @@ export const QuestionnaireForm: React.FC<Props> = ({
   onFormSubmit,
   steps,
 }) => {
+  useEffect(() => {
+
+    for (const step of steps) {
+      for (const field of step.fields) {
+          switch (field.type) {
+              case 'checkbox':
+              case 'decimal':
+              case 'dropdown':
+              case 'radio':
+              case 'text':
+                  if (field.state != null) {
+                      setValue(field.name, mapValuesToString(field.state));
+                  }
+                  break;
+              case 'hidden':
+                  // TODO
+                  setValue(field.name, field.state);
+                  break;
+              default:
+                  console.error(`Invalid type of ${field.type}`);
+                  break;
+          }
+      }
+    }
+    
+
+  }, [steps]);
+
+
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [fadeOffset, setFadeOffset] = useState('-1rem');
   const {
@@ -135,6 +164,8 @@ export const QuestionnaireForm: React.FC<Props> = ({
 
   const isGroup = currentStep.fields.length > 1;
 
+
+
   const renderFields = () => {
     const fields = currentStep.fields
       .map((field) => {
@@ -146,8 +177,7 @@ export const QuestionnaireForm: React.FC<Props> = ({
           case 'text':
             const InputComponent = STANDALONE_INPUT_MAP[field.type];
 
-            if (field.state != null)
-              setValue(field.name, mapValuesToString(field.state));
+
             return (
               <QuestionnaireField
                 compact={isGroup}
@@ -167,7 +197,7 @@ export const QuestionnaireForm: React.FC<Props> = ({
             );
           case 'hidden':
             // TODO
-            setValue(field.name, field.state);
+            //setValue(field.name, field.state);
             return <div key={field.name}>Not implemented yet</div>;
           default:
             console.error(`Invalid type of ${field.type}`);

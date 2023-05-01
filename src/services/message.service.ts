@@ -144,7 +144,6 @@ export const getSurvey = async (
   sub: string,
   authToken: String,
 ): Promise<ApiResponse> => {
-  console.log('In message.service. Calling user with: ', sub);
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/survey/${sub}`,
     method: 'GET',
@@ -204,7 +203,25 @@ const transformState = (
 ): FormState => {
   // Transform all props except state
   const { states, ...rest } = state;
-  return Object.assign({ states }, mapObjectKeys(rest, transform));
+
+
+  if ( Object.keys(state).length === 0 ) 
+  {
+    return Object.assign( 
+      {states: {}}, 
+      mapObjectKeys(rest, transform)
+    );
+  }
+
+  const transformedStates: typeof states = {};
+  for (const [key, value] of Object.entries(states)) {
+      transformedStates[key] = mapObjectKeys(value, transform);
+  }
+
+  return Object.assign( 
+    {states: transformedStates}, 
+    mapObjectKeys(rest, transform)
+  );
 };
 
 export const getStateByStateHash = async (
@@ -221,6 +238,7 @@ export const getStateByStateHash = async (
   };
   let { data, error } = await callExternalApi<FormState>({ config });
   if (data) data = transformState(data, snakeToCamelCase);
+
   return { data, error };
 };
 
@@ -244,7 +262,7 @@ export const updateFullState = async (
   authToken: String,
 ): Promise<ApiResponse<FormState>> => {
   const config: AxiosRequestConfig = {
-    url: `${apiServerUrl}/state/update`,
+    url: `${apiServerUrl}/state`,
     method: 'PUT',
     headers: {
       'content-type': 'application/json',
@@ -252,6 +270,7 @@ export const updateFullState = async (
     },
     data: transformState(state, camelToSnakeCase),
   };
+  
   let { data, error } = await callExternalApi<FormState>({ config });
   if (data) data = transformState(data, camelToSnakeCase);
   return { data, error };
