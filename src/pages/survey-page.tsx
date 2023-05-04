@@ -158,14 +158,16 @@ export const Survey: React.FC = () => {
     },
   });
 
+
   // Setup form
   const proFormQuestions: FormElement[] = useMemo(() => {
     return buildForm(formState, questionnaire);
   }, [formState, questionnaire]);
 
-  const saveState = async (data: FormData) => {
+  const saveState = async (data: FormData, status = 'open') => {
     if (!formState) return;
     const newState = { ...formState, states: { ...formState.states } };
+    newState.stateStatus = status;
     // Update local state
     for (const formEntry of Object.values(data)) {
       for (const [linkId, stateValue] of Object.entries(formEntry)) {
@@ -186,7 +188,25 @@ export const Survey: React.FC = () => {
     navigate('/home');
   };
 
-  const handleFormSubmit = async (formDate: FormData) => saveState(formDate);
+  
+  const submitForm = async (formDate: FormData) => {
+    const authToken = await auth.getAccessToken();
+    const sub = await auth.sub;
+
+    if( formState !== undefined ){
+      await saveState(formDate,'submitted');
+      const sid = (formState.stateHash).substring(0,64);
+      const assignedDate = (formState.stateHash).substring(64);
+      alert(JSON.stringify(formDate));
+    }
+    return;
+  }
+  
+  const handleFormSubmit = async (formDate: FormData) => {
+    await submitForm(formDate);
+    navigate('/home');
+  };
+
 
   const isLoading = isLoadingState || isLoadingQuestionnaire || isSubmitting;
   const isError = isLoadingStateError || isLoadingQuestionnaireError;
