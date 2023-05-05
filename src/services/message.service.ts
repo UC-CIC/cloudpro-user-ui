@@ -164,20 +164,20 @@ export const getSurvey = async (
   };
 };
 
-export const updateSurvey = async (
+export const closeSurvey = async (
   sub: string,
   authToken: String,
   sid: string,
-  assignedDate: string
+  dueDate: string
 ): Promise<ApiResponse<FormState>> => {
   const config: AxiosRequestConfig = {
-    url: `${apiServerUrl}/state/${sub}`,
+    url: `${apiServerUrl}/survey/${sub}`,
     method: 'PATCH',
     headers: {
       'content-type': 'application/json',
       Authorization: `Bearer ${authToken}`,
     },
-    data: { "sid": sid, "assigned_date": assignedDate},
+    data: { "sid": sid, "due_date": dueDate},
   };
   
   let { data, error } = await callExternalApi<FormState>({ config });

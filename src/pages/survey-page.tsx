@@ -24,6 +24,7 @@ import {
   getQuestionnaireByProHash,
   initState,
   updateFullState,
+  closeSurvey
 } from '../services/message.service';
 
 interface FormElement {
@@ -159,6 +160,26 @@ export const Survey: React.FC = () => {
   });
 
 
+  interface FormSubStructure {
+    sid:string;
+    dueDate:string;
+  }
+  // Form submit method
+  const {
+    isLoading: isFormDone,
+    isSuccess: isFormDoneError,
+    mutate: closeForm,
+  } = useMutation({
+    mutationFn: async ( incoming:FormSubStructure ) => {
+      const authToken = await auth.getAccessToken();
+      const sub = await auth.sub;
+
+      const { data, error } = await closeSurvey(sub, authToken, incoming.sid, incoming.dueDate);
+      if (!data && error) throw error;
+      return data;
+    },
+  });
+
   // Setup form
   const proFormQuestions: FormElement[] = useMemo(() => {
     return buildForm(formState, questionnaire);
@@ -195,9 +216,14 @@ export const Survey: React.FC = () => {
 
     if( formState !== undefined ){
       await saveState(formDate,'submitted');
-      const sid = (formState.stateHash).substring(0,64);
-      const assignedDate = (formState.stateHash).substring(64);
-      alert(JSON.stringify(formDate));
+      const sid = (formState.stateHash).substring(0,64) as string;
+      const dueDate = (formState.stateHash).substring(64) as string;
+      const data = {
+        sid: sid,
+        dueDate: dueDate
+      }
+
+      return closeForm( data );
     }
     return;
   }
@@ -208,8 +234,9 @@ export const Survey: React.FC = () => {
   };
 
 
-  const isLoading = isLoadingState || isLoadingQuestionnaire || isSubmitting;
-  const isError = isLoadingStateError || isLoadingQuestionnaireError;
+
+  const isLoading = isLoadingState || isLoadingQuestionnaire || isSubmitting || isFormDone;
+  const isError = isLoadingStateError || isLoadingQuestionnaireError || isFormDoneError;
 
   return (
     <PageLayout>
