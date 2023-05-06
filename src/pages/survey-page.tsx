@@ -130,7 +130,9 @@ export const Survey: React.FC = () => {
         if (!newState) throw new Error('Could not initialize state');
         return newState;
       },
-      { onSuccess: (data: FormState) => setFormState(data) },
+      { 
+        onSuccess: (data: FormState) => setFormState(data)
+      },
     );
 
   // Retrieve the questionnaire
@@ -211,9 +213,6 @@ export const Survey: React.FC = () => {
 
   
   const submitForm = async (formDate: FormData) => {
-    const authToken = await auth.getAccessToken();
-    const sub = await auth.sub;
-
     if( formState !== undefined ){
       await saveState(formDate,'submitted');
       const sid = (formState.stateHash).substring(0,64) as string;
@@ -225,11 +224,10 @@ export const Survey: React.FC = () => {
 
       return closeForm( data );
     }
-    return;
   }
   
   const handleFormSubmit = async (formDate: FormData) => {
-    await submitForm(formDate);
+    const result = await submitForm(formDate);
     navigate('/home');
   };
 

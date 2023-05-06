@@ -2,11 +2,10 @@ import { ResponsiveBar } from "@nivo/bar";
 import { CartesianMarkerProps, DatumValue } from "@nivo/core";
 import data from "./sample-data-pt";
 import { Checkbox, CheckboxGroup, Stack } from "@chakra-ui/react";
-import CSS from "csstype";
+//import CSS from "csstype";
 import { useState,useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { getAggregateByAgg,getPtReportBySub } from "../../services/message.service";
-import { Center,Flex } from '@chakra-ui/react'
 
 import { Select } from '@chakra-ui/react'
 
@@ -35,13 +34,14 @@ export const BarChart = () => {
     maxValue: 100
   };
 
-  
+  /*
   const parentStyle: CSS.Properties = {
     height: "100%",
     margin: "0 auto",
     textAlign: "center",
     background: "#eeeeee"
   };
+  */
   
 
   const [showmark, setShowmark] = useState(false);
