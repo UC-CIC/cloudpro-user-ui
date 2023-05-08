@@ -164,6 +164,29 @@ export const getSurvey = async (
   };
 };
 
+export const closeSurvey = async (
+  sub: string,
+  authToken: String,
+  sid: string,
+  dueDate: string
+): Promise<ApiResponse<FormState>> => {
+  const config: AxiosRequestConfig = {
+    url: `${apiServerUrl}/survey/${sub}`,
+    method: 'PATCH',
+    headers: {
+      'content-type': 'application/json',
+      Authorization: `Bearer ${authToken}`,
+    },
+    data: { "sid": sid, "due_date": dueDate},
+  };
+  
+  let { data, error } = await callExternalApi<FormState>({ config });
+  if (data) data = transformState(data, camelToSnakeCase);
+  return { data, error };
+};
+
+
+
 export const getUserProfile = async (
   sub: string,
   authToken: String,
@@ -275,3 +298,5 @@ export const updateFullState = async (
   if (data) data = transformState(data, camelToSnakeCase);
   return { data, error };
 };
+
+

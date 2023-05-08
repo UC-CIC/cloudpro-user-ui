@@ -24,6 +24,7 @@ import {
   getQuestionnaireByProHash,
   initState,
   updateFullState,
+  closeSurvey
 } from '../services/message.service';
 
 interface FormElement {
@@ -129,7 +130,9 @@ export const Survey: React.FC = () => {
         if (!newState) throw new Error('Could not initialize state');
         return newState;
       },
-      { onSuccess: (data: FormState) => setFormState(data) },
+      { 
+        onSuccess: (data: FormState) => setFormState(data)
+      },
     );
 
   // Retrieve the questionnaire
@@ -158,14 +161,36 @@ export const Survey: React.FC = () => {
     },
   });
 
+
+  interface FormSubStructure {
+    sid:string;
+    dueDate:string;
+  }
+  // Form submit method
+  const {
+    isLoading: isFormDone,
+    isSuccess: isFormDoneError,
+    mutate: closeForm,
+  } = useMutation({
+    mutationFn: async ( incoming:FormSubStructure ) => {
+      const authToken = await auth.getAccessToken();
+      const sub = await auth.sub;
+
+      const { data, error } = await closeSurvey(sub, authToken, incoming.sid, incoming.dueDate);
+      if (!data && error) throw error;
+      return data;
+    },
+  });
+
   // Setup form
   const proFormQuestions: FormElement[] = useMemo(() => {
     return buildForm(formState, questionnaire);
   }, [formState, questionnaire]);
 
-  const saveState = async (data: FormData) => {
+  const saveState = async (data: FormData, status = 'open') => {
     if (!formState) return;
     const newState = { ...formState, states: { ...formState.states } };
+    newState.stateStatus = status;
     // Update local state
     for (const formEntry of Object.values(data)) {
       for (const [linkId, stateValue] of Object.entries(formEntry)) {
@@ -186,10 +211,30 @@ export const Survey: React.FC = () => {
     navigate('/home');
   };
 
-  const handleFormSubmit = async (formDate: FormData) => saveState(formDate);
+  
+  const submitForm = async (formDate: FormData) => {
+    if( formState !== undefined ){
+      await saveState(formDate,'submitted');
+      const sid = (formState.stateHash).substring(0,64) as string;
+      const dueDate = (formState.stateHash).substring(64) as string;
+      const data = {
+        sid: sid,
+        dueDate: dueDate
+      }
 
-  const isLoading = isLoadingState || isLoadingQuestionnaire || isSubmitting;
-  const isError = isLoadingStateError || isLoadingQuestionnaireError;
+      return closeForm( data );
+    }
+  }
+  
+  const handleFormSubmit = async (formDate: FormData) => {
+    const result = await submitForm(formDate);
+    navigate('/home');
+  };
+
+
+
+  const isLoading = isLoadingState || isLoadingQuestionnaire || isSubmitting || isFormDone;
+  const isError = isLoadingStateError || isLoadingQuestionnaireError || isFormDoneError;
 
   return (
     <PageLayout>
