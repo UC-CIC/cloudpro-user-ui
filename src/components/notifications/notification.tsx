@@ -3,7 +3,10 @@ import {
   AlertIcon,
   AlertTitle,
   AlertDescription,
+  Container,
   CloseButton,
+  ModalHeader,
+  ModalCloseButton,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -29,20 +32,25 @@ export const Notifications: React.FC<NotificationsProps> = ({
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
+        <ModalHeader>Notifications</ModalHeader>
+        <ModalCloseButton />
+        <Container maxW="5xl">
           {Object.entries(notifications.notifications).map(
             ([key, notification]: [string, Notification]) => (
               <Alert
                 key={key}
                 status="info"
                 variant="subtle"
-                flexDirection="column"
-                alignItems="center"
-                justifyContent="center"
-                textAlign="center"
-                width="100%"
-                height="200px"
-                m={4}
+                
+                alignItems="left"
+                justifyContent="left"
+                textAlign="left"
+                mb={4}
+                mt={4}
               >
+                <AlertIcon/>
+                {notification.notificationType}: {notification.notification}
+                {/*
                 <AlertIcon boxSize="40px" m={0} />
                 <AlertTitle mt={4} mb={1} fontSize="lg">
                   {notification.notificationType}
@@ -56,9 +64,11 @@ export const Notifications: React.FC<NotificationsProps> = ({
                   top="8px"
                   onClick={onClose}
                 />
+              */}
               </Alert>
             ),
           )}
+          </Container>
         </ModalContent>
       </Modal>
     );
