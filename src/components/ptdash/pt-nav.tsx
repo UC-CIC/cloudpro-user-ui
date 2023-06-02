@@ -52,7 +52,6 @@ export const PtNav: React.FC<Props> = (props) => {
   const { data, isFetching,isLoading } = useQuery('patientSurveys', async () => {
     const token = await auth.getAccessToken();
     const { data, error } = await getSurvey(auth.sub, token);
-    console.log("Firing lazers");
     if (!data && error) throw error;
     return data;
   },{refetchOnMount: 'always'});
