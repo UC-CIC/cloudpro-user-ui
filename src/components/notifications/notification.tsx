@@ -50,21 +50,6 @@ export const Notifications: React.FC<NotificationsProps> = ({
               >
                 <AlertIcon/>
                 {notification.notificationType}: {notification.notification}
-                {/*
-                <AlertIcon boxSize="40px" m={0} />
-                <AlertTitle mt={4} mb={1} fontSize="lg">
-                  {notification.notificationType}
-                </AlertTitle>
-                <AlertDescription maxWidth="sm">
-                  {notification.notification}
-                </AlertDescription>
-                <CloseButton
-                  position="absolute"
-                  right="8px"
-                  top="8px"
-                  onClick={onClose}
-                />
-              */}
               </Alert>
             ),
           )}

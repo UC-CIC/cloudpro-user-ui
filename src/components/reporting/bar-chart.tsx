@@ -1,3 +1,5 @@
+import { useQuery } from 'react-query';
+
 import { ResponsiveBar } from "@nivo/bar";
 import { CartesianMarkerProps, DatumValue } from "@nivo/core";
 import data from "./sample-data-pt";
@@ -13,13 +15,34 @@ export const BarChart = () => {
 
   const auth = useAuth();
 
+  //updates to pull via React Query
+  const { data: tAgg, isLoading } = useQuery('tAgg', async () => {
+    const token = await auth.getAccessToken();
+    const { data, error } = await getAggregateByAgg("t_score",token);
+    if (!data && error) throw error;
+    return data;
+  });
+  const { data: specAgg, isLoading:isSpecLoading } = useQuery('specAgg', async () => {
+    const token = await auth.getAccessToken();
+    const { data, error } = await getAggregateByAgg("spec",token);
+    if (!data && error) throw error;
+    return data;
+  });
+  const { data: reportData, isLoading:isReportDataLoading } = useQuery('reportData', async () => {
+    const token = await auth.getAccessToken();
+    const { data, error } = await getPtReportBySub(auth.sub,token);
+    if (!data && error) throw error;
+    return data;
+  });
+
+
+
 
   const [apidata, setApidata] = useState(
     [{}]
   );
-
-  let keys = ["y"];
-  //let genData =  generateCountriesData(keys, { size: 12 })
+  
+  const keys = ["y"];
   const commonProperties = {
     width: 750,
     height: 400,
@@ -33,6 +56,10 @@ export const BarChart = () => {
     labelSkipHeight: 16,
     maxValue: 100
   };
+
+
+
+
 
   /*
   const parentStyle: CSS.Properties = {
@@ -88,6 +115,8 @@ export const BarChart = () => {
   
   const [chartdata, setChartdata] = useState({});
   
+ 
+
   useEffect(() => {
     let isMounted = true;
 
