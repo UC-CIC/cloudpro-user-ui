@@ -49,22 +49,33 @@ const useProvideAuth = (): UseAuth => {
   const [sub, setSub] = useState('');
   const [session, setSession] = useState();
 
+  // Helper method to set standard auth state values
+  const setAuthValues = (auth: any = undefined) => {
+    if (auth) {
+      const { attributes, username } = auth;
+      setUsername(username);
+      setSub(attributes.sub);
+      setIsEmployee(attributes['custom:isEmployee'] === '1');
+      setIsAuthenticated(true);
+      setIsLoading(false);
+    } else {
+      setUsername('');
+      setSub('');
+      setIsEmployee(false);
+      setIsAuthenticated(false);
+      setIsLoading(false);
+    }
+  };
+
+  // Check user auth status on setup
   useEffect(() => {
     const getAuthenticatedUser = async () => {
       try {
         const { attributes, username } = await Auth.currentAuthenticatedUser();
-        setUsername(username);
-        setSub(attributes.sub);
-        setIsEmployee(attributes['custom:isEmployee'] === '1');
-        setIsAuthenticated(true);
-        setIsLoading(false);
+        setAuthValues({ attributes, username });
       } catch (err) {
         console.error(err);
-        setUsername('');
-        setSub('');
-        setIsEmployee(false);
-        setIsAuthenticated(false);
-        setIsLoading(false);
+        setAuthValues();
       }
     };
     getAuthenticatedUser();
@@ -81,7 +92,6 @@ const useProvideAuth = (): UseAuth => {
       const result = await Auth.signIn(username);
       setSession(result);
       setUsername(result.username);
-      //setIsAuthenticated(true);
       return { success: true, message: '' };
     } catch (error) {
       return { success: false, message: 'LOGIN FAIL' };
@@ -89,15 +99,10 @@ const useProvideAuth = (): UseAuth => {
   };
 
   const signIn = async (code: string) => {
-    console.log('<SIGNIN>');
-    console.log(session);
     const user = session;
     try {
       const result = await Auth.sendCustomChallengeAnswer(user, code);
-      //setUsername(result.username);
-      //setSession(result);
-      setSub(result.attributes.sub);
-      setIsAuthenticated(true);
+      setAuthValues(result);
       return { success: true, message: '' };
     } catch (error: any) {
       console.error(error);
@@ -162,9 +167,7 @@ const useProvideAuth = (): UseAuth => {
   const signOut = async () => {
     try {
       await Auth.signOut();
-      setSub('');
-      setUsername('');
-      setIsAuthenticated(false);
+      setAuthValues();
       return { success: true, message: '' };
     } catch (error) {
       return { success: false, message: 'LOGOUT FAIL' };
