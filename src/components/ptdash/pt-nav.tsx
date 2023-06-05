@@ -1,5 +1,5 @@
-import React, {useEffect,useState} from 'react';
-import { useQuery  } from 'react-query';
+import React from 'react';
+import { useQuery } from 'react-query';
 
 import {
   Box,
@@ -45,26 +45,22 @@ export interface Props {
   surgdate: string;
 }
 
-
 export const PtNav: React.FC<Props> = (props) => {
   const auth = useAuth();
 
-  const { data, isFetching,isLoading } = useQuery('patientSurveys', async () => {
-    const token = await auth.getAccessToken();
-    const { data, error } = await getSurvey(auth.sub, token);
-    if (!data && error) throw error;
-    return data;
-  },{refetchOnMount: 'always'});
+  const { data, isLoading } = useQuery(
+    'patientSurveys',
+    async () => {
+      const token = await auth.getAccessToken();
+      const { data, error } = await getSurvey(auth.sub, token);
+      if (!data && error) throw error;
+      return data;
+    },
+    { refetchOnMount: 'always' },
+  );
 
   const { completedSurveys = [], openSurveys = [] } = (data || {}) as any;
 
-  if (isLoading || isFetching )
-    return (
-      <Stack mt="32" align="center">
-        <Loader />
-      </Stack>
-    );
-    
   return (
     <PageLayout>
       <Container maxW="3xl">
@@ -76,7 +72,7 @@ export const PtNav: React.FC<Props> = (props) => {
           mb="2"
           textAlign="center"
         >
-          {isLoading || isFetching ? (
+          {isLoading ? (
             <Loader />
           ) : (
             <>
