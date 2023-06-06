@@ -1,9 +1,16 @@
 import { useQuery } from 'react-query';
 
 import { ResponsiveBar } from "@nivo/bar";
-import { CartesianMarkerProps, DatumValue } from "@nivo/core";
-import data from "./sample-data-pt";
-import { Checkbox, CheckboxGroup, Stack, Container,Center } from "@chakra-ui/react";
+//import { CartesianMarkerProps, DatumValue } from "@nivo/core";
+//import data from "./sample-data-pt";
+import { 
+  Checkbox, 
+  Stack, 
+  Container,
+  Center,
+  Alert,
+  AlertIcon
+} from "@chakra-ui/react";
 //import CSS from "csstype";
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
@@ -136,45 +143,68 @@ export const BarChart = () => {
 
   return (
       <Container maxW="5xl">
-        <ResponsiveBar
-          {...commonProperties}
-          colors={{ scheme: "category10" }}
-          markers={ (showSpecMarker||showTMarker) ? markerActive() : [] }
-        />
-
+        { commonProperties.data.length > 0 ?
+          <ResponsiveBar
+            {...commonProperties}
+            colors={{ scheme: "category10" }}
+            markers={ (showSpecMarker||showTMarker) ? markerActive() : [] }
+          />
+          : 
+          <Alert
+                status="info"
+                variant="subtle"
+                
+                alignItems="left"
+                justifyContent="left"
+                textAlign="left"
+                mb={4}
+                mt={4}
+              >
+                <AlertIcon/>
+                There is no survey data available.
+          </Alert>
+        }
       
-        <Select onChange={handleOptionChange}>
-          {
-            options.map( (option:any,index) => (
-                <option key={option} value={index}>
-                  {option}
-                </option>
-            ))
-          }
-        
-        </Select>
-        <Center>
-          <CheckboxGroup colorScheme="green">
-            <Stack spacing={[1, 5]} direction={["column", "row"]}>
-              <Checkbox
-                 onChange={() => {
-                  setShowTMarker( prevState=>!prevState );
-                }}
-                value="tScore"
-              >
-                Show T-Score Baseline
-              </Checkbox>
-              <Checkbox
-                 onChange={() => {
-                  setShowSpecMarker( prevState=>!prevState );
-                }}
-                value="specScore"
-              >
-                Show Speciality Baseline
-              </Checkbox>
-            </Stack>
-        </CheckboxGroup>
-      </Center>
+      { options.length > 0 ?
+          <>
+              <Select onChange={handleOptionChange}>
+                {
+                  options.map( (option:any,index) => (
+                      <option key={option} value={index}>
+                        {option}
+                      </option>
+                  ))
+                }
+              
+              </Select> 
+              { commonProperties.data.length > 0 ?
+                <Center>
+                    <Stack spacing={[1, 5]} direction={["column", "row"]}>
+                      <Checkbox
+                        isChecked={showTMarker}
+                        onChange={() => {
+                          setShowTMarker( prevState=>!prevState );
+                        }}
+                        value="tScore"
+                      >
+                        Show T-Score Baseline
+                      </Checkbox>
+                      <Checkbox
+                        isChecked={showSpecMarker}
+                        onChange={() => {
+                          setShowSpecMarker( prevState=>!prevState );
+                        }}
+                        value="specScore"
+                      >
+                        Show Speciality Baseline
+                      </Checkbox>
+                    </Stack>
+              </Center>
+              : <></> }
+          </>
+        :
+        <></>
+      }
     </Container>
   );
 };
