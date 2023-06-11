@@ -41,7 +41,7 @@ export const App: React.FC = () => {
             <Route path="/home" element={<PatientHome />} />
             <Route path="/pt-authed-reporting" element={<PtReporting />} />
             <Route path="/survey/:propack/:stateHash" element={<Survey />} />
-            <Route path="/audit/:stateHash" element={<Audit />} />
+            <Route path="/audit/:sid" element={<Audit />} />
             <Route path="*" element={<Navigate replace to="/home" />} />
           </>
         )}
