@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { PageLayout } from "../components/page-layout";
 import Loader from "../components/Loader/Loader";
 import { useAuth } from "../hooks/useAuth";
@@ -10,13 +10,7 @@ import {
 import { useForm } from "react-hook-form";
 
 import { useQuery } from "react-query";
-import {
-  Container,
-  Link as ChakraLink,
-  ScaleFade,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
+import { Container, Link as ChakraLink, Stack } from "@chakra-ui/react";
 
 import {
   FormState,
@@ -30,6 +24,7 @@ import { QuestionnaireField } from "../components/QuestionnaireForm/Questionnair
 import { QuesitonnaireNumberInput } from "../components/QuestionnaireForm/QuesitonnaireNumberInput";
 import { QuestionnaireRadio } from "../components/QuestionnaireForm/QuestionnaireRadio";
 import { QuestionnaireTextInput } from "../components/QuestionnaireForm/QuestionnaireTextInput";
+import { snakeToCamelCase } from "../services/helpers";
 
 export const Audit: React.FC = () => {
   const auth = useAuth();
@@ -168,25 +163,37 @@ export const Audit: React.FC = () => {
   const {
     control,
     register,
-    clearErrors,
-    handleSubmit,
-    getFieldState,
-    getValues,
     setValue,
     formState,
     formState: { errors, isValid: isFormValid },
   } = useForm<FormData>({ mode: "onTouched" });
 
-  if (isLoading || isLoadingQuestionnaire) {
-    return (
-      <Stack mt="32" align="center">
-        <Loader />
-      </Stack>
-    );
-  }
+  // Helper method to map values using the specified callback function
+  const mapValues = (val: any, cb: (v: any) => any): any => {
+    if (Array.isArray(val)) {
+      return val.map((v: any) => mapValues(v, cb));
+    } else if (val?.constructor === Object) {
+      return Object.entries(val).reduce((obj: any, [key, v]) => {
+        obj[key] = mapValues(v, cb);
+        return obj;
+      }, {});
+    } else {
+      return cb(val);
+    }
+  };
+  // Helper method to force values into strings. This is necessary to bypass a
+  // Chakra UI bug with checkboxes regarding numbers (particularly with the 0
+  // value).
+  const mapValuesToString = (val: any): any =>
+    mapValues(val, (v: any) => v?.toString());
+
+  // Helper method to force values into numbers. Primarily helpful to revert
+  // values that had to be forced into strings due to the Chakra UI checkbox bug.
+  const mapValuesToNumber = (val: any) =>
+    mapValues(val, (v: any) => (Number.isNaN(Number(v)) ? v : Number(v)));
 
   const renderFields = () => {
-    const builder:any = [];
+    const builder: any = [];
     for (const step of proFormQuestions) {
       for (const field of step.fields) {
         const descriptor = field as Field;
@@ -199,7 +206,7 @@ export const Audit: React.FC = () => {
             const InputComponent = STANDALONE_INPUT_MAP[field.type];
             const isGroup = step.fields.length > 1;
 
-            builder.push (
+            builder.push(
               <QuestionnaireField
                 compact={isGroup}
                 description={descriptor.description}
@@ -216,13 +223,22 @@ export const Audit: React.FC = () => {
                 />
               </QuestionnaireField>
             );
+
+            const linkId = snakeToCamelCase(field.name.split(".")[1]);
+            const entryResponse = auditState?.states[linkId].entryResponse;
+
+            setValue(field.name, mapValuesToString(entryResponse));
+
             break;
           case "hidden":
             // TODO
             //setValue(field.name, field.state);
-            builder.push( 
-                <div key={field.name}>Not implemented yet</div> 
+            builder.push(
+              <div key={field.name}>
+                {descriptor.description} Not implemented yet
+              </div>
             );
+            setValue(field.name, field.state);
             break;
           default:
             console.error(`Invalid type of ${field.type}`);
@@ -233,6 +249,22 @@ export const Audit: React.FC = () => {
 
     return builder;
   };
+  if (isLoading || isLoadingQuestionnaire) {
+    return (
+      <Stack mt="32" align="center">
+        <Loader />
+      </Stack>
+    );
+  }
 
-  return <><fieldset disabled>{renderFields()}</fieldset></>;
+  return (
+    <PageLayout>
+      <Container maxW="5xl">
+        <fieldset disabled>{renderFields()}</fieldset>
+        <ChakraLink as={Link} color="teal" to="/home">
+          Go back to survey list
+        </ChakraLink>
+      </Container>
+    </PageLayout>
+  );
 };
