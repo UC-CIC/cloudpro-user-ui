@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import React, { useMemo,useState } from "react";
+import { Link, Navigate, useParams } from "react-router-dom";
 import { PageLayout } from "../components/page-layout";
 import Loader from "../components/Loader/Loader";
 import { useAuth } from "../hooks/useAuth";
@@ -30,8 +30,34 @@ export const Audit: React.FC = () => {
   const auth = useAuth();
   const { sid = "" } = useParams();
 
+  const STANDALONE_INPUT_MAP = {
+    checkbox: QuestionnaireCheckboxes,
+    decimal: QuesitonnaireNumberInput,
+    dropdown: QuestionnaireDropdown,
+    radio: QuestionnaireRadio,
+    text: QuestionnaireTextInput,
+  };
+
+  interface Field {
+    name: string;
+    description?: string | undefined;
+    text: string;
+    type: string;
+    value?: any;
+    state?: any;
+  }
+  const {
+    control,
+    register,
+    setValue,
+    formState,
+    formState: { errors, isValid: isFormValid },
+  } = useForm<FormData>({ mode: "onChange" });
+
+
+
   //get audit payload
-  const { data: auditData, isLoading } = useQuery("getAudit", async () => {
+  const { data: auditData, isLoading:isLoadingAudit } = useQuery("getAudit", async () => {
     const token = await auth.getAccessToken();
     const { data, error } = await getAudit(token, sid);
     if (!data && error) throw error;
@@ -41,7 +67,7 @@ export const Audit: React.FC = () => {
   const proPack: string = auditData?.state.proPack;
   const auditState: FormState = auditData?.state as FormState;
 
-  // Retrieve the questionnaire; depe3nd on existance of proPack
+  // Retrieve the questionnaire; depend on existance of proPack
   const {
     data: questionnaire,
     isError: isLoadingQuestionnaireError,
@@ -144,29 +170,7 @@ export const Audit: React.FC = () => {
   }, [auditState, questionnaire]);
   ////////////////////////////////////////////////////////////////
 
-  const STANDALONE_INPUT_MAP = {
-    checkbox: QuestionnaireCheckboxes,
-    decimal: QuesitonnaireNumberInput,
-    dropdown: QuestionnaireDropdown,
-    radio: QuestionnaireRadio,
-    text: QuestionnaireTextInput,
-  };
-
-  interface Field {
-    name: string;
-    description?: string | undefined;
-    text: string;
-    type: string;
-    value?: any;
-    state?: any;
-  }
-  const {
-    control,
-    register,
-    setValue,
-    formState,
-    formState: { errors, isValid: isFormValid },
-  } = useForm<FormData>({ mode: "onTouched" });
+  
 
   // Helper method to map values using the specified callback function
   const mapValues = (val: any, cb: (v: any) => any): any => {
@@ -192,8 +196,14 @@ export const Audit: React.FC = () => {
   const mapValuesToNumber = (val: any) =>
     mapValues(val, (v: any) => (Number.isNaN(Number(v)) ? v : Number(v)));
 
+  const [firstRender,setFirstRender]=useState(0);
+
   const renderFields = () => {
+    console.log("Questions: ", proFormQuestions);
+    console.log("Audit: ",auditData);
+    console.log("FirstRender: ",firstRender)
     const builder: any = [];
+    console.log("BUILDER: ",builder)
     for (const step of proFormQuestions) {
       for (const field of step.fields) {
         const descriptor = field as Field;
@@ -227,7 +237,9 @@ export const Audit: React.FC = () => {
             const linkId = snakeToCamelCase(field.name.split(".")[1]);
             const entryResponse = auditState?.states[linkId].entryResponse;
 
-            setValue(field.name, mapValuesToString(entryResponse));
+            if( firstRender != 1 ){
+              setValue(field.name, mapValuesToString(entryResponse));
+              setFirstRender(1);}
 
             break;
           case "hidden":
@@ -238,7 +250,7 @@ export const Audit: React.FC = () => {
                 {descriptor.description} Not implemented yet
               </div>
             );
-            setValue(field.name, field.state);
+            //setValue(field.name, field.state);
             break;
           default:
             console.error(`Invalid type of ${field.type}`);
@@ -246,10 +258,10 @@ export const Audit: React.FC = () => {
         }
       }
     }
-
+    
     return builder;
   };
-  if (isLoading || isLoadingQuestionnaire) {
+  if (isLoadingAudit || isLoadingQuestionnaire) {
     return (
       <Stack mt="32" align="center">
         <Loader />
