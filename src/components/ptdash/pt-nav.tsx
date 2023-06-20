@@ -123,6 +123,8 @@ export const PtNav: React.FC<Props> = (props) => {
                     renderSurvey={(item: Survey) => (
                       <SurveyClosed
                         key={item.sid}
+                        sid={item.sid}
+                        duedate={item.due}
                         description={item.name}
                         missed={item.missed}
                       />

@@ -186,6 +186,22 @@ export const closeSurvey = async (
 };
 
 
+export const getAudit = async (
+  authToken: String,
+  sid: String
+): Promise<ApiResponse> => {
+  const config: AxiosRequestConfig = {
+    url: `${apiServerUrl}/audit/${sid}`,
+    method: 'GET',
+    headers: {
+      'content-type': 'application/json',
+      Authorization: `Bearer ${authToken}`,
+    },
+  };
+
+  return callExternalApi({ config, transform: true });
+};
+
 
 export const getUserProfile = async (
   sub: string,
