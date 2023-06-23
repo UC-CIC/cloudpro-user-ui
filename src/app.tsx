@@ -31,7 +31,7 @@ export const App: React.FC = () => {
       </Route>
 
       <Route element={<PrivateRoutes />}>
-        {!isEmployee ? (
+        {isEmployee ? (
           <>
             <Route path="/home" element={<Surgeon />} />
             <Route path="*" element={<Navigate replace to="/home" />} />

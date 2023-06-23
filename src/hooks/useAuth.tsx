@@ -55,7 +55,7 @@ const useProvideAuth = (): UseAuth => {
         const { attributes, username } = await Auth.currentAuthenticatedUser();
         setUsername(username);
         setSub(attributes.sub);
-        setIsEmployee(attributes['custom:isEmployee'] === '1');
+        setIsEmployee(attributes['custom:isEmployee'] === '0');
         setIsAuthenticated(true);
         setIsLoading(false);
       } catch (err) {
