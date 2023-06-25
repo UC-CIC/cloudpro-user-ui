@@ -17,7 +17,7 @@ export const PageLayout: React.FC<Props> = ({ children }) => {
   return (
     <Grid
       templateAreas={'"nav nav" "main main" "footer footer"'}
-      gridTemplateRows="64px 1fr 30px"
+      gridTemplateRows={{ base: '64px 1fr 150px', md: '64px 1fr 64px' }}
       gridTemplateColumns="150px 1fr"
       minHeight="100vh"
       gap="1"
