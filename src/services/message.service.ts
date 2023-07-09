@@ -3,14 +3,10 @@ import { AxiosRequestConfig } from 'axios';
 import { callExternalApi } from './external-api.service';
 import { camelToSnakeCase, mapObjectKeys, snakeToCamelCase } from './helpers';
 import { ApiResponse } from '../models/api-response';
-import { FormState, Questionnaire } from '../models/form-state';
+import { Audit, FormState, Questionnaire } from '../models/form-state';
 import { UserNotifications } from '../models/notifications';
 
 const apiServerUrl = process.env.REACT_APP_API_SERVER_URL + '';
-//const apiXToken = process.env.REACT_APP_API_X_TOKEN  + "";
-//const apiToken = process.env.REACT_APP_API_TOKEN  + "";
-
-// We can drop api x token and api token here after we iterate.
 
 export interface PatientProfile {
   challenge: {
@@ -137,7 +133,9 @@ export const initState = async (
       Authorization: `Bearer ${authToken}`,
     },
   };
-  return callExternalApi<FormState>({ config, transform: true });
+  let { data, error } = await callExternalApi<FormState>({ config });
+  if (data) data = transformState(data, camelToSnakeCase);
+  return { data, error };
 };
 
 export const getSurvey = async (
@@ -168,7 +166,7 @@ export const closeSurvey = async (
   sub: string,
   authToken: String,
   sid: string,
-  dueDate: string
+  dueDate: string,
 ): Promise<ApiResponse<FormState>> => {
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/survey/${sub}`,
@@ -177,19 +175,18 @@ export const closeSurvey = async (
       'content-type': 'application/json',
       Authorization: `Bearer ${authToken}`,
     },
-    data: { "sid": sid, "due_date": dueDate},
+    data: { sid: sid, due_date: dueDate },
   };
-  
+
   let { data, error } = await callExternalApi<FormState>({ config });
   if (data) data = transformState(data, camelToSnakeCase);
   return { data, error };
 };
 
-
 export const getAudit = async (
   authToken: String,
-  sid: String
-): Promise<ApiResponse> => {
+  sid: String,
+): Promise<ApiResponse<Audit>> => {
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/audit/${sid}`,
     method: 'GET',
@@ -198,10 +195,16 @@ export const getAudit = async (
       Authorization: `Bearer ${authToken}`,
     },
   };
-
-  return callExternalApi({ config, transform: true });
+  let { data, error } = await callExternalApi<Audit>({ config });
+  if (data) {
+    const { state, ...rest } = data;
+    data = Object.assign(
+      { state: transformState(data.state, snakeToCamelCase) },
+      mapObjectKeys(rest, snakeToCamelCase),
+    );
+  }
+  return { data, error };
 };
-
 
 export const getUserProfile = async (
   sub: string,
@@ -243,23 +246,18 @@ const transformState = (
   // Transform all props except state
   const { states, ...rest } = state;
 
-
-  if ( Object.keys(state).length === 0 ) 
-  {
-    return Object.assign( 
-      {states: {}}, 
-      mapObjectKeys(rest, transform)
-    );
+  if (Object.keys(state).length === 0) {
+    return Object.assign({ states: {} }, mapObjectKeys(rest, transform));
   }
 
   const transformedStates: typeof states = {};
   for (const [key, value] of Object.entries(states)) {
-      transformedStates[key] = mapObjectKeys(value, transform);
+    transformedStates[key] = mapObjectKeys(value, transform);
   }
 
-  return Object.assign( 
-    {states: transformedStates}, 
-    mapObjectKeys(rest, transform)
+  return Object.assign(
+    { states: transformedStates },
+    mapObjectKeys(rest, transform),
   );
 };
 
@@ -277,7 +275,6 @@ export const getStateByStateHash = async (
   };
   let { data, error } = await callExternalApi<FormState>({ config });
   if (data) data = transformState(data, snakeToCamelCase);
-
   return { data, error };
 };
 
@@ -296,6 +293,39 @@ export const getQuestionnaireByProHash = async (
   return callExternalApi<Questionnaire>({ config, transform: true });
 };
 
+export const evaluateScore = async (
+  linkId: string,
+  scoreData: {
+    proPack: string;
+    proPackFormat: string;
+    data: Record<string, any>;
+  },
+  authToken: string,
+): Promise<ApiResponse<any>> => {
+  const { proPack, proPackFormat } = scoreData;
+  const formData = { ...scoreData.data };
+  delete formData[linkId];
+
+  const config: AxiosRequestConfig = {
+    url: `${apiServerUrl}/scoring/evaluate/${linkId}`,
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      Authorization: `Bearer ${authToken}`,
+    },
+    data: {
+      pro_pack: proPack,
+      pro_pack_format: proPackFormat,
+      data: formData,
+    },
+  };
+  const { data, error } = await callExternalApi<Record<string, number>>({
+    config,
+    transform: true,
+  });
+  return { data: data?.result, error };
+};
+
 export const updateFullState = async (
   state: FormState,
   authToken: String,
@@ -309,10 +339,7 @@ export const updateFullState = async (
     },
     data: transformState(state, camelToSnakeCase),
   };
-  
   let { data, error } = await callExternalApi<FormState>({ config });
-  if (data) data = transformState(data, camelToSnakeCase);
+  if (data) data = transformState(data, snakeToCamelCase);
   return { data, error };
 };
-
-

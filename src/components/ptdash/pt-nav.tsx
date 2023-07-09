@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useQuery } from 'react-query';
 
 import {
@@ -36,7 +36,8 @@ interface Survey {
 }
 
 interface SurveySet {
-  [grouping: string]: Survey[];
+  groupName: string;
+  surveys: Survey[];
 }
 
 export interface Props {
@@ -45,10 +46,30 @@ export interface Props {
   surgdate: string;
 }
 
+/**
+ * Map survey data retrieved from the API to the format expected by the UI.
+ * Filters out groups with no surveys.
+ *
+ * @param dataSurveys Survey groups retrieved by the API
+ */
+const mapDataSurveys = (dataSurveys: Record<string, Survey[]>[]) => {
+  return dataSurveys.reduce(
+    (acc: SurveySet[][], groupSet: Record<string, Survey[]>) => {
+      const sets: SurveySet[] = [];
+      Object.entries(groupSet).forEach(([groupName, surveyList]) => {
+        if (surveyList.length) sets.push({ groupName, surveys: surveyList });
+      });
+      if (sets.length) acc.push(sets);
+      return acc;
+    },
+    [],
+  );
+};
+
 export const PtNav: React.FC<Props> = (props) => {
   const auth = useAuth();
 
-  const { data, isLoading } = useQuery(
+  const { data, isError, isLoading } = useQuery(
     'patientSurveys',
     async () => {
       const token = await auth.getAccessToken();
@@ -59,7 +80,19 @@ export const PtNav: React.FC<Props> = (props) => {
     { refetchOnMount: 'always' },
   );
 
-  const { completedSurveys = [], openSurveys = [] } = (data || {}) as any;
+  // Retrieve and format the list of open surveys
+  const openSurveys: SurveySet[][] = useMemo(
+    () => mapDataSurveys(data?.openSurveys || []),
+    [data?.openSurveys],
+  );
+
+  // Retrieve and format the list of closed surveys
+  const completedSurveys: SurveySet[][] = useMemo(
+    () => mapDataSurveys(data?.completedSurveys || []),
+    [data?.completedSurveys],
+  );
+
+  console.log(isError, isLoading);
 
   return (
     <PageLayout>
@@ -148,21 +181,24 @@ const NavTab: React.FC<{ isDisabled?: boolean; text: string }> = ({
 
 const SurveysPanel: React.FC<{
   renderSurvey: (survey: Survey) => React.ReactNode;
-  surveys: SurveySet[];
+  surveys: SurveySet[][];
 }> = ({ renderSurvey, surveys }) => {
   return (
     <TabPanel>
       {!surveys.length && <Text>Nothing yet to review.</Text>}
 
-      {surveys.map((groupSet: SurveySet) =>
-        Object.entries(groupSet).map(([groupName, survey]) => (
+      {surveys.map((groupSet: SurveySet[]) =>
+        groupSet.map(({ groupName, surveys }) => (
           <Container key={groupName}>
             {/* Group due date */}
-            <SurveyGrouping dueDate={survey[0].due} grouping={groupName} />
+            <SurveyGrouping
+              dueDate={surveys[0].due.split('T')[0]}
+              grouping={groupName}
+            />
 
             {/* Surveys */}
             <Stack divider={<Divider />} pt="4">
-              {survey.map((item) => (
+              {surveys.map((item) => (
                 <React.Fragment key={item.sid}>
                   {renderSurvey(item)}
                 </React.Fragment>

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Box } from '@chakra-ui/react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import PrivateRoutes from './components/PrivateRoutes';
@@ -18,7 +17,8 @@ import { Audit } from './pages/audit-page';
 export const App: React.FC = () => {
   const { isEmployee, isLoading } = useAuth();
 
-  if (isLoading) return <Box />;
+  // TODO: HANDLE LOADING STATE
+  if (isLoading) return <div />;
 
   return (
     <Routes>

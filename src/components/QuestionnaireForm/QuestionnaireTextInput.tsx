@@ -1,19 +1,26 @@
 import React from 'react';
+import { Controller, ControllerRenderProps } from 'react-hook-form';
 import { Input } from '@chakra-ui/react';
 
 export const QuestionnaireTextInput: React.FC<{
+  control: any;
   id: string;
   field: any;
   register: any;
-}> = ({ id, field, register }) => {
+}> = ({ control, id, field, register }) => {
   return (
-    <Input
-      autoFocus
-      id={id}
-      size="lg"
-      type="number"
-      {...register(id, { required: true })}
-      placeholder="Input a value"
+    <Controller
+      control={control}
+      name={id}
+      render={({ field: fieldProps }: { field: ControllerRenderProps }) => (
+        <Input
+          {...fieldProps}
+          autoFocus
+          size="lg"
+          type="text"
+          placeholder="Input a value"
+        />
+      )}
     />
   );
 };

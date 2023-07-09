@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import {
-  Flex,
   Heading,
   Input,
   Button,
@@ -13,8 +12,8 @@ import {
   Link,
   Avatar,
   FormControl,
-  FormHelperText,
   InputRightElement,
+  Text,
 } from '@chakra-ui/react';
 import { FaUserAlt, FaLock } from 'react-icons/fa';
 
@@ -37,7 +36,11 @@ export const LoginFlow = () => {
 
   const [alttfa, setAltTfa] = useState(false);
 
-  const executeGetCode = async (event: React.FormEvent<HTMLFormElement>) => {
+  const executeGetCode = async (
+    event:
+      | React.FormEvent<HTMLFormElement>
+      | React.SyntheticEvent<HTMLAnchorElement>,
+  ) => {
     event.preventDefault();
     const result = await auth.getChallenge(email);
     if (result.success) {
@@ -57,128 +60,145 @@ export const LoginFlow = () => {
   };
 
   return (
-    <Container maxW={'5xl'}>
+    <Container maxW="5xl">
       <Stack
-        textAlign={'center'}
-        align={'center'}
-        spacing={{ base: 8, md: 10 }}
+        textAlign="center"
+        align="stretch"
+        spacing={{ base: 6, md: 8 }}
         py={{ base: 20, md: 28 }}
       >
-        <Flex
-          flexDirection="column"
-          width="100wh"
-          height="100vh"
-          justifyContent="top"
-          alignItems="center"
-          display="flex"
-        >
-          <Stack flexDir="column" mb="2" alignItems="center">
-            <Avatar bg="teal.500" />
-            <Heading color="teal.400">Welcome</Heading>
-            <Box minW={{ base: '90%', md: '468px' }}>
-              <form
-                noValidate
-                onSubmit={showGetCode ? executeVerify : executeGetCode}
-              >
-                <Stack spacing={4} p="1rem" boxShadow="md">
+        {/* Login form */}
+        <Stack flexDir="column" alignItems="center">
+          <Avatar bg="teal.500" />
+          <Heading color="teal.400">Welcome</Heading>
+          <Box width="90%" maxWidth="486px">
+            <form
+              noValidate
+              onSubmit={showGetCode ? executeVerify : executeGetCode}
+            >
+              <Stack spacing={4} p="1rem" boxShadow="md">
+                {/* Email field */}
+                <FormControl>
+                  <InputGroup>
+                    <InputLeftElement
+                      pointerEvents="none"
+                      children={<CFaUserAlt color="gray.300" />}
+                    />
+                    <Input
+                      type="email"
+                      placeholder="email address"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <InputRightElement width="5.5rem">
+                      {showGetCode ? (
+                        ''
+                      ) : (
+                        <Button type="submit" mr="2" h="1.75rem" size="sm">
+                          Get Code
+                        </Button>
+                      )}
+                    </InputRightElement>
+                  </InputGroup>
+                </FormControl>
+
+                {/* OTP code handling */}
+                {showGetCode && (
                   <FormControl>
+                    {/* OTP code field */}
                     <InputGroup>
                       <InputLeftElement
                         pointerEvents="none"
-                        children={<CFaUserAlt color="gray.300" />}
+                        color="gray.300"
+                        children={<CFaLock color="gray.300" />}
                       />
                       <Input
-                        type="email"
-                        placeholder="email address"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        type={showOTP ? 'text' : 'password'}
+                        placeholder="OTP Code"
+                        value={code}
+                        onChange={(e) => setCode(e.target.value)}
                       />
+
                       <InputRightElement width="4.5rem">
-                        {showGetCode ? (
-                          ''
-                        ) : (
-                          <Button type="submit" h="1.75rem" size="sm">
-                            Get Code
-                          </Button>
-                        )}
+                        <Button
+                          h="1.75rem"
+                          size="sm"
+                          onClick={handleShowOTPClick}
+                        >
+                          {showOTP ? 'Hide' : 'Show'}
+                        </Button>
                       </InputRightElement>
                     </InputGroup>
-                  </FormControl>
-                  {!showGetCode ? (
-                    ''
-                  ) : (
-                    <FormControl>
-                      <InputGroup>
-                        <InputLeftElement
-                          pointerEvents="none"
-                          color="gray.300"
-                          children={<CFaLock color="gray.300" />}
-                        />
-                        <Input
-                          type={showOTP ? 'text' : 'password'}
-                          placeholder="OTP Code"
-                          value={code}
-                          onChange={(e) => setCode(e.target.value)}
-                        />
 
-                        <InputRightElement width="4.5rem">
-                          <Button
-                            h="1.75rem"
-                            size="sm"
-                            onClick={handleShowOTPClick}
-                          >
-                            {showOTP ? 'Hide' : 'Show'}
-                          </Button>
-                        </InputRightElement>
-                      </InputGroup>
-                      <FormHelperText textAlign="center">
-                        <Link>resend code</Link>
-                        <br></br>
-                        <Link onClick={() => setAltTfa(!alttfa)}>
-                          try a different method?
-                        </Link>
-                      </FormHelperText>
-                      {alttfa === true ? (
-                        <Box>
-                          <Button h="1.75rem" size="sm">
-                            email
-                          </Button>
-                          <Button h="1.75rem" size="sm">
-                            sms
-                          </Button>
-                          <Button h="1.75rem" size="sm">
-                            call
-                          </Button>{' '}
-                        </Box>
-                      ) : (
-                        ''
-                      )}
-                    </FormControl>
-                  )}
-                  {!showGetCode ? (
-                    ''
-                  ) : (
-                    <Button
-                      borderRadius={0}
-                      type="submit"
-                      variant="solid"
-                      colorScheme="teal"
-                      width="full"
+                    {/* OTP resend / different method trigger */}
+                    <Stack
+                      pt="4"
+                      spacing="2"
+                      flexDir="column"
+                      alignItems="center"
                     >
-                      Login
-                    </Button>
-                  )}
-                </Stack>
-              </form>
-            </Box>
-          </Stack>
-          <Box>
-            No account?{' '}
-            <Link color="teal.500" href="#" as={RouterLink} to="/register">
-              Register
-            </Link>
+                      <Text
+                        color="gray.600"
+                        fontSize={{ base: 'md', sm: 'lg' }}
+                      >
+                        Not receiving your code?
+                      </Text>
+                      <Text fontSize={{ base: 'sm', sm: 'md' }}>
+                        <Link color="teal.500" onClick={executeGetCode}>
+                          Resend code
+                        </Link>{' '}
+                        or{' '}
+                        <Link
+                          color="teal.500"
+                          onClick={() => setAltTfa(!alttfa)}
+                        >
+                          try a different method
+                        </Link>
+                        .
+                      </Text>
+                    </Stack>
+
+                    {/* OTP alternative method options */}
+                    {alttfa && (
+                      <Box pt="4">
+                        <Button h="1.75rem" size="sm">
+                          email
+                        </Button>
+                        <Button mx="2" h="1.75rem" size="sm">
+                          sms
+                        </Button>
+                        <Button h="1.75rem" size="sm">
+                          call
+                        </Button>{' '}
+                      </Box>
+                    )}
+                  </FormControl>
+                )}
+
+                {/* Login button */}
+                {showGetCode && (
+                  <Button
+                    borderRadius={0}
+                    type="submit"
+                    variant="solid"
+                    colorScheme="teal"
+                    width="full"
+                  >
+                    Login
+                  </Button>
+                )}
+              </Stack>
+            </form>
           </Box>
-        </Flex>
+        </Stack>
+
+        {/* Registration link */}
+        <Box>
+          No account?{' '}
+          <Link color="teal.500" as={RouterLink} to="/register">
+            Register
+          </Link>
+        </Box>
       </Stack>
     </Container>
   );

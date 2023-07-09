@@ -24,8 +24,10 @@ export const SurgeryInfo: React.FC<Props> = ({
 }) => {
   // Calculate the number of months left for the observation period
   const monthsLeft = useMemo(() => {
-    const surgDate = new Date(surgeryDate.replace('-', '/'));
-    const endDate = new Date(surgDate.setMonth(surgDate.getMonth() + 11));
+    // Determine the end date
+    const endDate = new Date(surgeryDate);
+    endDate.setMonth(endDate.getMonth() + 11);
+    // Calculate the remaining number of months
     const today = new Date();
     return (
       (endDate.getFullYear() - today.getFullYear()) * 12 -
@@ -43,7 +45,7 @@ export const SurgeryInfo: React.FC<Props> = ({
       </CardHeader>
 
       <CardBody py="6">
-        <Box pb="4">
+        <Box maxW="lg" pb="4">
           <SurgeryInfoDetail label="Operation Date" text={surgeryDate} />
           <SurgeryInfoDetail label="Hospital" text={hospital} />
           <SurgeryInfoDetail label="Surgeon" text={surgeon} />
@@ -69,11 +71,11 @@ type DetailProps = {
 };
 
 const SurgeryInfoDetail: React.FC<DetailProps> = ({ label, text }) => (
-  <HStack spacing="8">
-    <Box w="40%" h="8">
+  <HStack spacing="6" alignItems="start">
+    <Box w="12rem" minH="8">
       <Text align="left">{label}:</Text>
     </Box>
-    <Box w="60%" h="8">
+    <Box w="100%" minH="8">
       <Text align="left" fontWeight="normal">
         {text}
       </Text>

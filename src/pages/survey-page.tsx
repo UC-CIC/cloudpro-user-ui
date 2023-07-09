@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
@@ -17,27 +17,31 @@ import {
   FormState,
   QuestionData,
   QuestionGroupData,
-  Questionnaire,
 } from '../models/form-state';
 import {
+  closeSurvey,
+  evaluateScore,
   getStateByStateHash,
   getQuestionnaireByProHash,
   initState,
   updateFullState,
-  closeSurvey
 } from '../services/message.service';
+
+interface FormElementField {
+  name: string;
+  linkId?: string;
+  text: string;
+  type: string;
+  value?: any;
+  state?: any;
+}
 
 interface FormElement {
   name: string;
   description?: string;
   text?: string;
-  fields: {
-    name: string;
-    text: string;
-    type: string;
-    value?: any;
-    state?: any;
-  }[];
+  fields: FormElementField[];
+  hiddenFields: FormElementField[];
 }
 
 interface FormData {
@@ -54,11 +58,11 @@ const BUILD_FORM_MAP: {
     data: QuestionGroupData,
     formState: FormState,
   ): FormElement => {
-    return {
-      name,
-      description: data.description || '',
-      text: data.text || '',
-      fields: data.questions.map((question) => ({
+    const fields: FormElementField[] = [];
+    const hiddenFields: FormElementField[] = [];
+    data.questions.forEach((question) => {
+      (question.type === 'hidden' ? hiddenFields : fields).push({
+        linkId: question.linkId,
         name: `${name}.${question.linkId}`,
         text: question.text,
         type: question.type,
@@ -67,37 +71,46 @@ const BUILD_FORM_MAP: {
           (data.values || {})[question.useValues || ''] ||
           data.value,
         state: formState.states[question.linkId || '']?.entryResponse,
-      })),
+      });
+    });
+    return {
+      name,
+      description: data.description || '',
+      text: data.text || '',
+      fields,
+      hiddenFields,
     };
   },
   question: (
     name: string,
     data: QuestionData,
     formState: FormState,
-  ): FormElement => ({
-    name,
-    fields: [
-      {
-        name: `${name}.${data.linkId}`,
-        ...data,
-        state: formState.states[data.linkId || '']?.entryResponse,
-      },
-    ],
-  }),
+  ): FormElement => {
+    const fields: FormElementField[] = [];
+    const hiddenFields: FormElementField[] = [];
+    (data.type === 'hidden' ? hiddenFields : fields).push({
+      linkId: data.linkId,
+      name: `${name}.${data.linkId}`,
+      ...data,
+      state: formState.states[data.linkId || '']?.entryResponse,
+    });
+    return { name, fields, hiddenFields };
+  },
 };
 
-const buildForm = (
-  formState: FormState | null | undefined,
-  questionnaire: Questionnaire | null | undefined,
-): FormElement[] => {
-  const elements: FormElement[] = [];
-  if (!formState || !questionnaire) return elements;
-  questionnaire.data.questionnaire.forEach((metadata: any, idx: number) => {
-    const createElement = BUILD_FORM_MAP[metadata.element];
-    if (createElement)
-      elements.push(createElement(idx.toString(), metadata.data, formState));
-  });
-  return elements;
+const updateFormStateStates = (state: FormState['states'], data: FormData) => {
+  const newState: FormState['states'] = { ...state };
+  // Update local state
+  for (const formEntry of Object.values(data)) {
+    for (const [linkId, stateValue] of Object.entries(formEntry)) {
+      newState[linkId] = {
+        ...newState[linkId],
+        entryResponse: stateValue,
+        entryState: 'updated',
+      };
+    }
+  }
+  return newState;
 };
 
 export const Survey: React.FC = () => {
@@ -105,35 +118,37 @@ export const Survey: React.FC = () => {
   const navigate = useNavigate();
   const { propack = '', stateHash = '' } = useParams();
 
-  const [formState, setFormState] = useState<FormState | undefined>();
-
   // Retrieve (or initialize) the form state and set locally
-  const { isError: isLoadingStateError, isLoading: isLoadingState } =
-    useQuery<FormState>(
-      ['survey-state', propack, stateHash],
-      async () => {
-        if (!propack || !stateHash)
-          throw new Error('Pro pack and state hash IDs must be specified');
+  const {
+    data: formState,
+    isError: isLoadingStateError,
+    isFetching: isLoadingState,
+  } = useQuery<FormState>({
+    queryKey: ['survey-state', propack, stateHash],
+    queryFn: async () => {
+      if (!propack || !stateHash)
+        throw new Error('Pro pack and state hash IDs must be specified');
 
-        const token = await auth.getAccessToken();
-        const { data: state, error } = await getStateByStateHash(
-          stateHash,
-          token,
-        );
-        if (error) throw new Error('Could not retrieve state');
+      const token = await auth.getAccessToken();
+      const { data: state, error } = await getStateByStateHash(
+        stateHash,
+        token,
+      );
+      if (error) throw new Error('Could not retrieve state');
 
-        // Return pre-existing state
-        if (state && state.stateHash) return state;
+      // Return pre-existing state
+      if (state && state.stateHash) return state;
 
-        // Initialize state
-        const { data: newState } = await initState(propack, stateHash, token);
-        if (!newState) throw new Error('Could not initialize state');
-        return newState;
-      },
-      { 
-        onSuccess: (data: FormState) => setFormState(data)
-      },
-    );
+      // Initialize state
+      const { data: newState } = await initState(propack, stateHash, token);
+      console.log(newState);
+      if (!newState) throw new Error('Could not initialize state');
+      return newState;
+    },
+    refetchOnMount: 'always',
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+  });
 
   // Retrieve the questionnaire
   const {
@@ -148,93 +163,138 @@ export const Survey: React.FC = () => {
   });
 
   // Form update method
-  const {
-    isLoading: isSubmitting,
-    isSuccess: isSubmitted,
-    mutate: updateState,
-  } = useMutation({
+  const { isLoading: isUpdating, mutate: updateState } = useMutation({
     mutationFn: async (state: FormState) => {
       const authToken = await auth.getAccessToken();
       const { data, error } = await updateFullState(state, authToken);
       if (!data && error) throw error;
       return data;
     },
+    onSuccess: () => navigate('/home'),
   });
 
-
-  interface FormSubStructure {
-    sid:string;
-    dueDate:string;
-  }
   // Form submit method
   const {
-    isLoading: isFormDone,
-    isSuccess: isFormDoneError,
-    mutate: closeForm,
+    isError: isFormDoneError,
+    isLoading: isSubmitting,
+    isSuccess: isSubmitted,
+    mutate: submit,
   } = useMutation({
-    mutationFn: async ( incoming:FormSubStructure ) => {
+    mutationFn: async ({
+      formState,
+      hiddenIds,
+      proPack,
+      proPackFormat,
+    }: {
+      formState: FormState;
+      hiddenIds: string[];
+      proPack: string;
+      proPackFormat: string;
+    }) => {
       const authToken = await auth.getAccessToken();
-      const sub = await auth.sub;
 
-      const { data, error } = await closeSurvey(sub, authToken, incoming.sid, incoming.dueDate);
+      // Calculate scores
+      const idValuesMap = Object.entries(formState.states).reduce(
+        (acc, [linkId, state]) => {
+          acc[linkId] = state.entryResponse;
+          return acc;
+        },
+        {} as any,
+      );
+      const scoredStates = { ...formState.states };
+      for (const id of hiddenIds) {
+        const { data, error } = await evaluateScore(
+          id,
+          { data: idValuesMap, proPack, proPackFormat },
+          authToken,
+        );
+        if (!data && error) throw error;
+        idValuesMap[id] = data;
+        scoredStates[id] = { entryResponse: data, entryState: 'updated' };
+      }
+      console.log(scoredStates);
+
+      // Save updated state
+      const updateResponse = await updateFullState(
+        { ...formState, states: scoredStates },
+        authToken,
+      );
+      if (!updateResponse.data && updateResponse.error)
+        throw updateResponse.error;
+
+      // Close survey
+      const sid = formState.stateHash.substring(0, 64);
+      const dueDate = formState.stateHash.substring(64);
+      const { data, error } = await closeSurvey(
+        auth.sub,
+        authToken,
+        sid,
+        dueDate,
+      );
       if (!data && error) throw error;
       return data;
     },
   });
 
   // Setup form
-  const proFormQuestions: FormElement[] = useMemo(() => {
-    return buildForm(formState, questionnaire);
-  }, [formState, questionnaire]);
+  const {
+    formElements,
+    hiddenFields,
+  }: { formElements: FormElement[]; hiddenFields: FormElementField[] } =
+    useMemo(() => {
+      // Initialize arrays
+      const elements: FormElement[] = [];
+      const hidden: FormElementField[] = [];
+      // Return empty arrays if no form state or questionnaire
+      if (!formState || !questionnaire)
+        return { formElements: elements, hiddenFields: hidden };
+      // Generate form elements and hidden fields
+      questionnaire.data.questionnaire.forEach((metadata: any, idx: number) => {
+        const createElement = BUILD_FORM_MAP[metadata.element];
+        if (createElement) {
+          const element = createElement(
+            idx.toString(),
+            metadata.data,
+            formState,
+          );
+          if (element.fields.length) elements.push(element);
+          hidden.push(...element.hiddenFields);
+        }
+      });
+      return { formElements: elements, hiddenFields: hidden };
+    }, [formState, questionnaire]);
 
-  const saveState = async (data: FormData, status = 'open') => {
+  const handleFormSave = async (formData: FormData) => {
     if (!formState) return;
-    const newState = { ...formState, states: { ...formState.states } };
-    newState.stateStatus = status;
-    // Update local state
-    for (const formEntry of Object.values(data)) {
-      for (const [linkId, stateValue] of Object.entries(formEntry)) {
-        newState.states[linkId] = {
-          ...newState.states[linkId],
-          entryResponse: stateValue,
-          entryState: 'updated',
-        };
-      }
-    }
-    setFormState(newState);
-    // Save state to DB
-    return updateState(newState);
+    return updateState({
+      ...formState,
+      states: updateFormStateStates(formState.states, formData),
+      stateStatus: 'open',
+    });
   };
 
-  const handleFormSave = async (formDate: FormData) => {
-    await saveState(formDate);
-    navigate('/home');
+  const handleFormSubmit = async (formData: FormData) => {
+    if (!formState || !questionnaire) return;
+    const hiddenIds = hiddenFields
+      .map((field) => field.linkId)
+      .filter(Boolean) as string[];
+    const { proPack, proPackFormat } = questionnaire;
+    return submit({
+      formState: {
+        ...formState,
+        states: updateFormStateStates(formState.states, formData),
+        stateStatus: 'closed',
+      },
+      hiddenIds,
+      proPack,
+      proPackFormat,
+    });
   };
 
-  
-  const submitForm = async (formDate: FormData) => {
-    if( formState !== undefined ){
-      await saveState(formDate,'submitted');
-      const sid = (formState.stateHash).substring(0,64) as string;
-      const dueDate = (formState.stateHash).substring(64) as string;
-      const data = {
-        sid: sid,
-        dueDate: dueDate
-      }
-
-      return closeForm( data );
-    }
-  }
-  
-  const handleFormSubmit = async (formDate: FormData) => {
-    const result = await submitForm(formDate);
-    navigate('/home');
-  };
-
-
-
-  const isLoading = isLoadingState || isLoadingQuestionnaire || isSubmitting || isFormDone;
-  const isError = isLoadingStateError || isLoadingQuestionnaireError || isFormDoneError;
+  const isLoading =
+    isLoadingState || isLoadingQuestionnaire || isUpdating || isSubmitting;
+  const isError =
+    isLoadingStateError || isLoadingQuestionnaireError || isFormDoneError;
 
   return (
     <PageLayout>
@@ -286,7 +346,7 @@ export const Survey: React.FC = () => {
           <QuestionnaireForm
             onFormSave={handleFormSave}
             onFormSubmit={handleFormSubmit}
-            steps={proFormQuestions}
+            steps={formElements}
           />
         )}
       </Container>

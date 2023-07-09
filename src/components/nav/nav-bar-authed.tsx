@@ -2,36 +2,42 @@ import { useState } from 'react';
 import { useQuery } from 'react-query';
 import { Link, NavLink } from 'react-router-dom';
 import {
-  Box,
-  Flex,
-  Avatar,
-  Button,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  MenuDivider,
-  useColorModeValue,
-  Stack,
-  useColorMode,
-  Center,
-  Spacer,
-  IconButton,
-  Divider,
-} from '@chakra-ui/react';
-import {
-  HamburgerIcon,
+  BellIcon,
   CloseIcon,
+  HamburgerIcon,
   MoonIcon,
   SunIcon,
-  BellIcon,
 } from '@chakra-ui/icons';
+import {
+  Avatar,
+  Box,
+  Button,
+  Center,
+  Divider,
+  Flex,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuDivider,
+  MenuItem,
+  MenuList,
+  Stack,
+  Text,
+  useColorMode,
+  useColorModeValue,
+} from '@chakra-ui/react';
 
 import Logo from '../Logo';
 import { useAuth } from '../../hooks/useAuth';
 import { UserNotifications } from '../../models/notifications';
 import { Notifications } from '../notifications/notification';
 import { getNotificationsBySub } from '../../services/message.service';
+
+// Settings to limit display to mobile screens
+const MOBILE_DISPLAY = ['flex', 'flex', 'none', 'none'];
+
+// Settings to limit display to desktop screens
+const DESKTOP_DISPLAY = ['none', 'none', 'flex', 'flex'];
 
 export const NavBarAuthed = () => {
   const auth = useAuth();
@@ -50,146 +56,85 @@ export const NavBarAuthed = () => {
     },
   );
 
-  const handleNotificationClick = () => {
-    setNotificationDisplay(true);
-  };
-
-  const handleNotificationClose = () => {
-    setNotificationDisplay(false);
-  };
+  const menuItems: any = [
+    {
+      'aria-label': 'Surveys',
+      as: NavLink,
+      to: '/home',
+      children: 'Surveys',
+    },
+    {
+      'aria-label': 'Reports',
+      as: NavLink,
+      to: '/pt-authed-reporting',
+      children: 'Reports',
+    },
+    {
+      'aria-label': 'Account Settings',
+      as: NavLink,
+      to: '/',
+      children: 'Account Settings',
+    },
+    {
+      'aria-label': 'Logout',
+      as: NavLink,
+      children: 'Logout',
+      to: '/',
+      onClick: () => auth.signOut(),
+    },
+  ];
 
   return (
-    <Box
-      bg={useColorModeValue('white', 'gray.900')}
-      px="4"
+    <Flex
       position="fixed"
-      w="100%"
+      left="0"
+      right="0"
       zIndex="20"
+      display="flex"
+      justifyContent="space-between"
+      alignItems="center"
+      h={16}
+      bg={useColorModeValue('white', 'gray.900')}
     >
-      <Flex
-        h="16"
-        alignItems="center"
-        justifyContent="space-between"
-        display={['flex', 'flex', 'none', 'none']}
-      >
-        <Flex alignItems="center">
-          <IconButton
-            aria-label="Open Menu"
-            size="lg"
-            mr="2"
-            icon={<HamburgerIcon />}
-            onClick={() => changeDisplay('flex')}
-            display={['flex', 'flex', 'none', 'none']}
-          />
-        </Flex>
+      {/* Left side of navbar */}
+      <Flex alignItems="center" pl="4">
+        {/* Menu button (mobile) */}
+        <IconButton
+          aria-label="Open Menu"
+          size="lg"
+          mr="2"
+          icon={<HamburgerIcon />}
+          onClick={() => changeDisplay('flex')}
+          display={MOBILE_DISPLAY}
+        />
 
-        <Flex alignItems="center">
-          <Stack direction="row" spacing="7">
-            <Button onClick={toggleColorMode}>
-              {colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
-            </Button>
-            <Button>
-              <BellIcon />
-            </Button>
-          </Stack>
-        </Flex>
+        {/* Logo (desktop) */}
+        <Box display={DESKTOP_DISPLAY} p="4">
+          <Link to="/">
+            <Logo />
+          </Link>
+        </Box>
       </Flex>
 
-      <Flex
-        w="100vw"
-        display={display}
-        bgColor={useColorModeValue('#fff', '#1A202C')}
-        zIndex="20"
-        h="100vh"
-        pos="fixed"
-        top="0"
-        left="0"
-        pr="4"
-        overflowY="auto"
-        flexDir="column"
-      >
-        <Flex justify="flex-end">
-          <IconButton
-            mt="2"
-            mr="2"
-            aria-label="Open Menu"
-            size="lg"
-            icon={<CloseIcon />}
-            onClick={() => changeDisplay('none')}
-          />
-        </Flex>
-        <Flex flexDir="column" align="center">
-          <Avatar
-            size="sm"
-            src="https://avatars.dicebear.com/api/male/username.svg"
-          />
-          <Box p="4">Username</Box>
-          <Spacer pb="4" />
-          <Divider />
-
-          <Button
-            as={NavLink}
-            to="/"
-            variant="ghost"
-            aria-label="Home"
-            my="5"
-            w="100%"
-          >
-            Surveys
+      {/* Right side of navbar */}
+      <Flex alignItems="center" pr="4">
+        <Stack direction="row" spacing={7}>
+          <Button onClick={toggleColorMode}>
+            {colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
           </Button>
-          <Button
-            as={NavLink}
-            to="/"
-            variant="ghost"
-            aria-label="Home"
-            my="5"
-            w="100%"
-          >
-            Account Settings
+          <Button onClick={() => setNotificationDisplay(true)}>
+            <BellIcon />
+            <Notifications
+              notifications={notifications}
+              isOpen={notificationDisplay}
+              onClose={() => setNotificationDisplay(false)}
+            />
           </Button>
-          <Button
-            as={NavLink}
-            to="/"
-            variant="ghost"
-            aria-label="Home"
-            my="5"
-            w="100%"
-            onClick={() => auth.signOut()}
-          >
-            Logout
-          </Button>
-        </Flex>
-      </Flex>
 
-      <Flex
-        h={16}
-        alignItems="center"
-        justifyContent="space-between"
-        display={['none', 'none', 'flex', 'flex']}
-      >
-        <Flex alignItems="center">
-          <Box p="4">
-            <Link to="/">
-              <Logo />
-            </Link>
-          </Box>
-        </Flex>
-
-        <Flex alignItems="center">
-          <Stack direction="row" spacing={7}>
-            <Button onClick={toggleColorMode}>
-              {colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
-            </Button>
-            <Button onClick={handleNotificationClick}>
-              <BellIcon />
-              <Notifications
-                notifications={notifications}
-                isOpen={notificationDisplay}
-                onClose={handleNotificationClose}
-              />
-            </Button>
-
+          {/* Menu (desktop) */}
+          <Box display={DESKTOP_DISPLAY}>
             <Menu>
+              {/* Menu toggle */}
               <MenuButton
                 as={Button}
                 rounded="full"
@@ -202,28 +147,78 @@ export const NavBarAuthed = () => {
                   src="https://avatars.dicebear.com/api/male/username.svg"
                 />
               </MenuButton>
+
+              {/* Menu body */}
               <MenuList alignItems="center">
-                <br />
                 <Center>
                   <Avatar
-                    size="2xl"
+                    size="lg"
                     src="https://avatars.dicebear.com/api/male/username.svg"
                   />
                 </Center>
-                <br />
-                <Center>
-                  <p>Username</p>
-                </Center>
-                <br />
+                <Text py="2" textAlign="center">
+                  Username
+                </Text>
                 <MenuDivider />
-                <MenuItem>Surveys</MenuItem>
-                <MenuItem>Account Settings</MenuItem>
-                <MenuItem onClick={() => auth.signOut()}>Logout</MenuItem>
+                {menuItems.map(({ children, ...props }: any) => (
+                  <MenuItem {...props} key={children} fontWeight="normal">
+                    {children}
+                  </MenuItem>
+                ))}
               </MenuList>
             </Menu>
-          </Stack>
+          </Box>
+        </Stack>
+
+        {/* Menu (mobile) */}
+        <Flex
+          zIndex="20"
+          pos="fixed"
+          top="0"
+          right="0"
+          left="0"
+          display={display}
+          flexDir="column"
+          w="100vw"
+          h="100vh"
+          overflowY="auto"
+          bgColor={useColorModeValue('#fff', '#1A202C')}
+        >
+          {/* Menu close button */}
+          <Flex justify="flex-end">
+            <IconButton
+              mt="2"
+              mr="2"
+              aria-label="Open Menu"
+              size="lg"
+              icon={<CloseIcon />}
+              onClick={() => changeDisplay('none')}
+            />
+          </Flex>
+          <Flex flexDir="column" align="center">
+            <Avatar
+              size="lg"
+              src="https://avatars.dicebear.com/api/male/username.svg"
+            />
+            <Text pt="4" pb="8" textAlign="center">
+              Username
+            </Text>
+            <Divider />
+            {menuItems.map(({ children, ...props }: any) => (
+              <Button
+                {...props}
+                key={children}
+                variant="ghost"
+                py="4"
+                w="100%"
+                height="auto"
+              >
+                {children}
+              </Button>
+            ))}
+          </Flex>
         </Flex>
       </Flex>
-    </Box>
+    </Flex>
   );
 };

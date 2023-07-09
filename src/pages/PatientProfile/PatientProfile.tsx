@@ -23,10 +23,11 @@ import {
 } from '../../services/message.service';
 
 export interface Props {
+  onSetup: () => any;
   profile: PatientProfileType;
 }
 
-const PatientProfile: React.FC<Props> = ({ profile }) => {
+const PatientProfile: React.FC<Props> = ({ onSetup, profile }) => {
   const auth = useAuth();
   const [step, setStep] = useState(1);
 
@@ -42,6 +43,7 @@ const PatientProfile: React.FC<Props> = ({ profile }) => {
     },
     // Revert back to the last step
     onError: () => setStep(step - 1),
+    onSuccess: onSetup,
   });
 
   // Initialize forms

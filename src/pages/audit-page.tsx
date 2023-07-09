@@ -1,71 +1,129 @@
-import React, { useMemo,useState } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
-import { PageLayout } from "../components/page-layout";
-import Loader from "../components/Loader/Loader";
-import { useAuth } from "../hooks/useAuth";
-import {
-  getAudit,
-  getQuestionnaireByProHash,
-} from "../services/message.service";
-import { useForm } from "react-hook-form";
+import React, { useEffect, useMemo } from 'react';
+import { useForm } from 'react-hook-form';
+import { useQuery } from 'react-query';
+import { Link, useParams } from 'react-router-dom';
+import { Button, Center, Container, Stack } from '@chakra-ui/react';
 
-import { useQuery } from "react-query";
-import { Container, Link as ChakraLink, Stack } from "@chakra-ui/react";
-
+import Loader from '../components/Loader/Loader';
+import { PageLayout } from '../components/page-layout';
+import { QuestionnaireCheckboxes } from '../components/QuestionnaireForm/QuestionnaireCheckboxes';
+import { QuestionnaireDropdown } from '../components/QuestionnaireForm/QuestionnaireDropdown';
+import { QuestionnaireField } from '../components/QuestionnaireForm/QuestionnaireField';
+import { QuesitonnaireNumberInput } from '../components/QuestionnaireForm/QuesitonnaireNumberInput';
+import { QuestionnaireRadio } from '../components/QuestionnaireForm/QuestionnaireRadio';
+import { QuestionnaireTextInput } from '../components/QuestionnaireForm/QuestionnaireTextInput';
+import { useAuth } from '../hooks/useAuth';
 import {
+  Audit as AuditType,
   FormState,
   QuestionData,
   QuestionGroupData,
-  Questionnaire,
-} from "../models/form-state";
-import { QuestionnaireCheckboxes } from "../components/QuestionnaireForm/QuestionnaireCheckboxes";
-import { QuestionnaireDropdown } from "../components/QuestionnaireForm/QuestionnaireDropdown";
-import { QuestionnaireField } from "../components/QuestionnaireForm/QuestionnaireField";
-import { QuesitonnaireNumberInput } from "../components/QuestionnaireForm/QuesitonnaireNumberInput";
-import { QuestionnaireRadio } from "../components/QuestionnaireForm/QuestionnaireRadio";
-import { QuestionnaireTextInput } from "../components/QuestionnaireForm/QuestionnaireTextInput";
-import { snakeToCamelCase } from "../services/helpers";
+} from '../models/form-state';
+import {
+  getAudit,
+  getQuestionnaireByProHash,
+} from '../services/message.service';
+import { mapValues } from '../utils';
+
+interface Field {
+  name: string;
+  description?: string | undefined;
+  text: string;
+  type: string;
+  value?: any;
+  state?: any;
+}
+
+interface FormElement {
+  name: string;
+  description?: string;
+  text?: string;
+  fields: Field[];
+}
+
+interface FormData {
+  [key: string]: {
+    [link_id: string]: string | number;
+  };
+}
+
+const STANDALONE_INPUT_MAP = {
+  checkbox: QuestionnaireCheckboxes,
+  decimal: QuesitonnaireNumberInput,
+  dropdown: QuestionnaireDropdown,
+  hidden: QuestionnaireTextInput,
+  radio: QuestionnaireRadio,
+  text: QuestionnaireTextInput,
+};
+
+const BUILD_FORM_MAP: {
+  [key: string]: (name: string, data: any, formState: FormState) => FormElement;
+} = {
+  group: (
+    name: string,
+    data: QuestionGroupData,
+    formState: FormState,
+  ): FormElement => {
+    return {
+      name,
+      description: data.description || '',
+      text: data.text || '',
+      fields: data.questions.map((question) => ({
+        name: `${name}.${question.linkId}`,
+        text: question.text,
+        type: question.type,
+        value:
+          question.value ||
+          (data.values || {})[question.useValues || ''] ||
+          data.value,
+        state: formState.states[question.linkId || '']?.entryResponse,
+      })),
+    };
+  },
+  question: (
+    name: string,
+    data: QuestionData,
+    formState: FormState,
+  ): FormElement => ({
+    name,
+    fields: [
+      {
+        name: `${name}.${data.linkId}`,
+        ...data,
+        state: formState.states[data.linkId || '']?.entryResponse,
+      },
+    ],
+  }),
+};
+
+// Helper method to force values into strings. This is necessary to bypass a
+// Chakra UI bug with checkboxes regarding numbers (particularly with the 0
+// value).
+const mapValuesToString = (val: any): any =>
+  mapValues(val, (v: any) => v?.toString());
 
 export const Audit: React.FC = () => {
   const auth = useAuth();
-  const { sid = "" } = useParams();
+  const { sid = '' } = useParams();
 
-  const STANDALONE_INPUT_MAP = {
-    checkbox: QuestionnaireCheckboxes,
-    decimal: QuesitonnaireNumberInput,
-    dropdown: QuestionnaireDropdown,
-    radio: QuestionnaireRadio,
-    text: QuestionnaireTextInput,
-  };
-
-  interface Field {
-    name: string;
-    description?: string | undefined;
-    text: string;
-    type: string;
-    value?: any;
-    state?: any;
-  }
-  const {
-    control,
-    register,
-    setValue,
-    formState,
-    formState: { errors, isValid: isFormValid },
-  } = useForm<FormData>({ mode: "onChange" });
-
-
-
-  //get audit payload
-  const { data: auditData, isLoading:isLoadingAudit } = useQuery("getAudit", async () => {
-    const token = await auth.getAccessToken();
-    const { data, error } = await getAudit(token, sid);
-    if (!data && error) throw error;
-    return data;
+  const { control, register, setValue } = useForm<FormData>({
+    mode: 'onChange',
   });
 
-  const proPack: string = auditData?.state.proPack;
-  const auditState: FormState = auditData?.state as FormState;
+  // Get audit payload
+  const { data: auditData, isLoading: isLoadingAudit } = useQuery<AuditType>(
+    ['audit', sid],
+    async () => {
+      if (!sid) throw new Error('SID must be specified');
+      const token = await auth.getAccessToken();
+      const { data, error } = await getAudit(token, sid);
+      if (!data || error) throw error || new Error('Could not retrieve audit');
+      return data;
+    },
+  );
+
+  const proPack = auditData?.state?.proPack;
+  const auditState = auditData?.state;
 
   // Retrieve the questionnaire; depend on existance of proPack
   const {
@@ -73,153 +131,60 @@ export const Audit: React.FC = () => {
     isError: isLoadingQuestionnaireError,
     isLoading: isLoadingQuestionnaire,
   } = useQuery({
-    queryKey: "questionnaire",
+    queryKey: ['questionnaire', proPack],
     queryFn: async () => {
+      if (!proPack) return;
       const authToken = await auth.getAccessToken();
       const { data, error } = await getQuestionnaireByProHash(
         proPack,
-        authToken
+        authToken,
       );
-      if (!data && error) throw new Error("Could not retrieve questionnaire");
+      if (!data && error) throw new Error('Could not retrieve questionnaire');
       return data;
     },
     enabled: !!proPack,
   });
 
-  ////////////////////////////////////////////////////////////////
-  interface FormElement {
-    name: string;
-    description?: string;
-    text?: string;
-    fields: {
-      name: string;
-      text: string;
-      type: string;
-      value?: any;
-      state?: any;
-    }[];
-  }
-
-  interface FormData {
-    [key: string]: {
-      [link_id: string]: string | number;
-    };
-  }
-
-  const BUILD_FORM_MAP: {
-    [key: string]: (
-      name: string,
-      data: any,
-      formState: FormState
-    ) => FormElement;
-  } = {
-    group: (
-      name: string,
-      data: QuestionGroupData,
-      formState: FormState
-    ): FormElement => {
-      return {
-        name,
-        description: data.description || "",
-        text: data.text || "",
-        fields: data.questions.map((question) => ({
-          name: `${name}.${question.linkId}`,
-          text: question.text,
-          type: question.type,
-          value:
-            question.value ||
-            (data.values || {})[question.useValues || ""] ||
-            data.value,
-          state: formState.states[question.linkId || ""]?.entryResponse,
-        })),
-      };
-    },
-    question: (
-      name: string,
-      data: QuestionData,
-      formState: FormState
-    ): FormElement => ({
-      name,
-      fields: [
-        {
-          name: `${name}.${data.linkId}`,
-          ...data,
-          state: formState.states[data.linkId || ""]?.entryResponse,
-        },
-      ],
-    }),
-  };
-
-  const buildForm = (
-    formState: FormState | null | undefined,
-    questionnaire: Questionnaire | null | undefined
-  ): FormElement[] => {
+  // Setup form
+  const proFormQuestions: FormElement[] = useMemo(() => {
     const elements: FormElement[] = [];
-    if (!formState || !questionnaire) return elements;
+    if (!auditState || !questionnaire) return elements;
     questionnaire.data.questionnaire.forEach((metadata: any, idx: number) => {
       const createElement = BUILD_FORM_MAP[metadata.element];
       if (createElement)
-        elements.push(createElement(idx.toString(), metadata.data, formState));
+        elements.push(createElement(idx.toString(), metadata.data, auditState));
     });
     return elements;
-  };
-
-  // Setup form
-  const proFormQuestions: FormElement[] = useMemo(() => {
-    return buildForm(auditState, questionnaire);
   }, [auditState, questionnaire]);
-  ////////////////////////////////////////////////////////////////
 
-  
-
-  // Helper method to map values using the specified callback function
-  const mapValues = (val: any, cb: (v: any) => any): any => {
-    if (Array.isArray(val)) {
-      return val.map((v: any) => mapValues(v, cb));
-    } else if (val?.constructor === Object) {
-      return Object.entries(val).reduce((obj: any, [key, v]) => {
-        obj[key] = mapValues(v, cb);
-        return obj;
-      }, {});
-    } else {
-      return cb(val);
-    }
-  };
-  // Helper method to force values into strings. This is necessary to bypass a
-  // Chakra UI bug with checkboxes regarding numbers (particularly with the 0
-  // value).
-  const mapValuesToString = (val: any): any =>
-    mapValues(val, (v: any) => v?.toString());
-
-  // Helper method to force values into numbers. Primarily helpful to revert
-  // values that had to be forced into strings due to the Chakra UI checkbox bug.
-  const mapValuesToNumber = (val: any) =>
-    mapValues(val, (v: any) => (Number.isNaN(Number(v)) ? v : Number(v)));
-
-  const [firstRender,setFirstRender]=useState(0);
-
-  const renderFields = () => {
-    console.log("Questions: ", proFormQuestions);
-    console.log("Audit: ",auditData);
-    console.log("FirstRender: ",firstRender)
-    const builder: any = [];
-    console.log("BUILDER: ",builder)
+  // Set form values
+  useEffect(() => {
+    if (!proFormQuestions || !auditState) return;
     for (const step of proFormQuestions) {
       for (const field of step.fields) {
-        const descriptor = field as Field;
+        const linkId = field.name.split('.')[1];
+        const entryResponse = auditState.states[linkId].entryResponse;
+        setValue(field.name, mapValuesToString(entryResponse));
+      }
+    }
+  }, [auditState, proFormQuestions, setValue]);
+
+  const renderFields = () =>
+    proFormQuestions.map((step) =>
+      step.fields.map((field) => {
         switch (field.type) {
-          case "checkbox":
-          case "decimal":
-          case "dropdown":
-          case "radio":
-          case "text":
+          case 'checkbox':
+          case 'decimal':
+          case 'dropdown':
+          case 'hidden':
+          case 'radio':
+          case 'text':
             const InputComponent = STANDALONE_INPUT_MAP[field.type];
             const isGroup = step.fields.length > 1;
-
-            builder.push(
+            return (
               <QuestionnaireField
                 compact={isGroup}
-                description={descriptor.description}
+                description={field.description}
                 id={field.name}
                 key={field.name}
                 label={field.text}
@@ -233,34 +198,13 @@ export const Audit: React.FC = () => {
                 />
               </QuestionnaireField>
             );
-
-            const linkId = snakeToCamelCase(field.name.split(".")[1]);
-            const entryResponse = auditState?.states[linkId].entryResponse;
-
-            if( firstRender != 1 ){
-              setValue(field.name, mapValuesToString(entryResponse));
-              setFirstRender(1);}
-
-            break;
-          case "hidden":
-            // TODO
-            //setValue(field.name, field.state);
-            builder.push(
-              <div key={field.name}>
-                {descriptor.description} Not implemented yet
-              </div>
-            );
-            //setValue(field.name, field.state);
-            break;
           default:
             console.error(`Invalid type of ${field.type}`);
             return null;
         }
-      }
-    }
-    
-    return builder;
-  };
+      }),
+    );
+
   if (isLoadingAudit || isLoadingQuestionnaire) {
     return (
       <Stack mt="32" align="center">
@@ -271,11 +215,14 @@ export const Audit: React.FC = () => {
 
   return (
     <PageLayout>
-      <Container maxW="5xl">
+      <Container maxW="3xl">
         <fieldset disabled>{renderFields()}</fieldset>
-        <ChakraLink as={Link} color="teal" to="/home">
-          Go back to survey list
-        </ChakraLink>
+
+        <Center mt="8">
+          <Button as={Link} colorScheme="teal" to="/home">
+            Go back to surveys
+          </Button>
+        </Center>
       </Container>
     </PageLayout>
   );

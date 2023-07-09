@@ -11,5 +11,5 @@ export interface Notifications {
 
 export interface UserNotifications {
   sub: string;
-  notifications: Notification;
+  notifications: Notifications;
 }

@@ -14,7 +14,11 @@ import {
 const PatientHome: React.FC = () => {
   const auth = useAuth();
 
-  const { data: profile, isLoading } = useQuery('patientProfile', async () => {
+  const {
+    data: profile,
+    isLoading,
+    refetch,
+  } = useQuery('patientProfile', async () => {
     const token = await auth.getAccessToken();
     const { data, error } = await getUserProfile(auth.sub, token);
     if (!data && error) throw error;
@@ -29,7 +33,7 @@ const PatientHome: React.FC = () => {
     );
 
   return ['INIT', 'STAGED'].indexOf(profile.state.toUpperCase()) > -1 ? (
-    <PatientProfile profile={profile} />
+    <PatientProfile onSetup={() => refetch()} profile={profile} />
   ) : (
     <PtNav
       hospital={profile.profile.hospital}

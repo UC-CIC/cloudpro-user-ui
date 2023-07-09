@@ -31,8 +31,7 @@ interface SurgeonEntity {
   sub: string;
 }
 
-const PHONE_FORMAT =
-  /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
+const PHONE_FORMAT = /^\+?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/im;
 
 const PatientProfileBase: React.FC<Props> = ({
   initialValues,

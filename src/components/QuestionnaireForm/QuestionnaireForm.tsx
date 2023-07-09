@@ -1,4 +1,4 @@
-import React, { useState, useEffect  } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   Box,
@@ -16,6 +16,7 @@ import { QuestionnaireField } from './QuestionnaireField';
 import { QuesitonnaireNumberInput } from './QuesitonnaireNumberInput';
 import { QuestionnaireRadio } from './QuestionnaireRadio';
 import { QuestionnaireTextInput } from './QuestionnaireTextInput';
+import { mapValues } from '../../utils';
 
 type Props = {
   onFormSave: (data: FormData) => any;
@@ -53,20 +54,6 @@ const STANDALONE_INPUT_MAP = {
   text: QuestionnaireTextInput,
 };
 
-// Helper method to map values using the specified callback function
-const mapValues = (val: any, cb: (v: any) => any): any => {
-  if (Array.isArray(val)) {
-    return val.map((v: any) => mapValues(v, cb));
-  } else if (val?.constructor === Object) {
-    return Object.entries(val).reduce((obj: any, [key, v]) => {
-      obj[key] = mapValues(v, cb);
-      return obj;
-    }, {});
-  } else {
-    return cb(val);
-  }
-};
-
 // Helper method to force values into strings. This is necessary to bypass a
 // Chakra UI bug with checkboxes regarding numbers (particularly with the 0
 // value).
@@ -83,35 +70,6 @@ export const QuestionnaireForm: React.FC<Props> = ({
   onFormSubmit,
   steps,
 }) => {
-  useEffect(() => {
-
-    for (const step of steps) {
-      for (const field of step.fields) {
-          switch (field.type) {
-              case 'checkbox':
-              case 'decimal':
-              case 'dropdown':
-              case 'radio':
-              case 'text':
-                  if (field.state != null) {
-                      setValue(field.name, mapValuesToString(field.state));
-                  }
-                  break;
-              case 'hidden':
-                  // TODO
-                  setValue(field.name, field.state);
-                  break;
-              default:
-                  console.error(`Invalid type of ${field.type}`);
-                  break;
-          }
-      }
-    }
-    
-
-  }, [steps]);
-
-
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [fadeOffset, setFadeOffset] = useState('-1rem');
   const {
@@ -120,11 +78,31 @@ export const QuestionnaireForm: React.FC<Props> = ({
     clearErrors,
     handleSubmit,
     getFieldState,
-    getValues,
     setValue,
     formState,
     formState: { errors, isValid: isFormValid },
   } = useForm<FormData>({ mode: 'onTouched' });
+
+  useEffect(() => {
+    for (const step of steps) {
+      for (const field of step.fields) {
+        switch (field.type) {
+          case 'checkbox':
+          case 'decimal':
+          case 'dropdown':
+          case 'radio':
+          case 'text':
+            if (field.state != null) {
+              setValue(field.name, mapValuesToString(field.state));
+            }
+            break;
+          default:
+            console.error(`Invalid type of ${field.type}`);
+            break;
+        }
+      }
+    }
+  }, [setValue, steps]);
 
   const onSubmit = async (data: FormData) => {
     return onFormSubmit(mapValuesToNumber(data));
@@ -134,16 +112,12 @@ export const QuestionnaireForm: React.FC<Props> = ({
     return onFormSave(mapValuesToNumber(data));
   };
 
-  // TODO - How should we handle hidden fields? e.g. at end of questionnaire
   const onStep = (stepSize: number) => {
     // Set bounds on the new step index
     let newStepIdx = Math.min(
       Math.max(0, currentStepIdx + stepSize),
       steps.length - 1,
     );
-    if (stepSize < 0) {
-      // Go back until fields are no longer hidden
-    }
     setFadeOffset(`${stepSize}rem`);
     setCurrentStepIdx(newStepIdx);
     clearErrors(currentStepIdx.toString());
@@ -155,16 +129,11 @@ export const QuestionnaireForm: React.FC<Props> = ({
   if (!currentStep) return <div></div>;
 
   // Check whether the current step is in a valid state
-  const isStepValid: boolean = !currentStep.fields.some((field) => {
-    return (
-      (field.type !== 'hidden' && getValues(field.name) === undefined) ||
-      getFieldState(field.name, formState).invalid
-    );
-  });
+  const isStepValid: boolean = !currentStep.fields.some(
+    (field) => getFieldState(field.name, formState).invalid,
+  );
 
   const isGroup = currentStep.fields.length > 1;
-
-
 
   const renderFields = () => {
     const fields = currentStep.fields
@@ -176,8 +145,6 @@ export const QuestionnaireForm: React.FC<Props> = ({
           case 'radio':
           case 'text':
             const InputComponent = STANDALONE_INPUT_MAP[field.type];
-
-
             return (
               <QuestionnaireField
                 compact={isGroup}
@@ -195,10 +162,6 @@ export const QuestionnaireForm: React.FC<Props> = ({
                 />
               </QuestionnaireField>
             );
-          case 'hidden':
-            // TODO
-            //setValue(field.name, field.state);
-            return <div key={field.name}>Not implemented yet</div>;
           default:
             console.error(`Invalid type of ${field.type}`);
             return null;

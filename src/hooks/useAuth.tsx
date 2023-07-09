@@ -1,7 +1,8 @@
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useQueryClient } from 'react-query';
 import Amplify from '@aws-amplify/core';
 import { Auth } from 'aws-amplify';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
 import { AwsConfigAuth } from '../config/auth';
 
 Amplify.configure({ Auth: AwsConfigAuth });
@@ -16,7 +17,7 @@ interface UseAuth {
   signIn: (code: string) => Promise<Result>;
   signUp: (email: string) => Promise<Result>;
   verify: (username: string, code: string) => Promise<Result>;
-  getAccessToken: () => Promise<String>;
+  getAccessToken: () => Promise<string>;
   currentUserInfo: () => Promise<any>;
   signOut: () => void;
 }
@@ -42,6 +43,7 @@ export const useAuth = () => {
 };
 
 const useProvideAuth = (): UseAuth => {
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isEmployee, setIsEmployee] = useState(false);
@@ -112,8 +114,7 @@ const useProvideAuth = (): UseAuth => {
 
   const verify = async (username: string, code: string) => {
     try {
-      const result = await Auth.confirmSignUp(username, code);
-      console.log('RESULT:', result);
+      await Auth.confirmSignUp(username, code);
       return { success: true, message: '' };
     } catch (error: any) {
       console.error(error);
@@ -149,14 +150,10 @@ const useProvideAuth = (): UseAuth => {
     password += anumber.substring(rnumber, rnumber + 1);
 
     try {
-      const { user } = await Auth.signUp({
-        username: email,
-        password,
-      });
-      console.log(user);
+      await Auth.signUp({ username: email, password });
       return { success: true, message: '' };
     } catch (error) {
-      console.log('error signing up:', error);
+      console.error('error signing up:', error);
       return {
         success: false,
         message: 'LOGIN FAIL',
@@ -167,7 +164,10 @@ const useProvideAuth = (): UseAuth => {
   const signOut = async () => {
     try {
       await Auth.signOut();
+      // Reset auth values
       setAuthValues();
+      // Clear query cache
+      queryClient.clear();
       return { success: true, message: '' };
     } catch (error) {
       return { success: false, message: 'LOGOUT FAIL' };
