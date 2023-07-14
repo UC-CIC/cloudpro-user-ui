@@ -141,7 +141,6 @@ export const Survey: React.FC = () => {
 
       // Initialize state
       const { data: newState } = await initState(propack, stateHash, token);
-      console.log(newState);
       if (!newState) throw new Error('Could not initialize state');
       return newState;
     },
@@ -212,7 +211,6 @@ export const Survey: React.FC = () => {
         idValuesMap[id] = data;
         scoredStates[id] = { entryResponse: data, entryState: 'updated' };
       }
-      console.log(scoredStates);
 
       // Save updated state
       const updateResponse = await updateFullState(

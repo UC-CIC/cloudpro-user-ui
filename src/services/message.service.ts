@@ -134,7 +134,7 @@ export const initState = async (
     },
   };
   let { data, error } = await callExternalApi<FormState>({ config });
-  if (data) data = transformState(data, camelToSnakeCase);
+  if (data) data = transformState(data, snakeToCamelCase);
   return { data, error };
 };
 
@@ -179,7 +179,7 @@ export const closeSurvey = async (
   };
 
   let { data, error } = await callExternalApi<FormState>({ config });
-  if (data) data = transformState(data, camelToSnakeCase);
+  if (data) data = transformState(data, snakeToCamelCase);
   return { data, error };
 };
 
