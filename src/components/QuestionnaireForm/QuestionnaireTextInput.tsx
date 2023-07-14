@@ -19,6 +19,7 @@ export const QuestionnaireTextInput: React.FC<{
           size="lg"
           type="text"
           placeholder="Input a value"
+          value={field.value || field.state || ''}
         />
       )}
     />

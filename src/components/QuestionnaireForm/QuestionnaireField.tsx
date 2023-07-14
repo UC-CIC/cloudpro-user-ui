@@ -11,9 +11,17 @@ export const QuestionnaireField: React.FC<{
   children: React.ReactNode;
   compact?: boolean;
   description?: string | undefined;
+  disabled?: boolean;
   id: string;
   label: string;
-}> = ({ children, compact = false, description, id, label }) => {
+}> = ({
+  children,
+  compact = false,
+  description,
+  disabled = false,
+  id,
+  label,
+}) => {
   return (
     <FormControl py={compact ? '1.5rem' : '0.5rem'}>
       <Box mb="1.2rem">
@@ -28,7 +36,7 @@ export const QuestionnaireField: React.FC<{
         )}
       </Box>
 
-      {children}
+      <fieldset disabled={disabled}>{children}</fieldset>
     </FormControl>
   );
 };

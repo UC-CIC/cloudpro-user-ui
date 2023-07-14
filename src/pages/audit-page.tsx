@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { useQuery } from 'react-query';
 import { Link, useParams } from 'react-router-dom';
-import { Button, Center, Container, Stack } from '@chakra-ui/react';
+import { Box, Button, Center, Container, Stack } from '@chakra-ui/react';
 
 import Loader from '../components/Loader/Loader';
 import { PageLayout } from '../components/page-layout';
@@ -169,41 +169,41 @@ export const Audit: React.FC = () => {
     }
   }, [auditState, proFormQuestions, setValue]);
 
-  const renderFields = () =>
-    proFormQuestions.map((step) =>
-      step.fields.map((field) => {
-        switch (field.type) {
-          case 'checkbox':
-          case 'decimal':
-          case 'dropdown':
-          case 'hidden':
-          case 'radio':
-          case 'text':
-            const InputComponent = STANDALONE_INPUT_MAP[field.type];
-            const isGroup = step.fields.length > 1;
-            return (
-              <QuestionnaireField
+  const renderFields = (step: FormElement) => {
+    const isGroup = step.fields.length > 1;
+    return step.fields.map((field) => {
+      switch (field.type) {
+        case 'checkbox':
+        case 'decimal':
+        case 'dropdown':
+        case 'hidden':
+        case 'radio':
+        case 'text':
+          const InputComponent = STANDALONE_INPUT_MAP[field.type];
+          return (
+            <QuestionnaireField
+              compact={isGroup}
+              description={field.description}
+              disabled
+              key={field.name}
+              id={field.name}
+              label={field.text}
+            >
+              <InputComponent
                 compact={isGroup}
-                description={field.description}
+                control={control}
                 id={field.name}
-                key={field.name}
-                label={field.text}
-              >
-                <InputComponent
-                  compact={isGroup}
-                  control={control}
-                  id={field.name}
-                  field={field}
-                  register={register}
-                />
-              </QuestionnaireField>
-            );
-          default:
-            console.error(`Invalid type of ${field.type}`);
-            return null;
-        }
-      }),
-    );
+                field={field}
+                register={register}
+              />
+            </QuestionnaireField>
+          );
+        default:
+          console.error(`Invalid type of ${field.type}`);
+          return null;
+      }
+    });
+  };
 
   if (isLoadingAudit || isLoadingQuestionnaire) {
     return (
@@ -216,7 +216,18 @@ export const Audit: React.FC = () => {
   return (
     <PageLayout>
       <Container maxW="3xl">
-        <fieldset disabled>{renderFields()}</fieldset>
+        {proFormQuestions.map((step) => (
+          <Box
+            key={step.name}
+            mb="4"
+            py="4"
+            px="6"
+            borderRadius="md"
+            bg="gray.50"
+          >
+            {renderFields(step)}
+          </Box>
+        ))}
 
         <Center mt="8">
           <Button as={Link} colorScheme="teal" to="/home">
