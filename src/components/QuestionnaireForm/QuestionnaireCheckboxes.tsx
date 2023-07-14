@@ -11,25 +11,23 @@ interface CheckboxesProps extends CheckboxGroupProps {
   values: { text: any; value: any }[];
 }
 
-const CheckboxesCompact = ({ values, ...props }: CheckboxesProps) => {
-  return (
-    <CheckboxGroup size="sm" variant="compact" {...props}>
-      <Stack direction="row" spacing="0.7rem">
-        {values.map(({ text, value }) => (
-          <Checkbox
-            flexDirection="column"
-            textAlign="center"
-            key={value}
-            spacing="0"
-            value={value}
-          >
-            {text ?? value}
-          </Checkbox>
-        ))}
-      </Stack>
-    </CheckboxGroup>
-  );
-};
+const CheckboxesCompact = ({ values, ...props }: CheckboxesProps) => (
+  <CheckboxGroup size="sm" variant="compact" {...props}>
+    <Stack direction="row" spacing="0.7rem">
+      {values.map(({ text, value }) => (
+        <Checkbox
+          flexDirection="column"
+          textAlign="center"
+          key={value}
+          spacing="0"
+          value={value}
+        >
+          {text ?? value}
+        </Checkbox>
+      ))}
+    </Stack>
+  </CheckboxGroup>
+);
 
 const Checkboxes = ({ values, ...props }: CheckboxesProps) => (
   <CheckboxGroup size="lg" {...props}>

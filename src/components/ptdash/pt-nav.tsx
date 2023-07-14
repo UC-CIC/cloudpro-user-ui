@@ -92,8 +92,6 @@ export const PtNav: React.FC<Props> = (props) => {
     [data?.completedSurveys],
   );
 
-  console.log(isError, isLoading);
-
   return (
     <PageLayout>
       <Container maxW="3xl">
