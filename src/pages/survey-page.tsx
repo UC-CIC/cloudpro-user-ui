@@ -313,8 +313,7 @@ export const Survey: React.FC = () => {
               {isSubmitted && (
                 <>
                   <Text fontSize="xl" mb="2">
-                    Thank you, your survey has been submitted for your surgeon's
-                    review.
+                    Thank you. Your survey has been submitted and will help improve patient care experience. This platform does not support communication with your healthcare team. If you need medical assistance, please contact your healthcare team directly.
                   </Text>
                   <Text fontWeight="normal" mb="4">
                     Click below to finish and see your remaining surveys.

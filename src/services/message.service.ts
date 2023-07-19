@@ -138,6 +138,27 @@ export const initState = async (
   return { data, error };
 };
 
+export const simulateSurveyRoll = async (
+  scheduleName: string,
+  authToken: String,
+): Promise<ApiResponse<FormState>> => {
+  const config: AxiosRequestConfig = {
+    url: `${apiServerUrl}/qol/simulatesched/rollover`,
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      Authorization: `Bearer ${authToken}`,
+    },
+    data: {
+      name: scheduleName,
+    },
+  };
+  let { data, error } = await callExternalApi<FormState>({ config });
+  if (data) data = transformState(data, snakeToCamelCase);
+  return { data, error };
+};
+
+
 export const getSurvey = async (
   sub: string,
   authToken: String,
