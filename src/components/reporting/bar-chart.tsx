@@ -105,6 +105,7 @@ export const BarChart = () => {
     indexBy: 'x',
     keys,
     padding: 0.2,
+    enableLabel: false,
     labelTextColor: 'inherit:darker(1.4)',
     labelSkipWidth: 16,
     labelSkipHeight: 16,
@@ -120,7 +121,7 @@ export const BarChart = () => {
       axis: 'y',
       value: tAgg?.value | 0,
       lineStyle: { stroke: 'rgba(255, 255, 0, .75)', strokeWidth: 4 },
-      legend: 'T-Score Base',
+      legend: 'T-Score',
       textStyle: { fill: 'rgba(0, 0, 0, .75)', fontWeight: 'bold' },
       legendOrientation: 'horizontal',
     },
@@ -128,7 +129,7 @@ export const BarChart = () => {
       axis: 'y',
       value: specAgg?.value | 0,
       lineStyle: { stroke: 'rgba(255, 0, 0, .35)', strokeWidth: 4 },
-      legend: 'Speciality Base',
+      legend: 'S-Score',
       textStyle: { fill: 'rgba(0, 0, 0, .75)', fontWeight: 'bold' },
       legendOrientation: 'horizontal',
     },
@@ -149,6 +150,7 @@ export const BarChart = () => {
       {commonProperties.data.length > 0 ? (
         <ResponsiveBar
           {...commonProperties}
+          axisLeft={null}
           colors={{ scheme: 'category10' }}
           markers={showSpecMarker || showTMarker ? markerActive() : []}
         />
@@ -179,6 +181,15 @@ export const BarChart = () => {
           {commonProperties.data.length > 0 ? (
             <Center>
               <Stack spacing={[1, 5]} direction={['column', 'row']}>
+              <Checkbox
+                  isChecked={showSpecMarker}
+                  onChange={() => {
+                    setShowSpecMarker((prevState) => !prevState);
+                  }}
+                  value="specScore"
+                >
+                  How you compare to other patients after Lorem Surgery (S-Score)
+                </Checkbox>
                 <Checkbox
                   isChecked={showTMarker}
                   onChange={() => {
@@ -186,16 +197,7 @@ export const BarChart = () => {
                   }}
                   value="tScore"
                 >
-                  Show T-Score Baseline
-                </Checkbox>
-                <Checkbox
-                  isChecked={showSpecMarker}
-                  onChange={() => {
-                    setShowSpecMarker((prevState) => !prevState);
-                  }}
-                  value="specScore"
-                >
-                  Show Speciality Baseline
+                  How you compare to everyone in the nation (T-Score)
                 </Checkbox>
               </Stack>
             </Center>
