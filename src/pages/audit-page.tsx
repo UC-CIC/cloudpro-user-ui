@@ -216,18 +216,29 @@ export const Audit: React.FC = () => {
   return (
     <PageLayout>
       <Container maxW="3xl">
-        {proFormQuestions.map((step) => (
-          <Box
-            key={step.name}
-            mb="4"
-            py="4"
-            px="6"
-            borderRadius="md"
-            bg="gray.50"
-          >
-            {renderFields(step)}
-          </Box>
-        ))}
+        { proFormQuestions.length != 0 ?
+              proFormQuestions.map((step) => (
+                <Box
+                  key={step.name}
+                  mb="4"
+                  py="4"
+                  px="6"
+                  borderRadius="md"
+                  bg="gray.50"
+                >
+                  {renderFields(step)}
+                </Box>
+              )) : 
+              <Box
+                  mb="4"
+                  py="4"
+                  px="6"
+                  borderRadius="md"
+                  bg="gray.50"
+                >
+                  Woops! You missed this survey. It is important to remember to complete your assigned surveys to better help your care team.
+                </Box>
+        }
 
         <Center mt="8">
           <Button as={Link} colorScheme="teal" to="/home">
