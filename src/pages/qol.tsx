@@ -4,11 +4,14 @@ import { Stack } from '@chakra-ui/react';
 
 import Loader from '../components/Loader/Loader';
 
+import { Link } from '@chakra-ui/react';
+
 import { useAuth } from '../hooks/useAuth';
 import React from 'react';
 import {
   getUserProfile,
   PatientProfile as PatientProfileType,
+  simulateSurveyRoll
 } from '../services/message.service';
 
 const QOL: React.FC = () => {
@@ -53,6 +56,12 @@ const QOL: React.FC = () => {
     }
     return ( descriptionTags );
   }
+  const executeSchedSimulation:any = async( name:string ) => {
+    alert("Survey roll submitted; please wait 3 minutes for it to take effect");
+    const token = await auth.getAccessToken();
+    const response = await simulateSurveyRoll(name,token);
+  }
+
 
   const {
     data: profile,
@@ -71,17 +80,16 @@ const QOL: React.FC = () => {
       </Stack>
     );
 
+
   return (
     <div>
       <h1><strong>Simulate Sweep</strong> ~~Surgery Date {profile.profile.surgeryDate}~~</h1>
       <hr></hr>
       <div>
-        { 
-
+        {   
           buildList( profile.sub, profile.profile.surgeryDate ).map( (name:any,index:any)=> {
-            return <div key={index}><strong>{header_tags[index]}</strong><br/>{name}<br/></div>
+            return <div key={index}><strong><Link color="teal.500" onClick={ () => executeSchedSimulation(name)}>{header_tags[index]} </Link></strong><br/>{name}<br/></div>
           })
-
         }
       </div>
     </div>
