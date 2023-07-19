@@ -13,6 +13,7 @@ import { Registered as RegisteredPage } from './pages/registered';
 import { Surgeon } from './pages/surgeon-page';
 import { Survey } from './pages/survey-page';
 import { Audit } from './pages/audit-page';
+import QOL from './pages/qol';
 
 export const App: React.FC = () => {
   const { isEmployee, isLoading } = useAuth();
@@ -39,6 +40,7 @@ export const App: React.FC = () => {
         ) : (
           <>
             <Route path="/home" element={<PatientHome />} />
+            <Route path="/qol" element={<QOL />} />
             <Route path="/pt-authed-reporting" element={<PtReporting />} />
             <Route path="/survey/:propack/:stateHash" element={<Survey />} />
             <Route path="/audit/:sid" element={<Audit />} />
