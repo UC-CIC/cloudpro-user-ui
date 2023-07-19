@@ -35,11 +35,18 @@ const QOL: React.FC = () => {
     const descriptionTags=[];
     const dateObj = new Date(surgeryDate + " 00:00:00");
 
+
+    // Pre Op
     dateObj.setDate(dateObj.getDate() - 10);
     descriptionTags.push(sub + "-" + dateObj.toISOString().slice(0, -13) + "00h00m00s-0");
-    dateObj.setDate(dateObj.getDate() + 10);
+    // 10 Day Post Op
+    dateObj.setDate(dateObj.getDate() + 20);
     descriptionTags.push(sub + "-" + dateObj.toISOString().slice(0, -13) + "00h00m00s-1");
 
+    // reset to surgery date
+    dateObj.setDate(dateObj.getDate() - 10 );
+
+    // Every month after
     for ( var i = 1; i <= 12; i++ ) {
       dateObj.setMonth(dateObj.getMonth() + 1)
       descriptionTags.push(sub + "-" + dateObj.toISOString().slice(0, -13) + "00h00m00s-" + (i+1).toString());
