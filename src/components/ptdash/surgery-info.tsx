@@ -47,8 +47,8 @@ export const SurgeryInfo: React.FC<Props> = ({
       <CardBody py="6">
         <Box maxW="lg" pb="4">
           <SurgeryInfoDetail label="Operation Date" text={surgeryDate} />
-          <SurgeryInfoDetail label="Hospital" text={hospital} />
-          <SurgeryInfoDetail label="Surgeon" text={surgeon} />
+          <SurgeryInfoDetail label="Hospital" text={hospital.split(";")[1]} />
+          <SurgeryInfoDetail label="Surgeon" text={surgeon.split(";")[1]} />
         </Box>
         <Divider borderColor="gray.300" />
         <Box px="8" pt="4">
