@@ -138,6 +138,26 @@ export const initState = async (
   return { data, error };
 };
 
+
+
+
+export const uploadFile = async (
+  url: String,
+  formData: any,
+): Promise<ApiResponse<FormState>> => {
+  const config: AxiosRequestConfig = {
+    url: `${url}`,
+    method: 'POST',
+    headers: {
+      'content-type': 'multipart/form-data',
+    },
+    data: formData
+  };
+  let { data, error } = await callExternalApi<FormState>({ config });
+  if (data) data = transformState(data, snakeToCamelCase);
+  return { data, error };
+};
+
 export const simulateSurveyRoll = async (
   scheduleName: string,
   authToken: String,
@@ -156,6 +176,33 @@ export const simulateSurveyRoll = async (
   let { data, error } = await callExternalApi<FormState>({ config });
   if (data) data = transformState(data, snakeToCamelCase);
   return { data, error };
+};
+export const uploader = async (
+  auth_token: String,
+  fileName: String
+): Promise<ApiResponse> => {
+  const config: AxiosRequestConfig = {
+    url: `${apiServerUrl}/qol/uploader`,
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      Authorization: `Bearer ${auth_token}`,
+    },
+    data: {
+      file_name: fileName,
+    },
+  };
+
+
+
+
+
+  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
+
+  return {
+    data,
+    error,
+  };
 };
 
 
