@@ -92,6 +92,9 @@ const QOL: React.FC = () => {
           })
         }
       </div>
+      <h1><strong>Simulate PROPack UPload</strong></h1>
+      <hr></hr>
+      <p>Lorem Ipsum</p>
     </div>
   );
 };
