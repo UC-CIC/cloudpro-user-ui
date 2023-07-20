@@ -4,17 +4,21 @@ import { Stack } from '@chakra-ui/react';
 
 import Loader from '../components/Loader/Loader';
 
-import { Link } from '@chakra-ui/react';
+import { Link, Input } from '@chakra-ui/react';
 
 import { useAuth } from '../hooks/useAuth';
-import React from 'react';
+import React, {useState} from 'react';
 import {
   getUserProfile,
   PatientProfile as PatientProfileType,
-  simulateSurveyRoll
+  simulateSurveyRoll,
+  uploader,
+  uploadFile
 } from '../services/message.service';
 
 const QOL: React.FC = () => {
+
+  const [file, setFile] = useState<File>();
   const auth = useAuth();
 
   const header_tags=[
@@ -80,6 +84,47 @@ const QOL: React.FC = () => {
       </Stack>
     );
 
+  const handleFileChange = ( e:any ) => {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
+    }
+  };
+  
+  const getMyToken:any = async() => {
+    const token = await auth.getAccessToken();
+    return token
+  }
+  
+  const handleUploadClick = () => {
+    if (!file) {
+      return;
+    }
+    getMyToken().then( function( token:any ) {
+      const authToken:any = token;
+      uploader(authToken,file.name).then( function( response:any ) {
+        const preSignedUrlData:any = response;
+        const formData = new FormData();
+        console.log("PreSigned:", preSignedUrlData);
+        // append the fields in presignedPostData in formData            
+        Object.keys(preSignedUrlData.data.fields).forEach(key => {
+          formData.append(key, preSignedUrlData.data.fields[key]);
+          console.log("KEY:",key)
+          //console.log("VAL:",preSignedUrlData.data.fields[key])
+        });           
+        // append the file
+        formData.append("file", file);
+        console.log(file)
+        console.log(formData.getAll("file"))
+
+        uploadFile( preSignedUrlData.data.url,formData).then( function( response:any ) {
+          console.log(response);
+        })
+       
+      });
+    });
+
+  };
+
 
   return (
     <div>
@@ -92,6 +137,16 @@ const QOL: React.FC = () => {
           })
         }
       </div>
+      <h1><strong>Simulate PROPack UPload</strong></h1>
+      <hr></hr>
+      <Input
+        placeholder="Upload PROPack"
+        size="md"
+        type="file"
+        onChange={ (event) => handleFileChange(event) }
+      />
+      <div>{file && `${file.name} - ${file.type}`}</div>
+      <button onClick={handleUploadClick}>Upload</button>
     </div>
   );
 };
