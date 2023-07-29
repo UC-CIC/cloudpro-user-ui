@@ -115,7 +115,7 @@ export const NavBar = () => {
         display={['none', 'none', 'flex', 'flex']}
       >
         <Flex alignItems={'center'}>
-          <Box p="4">
+          <Box p="4" >
             <Logo />
           </Box>
           <Spacer />

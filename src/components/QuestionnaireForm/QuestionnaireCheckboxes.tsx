@@ -5,6 +5,7 @@ import {
   CheckboxGroup,
   CheckboxGroupProps,
   Stack,
+  useColorModeValue
 } from '@chakra-ui/react';
 
 interface CheckboxesProps extends CheckboxGroupProps {

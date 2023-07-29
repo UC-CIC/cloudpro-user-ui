@@ -31,6 +31,27 @@ const customTheme = extendTheme({
         },
       },
     },
+    Card: {
+      baseStyle: (props: any) => ({
+        header: {
+            bg: props.colorMode === "dark" ? "teal.900" : "teal.500",
+            color: "white", // You can also adjust the text color if needed
+        },
+        body: {
+          bg: props.colorMode === "dark" ? "blue.900" : "grey.500",
+          color: "white", // You can also adjust the text color if needed
+      },
+      })
+    },
+    Tabs: {
+      baseStyle: (props: any) => ({
+        tab: {
+            bg: props.colorMode === "dark" ? "": "white",
+            color: props.colorMode === "dark" ? "white" : "black"
+        },
+      })
+    },
+
     Text: {
       baseStyle: (props: any) => ({
         color:

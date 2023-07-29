@@ -1,5 +1,5 @@
 import React from 'react';
-import { Select } from '@chakra-ui/react';
+import { Select, useColorMode } from '@chakra-ui/react';
 
 const DEFAULT_VALUE = 'DEFAULT';
 
@@ -9,8 +9,11 @@ export const QuestionnaireDropdown: React.FC<{
   field: any;
   register: any;
 }> = ({ id, field, register }) => {
+  const { colorMode } = useColorMode();
+
   return (
     <Select
+      color={colorMode === "light" ? "black" : "white"}
       autoFocus
       defaultValue={DEFAULT_VALUE}
       size="lg"
