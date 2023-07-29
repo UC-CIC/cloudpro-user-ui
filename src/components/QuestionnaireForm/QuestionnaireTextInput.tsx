@@ -1,6 +1,6 @@
 import React from 'react';
 import { Controller, ControllerRenderProps } from 'react-hook-form';
-import { Input } from '@chakra-ui/react';
+import { Input,useColorMode } from '@chakra-ui/react';
 
 export const QuestionnaireTextInput: React.FC<{
   control: any;
@@ -8,6 +8,7 @@ export const QuestionnaireTextInput: React.FC<{
   field: any;
   register: any;
 }> = ({ control, id, field, register }) => {
+  const { colorMode } = useColorMode();
   return (
     <Controller
       control={control}
@@ -18,6 +19,7 @@ export const QuestionnaireTextInput: React.FC<{
           autoFocus
           size="lg"
           type="text"
+          color={colorMode === "light" ? "black" : "white"}
           placeholder="Input a value"
           value={field.value || field.state || ''}
         />
