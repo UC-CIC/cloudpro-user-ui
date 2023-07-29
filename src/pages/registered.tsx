@@ -1,9 +1,11 @@
 import { NavLink as RouterLink } from 'react-router-dom';
-import { Container, Heading, Stack, Text, Button } from '@chakra-ui/react';
+import { Container, Heading, Stack, Text, Button, useColorMode } from '@chakra-ui/react';
 
 import { PageLayout } from '../components/page-layout';
 
 export function Registered() {
+  const { colorMode } = useColorMode();
+  
   return (
     <PageLayout>
       <Container maxW="5xl">
@@ -19,6 +21,7 @@ export function Registered() {
             fontSize={{ base: '3xl', sm: '4xl', md: '5xl' }}
             lineHeight="130%"
             maxW="3xl"
+            color={colorMode === "light" ? "black" : "white"}
           >
             Welcome to the start of your{' '}
             <Text as="span" color="orange.400">

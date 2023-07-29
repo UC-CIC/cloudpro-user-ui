@@ -57,7 +57,7 @@ const PatientProfileChallenges: React.FC<Props> = ({
           })}
         >
           {challengeOptions.map((challenge) => (
-            <option key={challenge.value} value={`c1q_${challenge.value}`}>
+            <option style={{ backgroundColor: 'white'}} key={challenge.value} value={`c1q_${challenge.value}`}>
               {challenge.text}
             </option>
           ))}
@@ -83,7 +83,7 @@ const PatientProfileChallenges: React.FC<Props> = ({
           })}
         >
           {challengeOptions.map((challenge) => (
-            <option key={challenge.value} value={`c2q_${challenge.value}`}>
+            <option style={{ backgroundColor: 'white'}} key={challenge.value} value={`c2q_${challenge.value}`}>
               {challenge.text}
             </option>
           ))}
@@ -109,7 +109,7 @@ const PatientProfileChallenges: React.FC<Props> = ({
           })}
         >
           {challengeOptions.map((challenge) => (
-            <option key={challenge.value} value={`c3q_${challenge.value}`}>
+            <option style={{ backgroundColor: 'white'}} key={challenge.value} value={`c3q_${challenge.value}`}>
               {challenge.text}
             </option>
           ))}

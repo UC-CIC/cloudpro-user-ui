@@ -19,11 +19,11 @@ import {
   getPtReportBySub,
 } from '../../services/message.service';
 import Loader from '../../components/Loader/Loader';
-import { Select } from '@chakra-ui/react';
+import { Select,useColorMode } from '@chakra-ui/react';
 
 export const BarChart = () => {
   const auth = useAuth();
-
+  const { colorMode } = useColorMode();
   const [optionIndex, setOptionIndex] = useState(0);
   const [showTMarker, setShowTMarker] = useState(false);
   const [showSpecMarker, setShowSpecMarker] = useState(false);
@@ -171,9 +171,9 @@ export const BarChart = () => {
 
       {options.length > 0 ? (
         <>
-          <Select onChange={handleOptionChange}>
+          <Select background={colorMode === "light" ? "black" : "white"} onChange={handleOptionChange}>
             {options.map((option: any, index) => (
-              <option key={option} value={index}>
+              <option style={{ backgroundColor: 'white'}} key={option} value={index}>
                 {option}
               </option>
             ))}
@@ -187,6 +187,7 @@ export const BarChart = () => {
                     setShowSpecMarker((prevState) => !prevState);
                   }}
                   value="specScore"
+                  color={colorMode === "light" ? "black" : "white"}
                 >
                   How you compare to other patients after Lorem Surgery (S-Score)
                 </Checkbox>
@@ -196,6 +197,7 @@ export const BarChart = () => {
                     setShowTMarker((prevState) => !prevState);
                   }}
                   value="tScore"
+                  color={colorMode === "light" ? "black" : "white"}
                 >
                   How you compare to everyone in the nation (T-Score)
                 </Checkbox>

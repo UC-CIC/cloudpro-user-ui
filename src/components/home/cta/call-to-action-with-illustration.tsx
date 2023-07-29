@@ -7,6 +7,7 @@ import {
   Button,
   Icon,
   IconProps,
+  useColorMode
 } from '@chakra-ui/react';
 
 import {
@@ -14,6 +15,8 @@ import {
 } from 'react-router-dom';
 
 export const CallToActionWithIllustration = () => {
+  const { colorMode } = useColorMode();
+
   return (
     <Container maxW={'5xl'}>
       <Stack
@@ -26,6 +29,7 @@ export const CallToActionWithIllustration = () => {
           fontWeight={600}
           fontSize={{ base: '3xl', sm: '4xl', md: '6xl' }}
           lineHeight={'110%'}
+          color={colorMode === "light" ? "black" : "white"}
         >
           Your recovery story{' '}
           <Text as={'span'} color={'orange.400'}>

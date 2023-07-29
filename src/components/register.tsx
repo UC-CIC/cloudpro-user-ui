@@ -15,6 +15,7 @@ import {
   FormControl,
   FormHelperText,
   InputRightElement,
+  useColorMode
 } from '@chakra-ui/react';
 import { FaUserAlt, FaLock } from 'react-icons/fa';
 
@@ -54,7 +55,7 @@ export const RegisterFlow = () => {
       alert(result.message);
     }
   };
-
+  const { colorMode } = useColorMode();
   return (
     <Container maxW={'5xl'}>
       <Stack
@@ -91,6 +92,7 @@ export const RegisterFlow = () => {
                         placeholder="email address"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        color={colorMode === "light" ? "black" : "white"}
                       />
                       <InputRightElement width="4.5rem">
                         {showRegister ? (
@@ -127,6 +129,7 @@ export const RegisterFlow = () => {
                           placeholder="OTP Code"
                           value={code}
                           onChange={(e) => setCode(e.target.value)}
+                          color={colorMode === "light" ? "black" : "white"}
                         />
 
                         <InputRightElement width="4.5rem">
@@ -161,7 +164,7 @@ export const RegisterFlow = () => {
               </form>
             </Box>
           </Stack>
-          <Box>
+          <Box color={colorMode === "light" ? "black" : "white"}>
             Existing account?{' '}
             <Link color="teal.500" as={RouterLink} to="/signin">
               Login

@@ -5,7 +5,7 @@ import {
   CheckboxGroup,
   CheckboxGroupProps,
   Stack,
-  useColorModeValue
+  useColorMode 
 } from '@chakra-ui/react';
 
 interface CheckboxesProps extends CheckboxGroupProps {
@@ -22,6 +22,7 @@ const CheckboxesCompact = ({ values, ...props }: CheckboxesProps) => (
           key={value}
           spacing="0"
           value={value}
+          color={props.colorScheme === 'white' ? "white" : "black"}
         >
           {text ?? value}
         </Checkbox>
@@ -58,8 +59,9 @@ export const QuestionnaireCheckboxes: React.FC<{
   );
 
   const CheckboxComponent = compact ? CheckboxesCompact : Checkboxes;
-
+  const { colorMode } = useColorMode();
   return (
+    
     <Controller
       control={control}
       name={id}
@@ -70,7 +72,7 @@ export const QuestionnaireCheckboxes: React.FC<{
       }) => (
         <CheckboxComponent
           {...fieldProps}
-          colorScheme="teal"
+          colorScheme={colorMode === "light" ? "black" : "white"}
           onChange={(value: any) => fieldProps.onChange(value)}
           values={fieldValues}
         />

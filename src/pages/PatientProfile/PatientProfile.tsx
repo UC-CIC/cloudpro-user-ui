@@ -8,6 +8,7 @@ import {
   ScaleFade,
   Stack,
   Text,
+  useColorModeValue
 } from '@chakra-ui/react';
 
 import PatientProfileBase from './PatientProfileBase';
@@ -71,6 +72,8 @@ const PatientProfile: React.FC<Props> = ({ onSetup, profile }) => {
     });
   }, [auth, baseProfile, challengeQs, step, tfa, updateProfile]);
 
+  const backgroundColor = useColorModeValue("white", "blue.500");
+
   return (
     <PageLayout>
       <Container maxW="5xl">
@@ -99,7 +102,7 @@ const PatientProfile: React.FC<Props> = ({ onSetup, profile }) => {
               ({Math.min(step, 3)}/3)
             </Heading>
 
-            <Box minW={{ base: '90%', md: '468px' }}>
+            <Box minW={{ base: '90%', md: '468px' }} backgroundColor={backgroundColor}>
               {profile.state !== 'INIT' && (
                 <Box bg="teal" w="100%" py={8} px={4} color="white">
                   <Text color="white" mb="1.5">

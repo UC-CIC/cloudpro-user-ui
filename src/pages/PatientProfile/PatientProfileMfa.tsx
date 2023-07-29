@@ -61,11 +61,11 @@ const PatientProfileMfa: React.FC<Props> = ({
             required: 'Please select a default two factor device.',
           })}
         >
-          <option value="tfa_email">Email</option>
-          <option value="tfa_sms" disabled>
+          <option style={{ backgroundColor: 'white'}} value="tfa_email">Email</option>
+          <option style={{ backgroundColor: 'white'}} value="tfa_sms" disabled>
             SMS
           </option>
-          <option value="tfa_call" disabled>
+          <option style={{ backgroundColor: 'white'}} value="tfa_call" disabled>
             Call
           </option>
         </Select>

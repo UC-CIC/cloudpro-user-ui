@@ -129,11 +129,13 @@ const PatientProfileBase: React.FC<Props> = ({
         >
           <Select
             id="birthSex"
+            bg="white"
             placeholder="Select option"
             {...register('birthSex', { required: 'Birth sex is required' })}
+            
           >
-            <option value="bs_m">Male</option>
-            <option value="bs_f">Female</option>
+            <option style={{ backgroundColor: 'white'}} value="bs_m">Male</option>
+            <option style={{ backgroundColor: 'white'}} value="bs_f">Female</option>
           </Select>
         </FormControl>
       </InputGroup>
@@ -159,11 +161,12 @@ const PatientProfileBase: React.FC<Props> = ({
         <Select
           disabled={isLoadingHospitals || isLoadingSurgeons}
           id="hospital"
+          bg="white"
           placeholder={isLoadingHospitals ? 'Loading...' : 'Select hospital'}
           {...register('hospital', { required: 'Hospital is required' })}
         >
           {(hospitalList || []).map(({ hid, hospitalName }) => (
-            <option key={hid} value={`${hid};${hospitalName}`}>
+            <option style={{ backgroundColor: 'white'}} key={hid} value={`${hid};${hospitalName}`}>
               {hospitalName}
             </option>
           ))}
@@ -174,12 +177,13 @@ const PatientProfileBase: React.FC<Props> = ({
       <FormControl error={errors.surgeon?.message as string} label="Surgeon">
         <Select
           id="surgeon"
+          bg="white"
           disabled={!surgeonList?.length || isLoadingSurgeons}
           placeholder="Select surgeon"
           {...register('surgeon', { required: 'Surgeon is required' })}
         >
           {(surgeonList || []).map(({ sub, name }) => (
-            <option key={sub} value={`${sub};${name}`}>
+            <option style={{ backgroundColor: 'white'}} key={sub} value={`${sub};${name}`}>
               {name}
             </option>
           ))}
