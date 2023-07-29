@@ -38,7 +38,7 @@ export const SurgeryInfo: React.FC<Props> = ({
 
   return (
     <Card overflow="hidden" minW="400px" borderRadius="lg" bgColor="gray.50">
-      <CardHeader py="4" backgroundColor="teal">
+      <CardHeader py="4" >
         <Heading fontSize="2xl" color="white">
           Your Surgery
         </Heading>

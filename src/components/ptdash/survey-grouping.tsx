@@ -1,4 +1,4 @@
-import { Box, Container, HStack, Text } from '@chakra-ui/react';
+import { Box, Container, HStack, Text, useColorModeValue } from '@chakra-ui/react';
 
 export interface Props {
   dueDate: string;
@@ -6,9 +6,13 @@ export interface Props {
 }
 
 export const SurveyGrouping: React.FC<Props> = ({ dueDate, grouping }) => {
+
+  const backgroundColor = useColorModeValue("gray.100", "gray.800");
+
+
   return (
     <Container
-      bg="gray.50"
+      bg={backgroundColor}
       borderWidth="1px"
       borderRadius="lg"
       overflow="hidden"
