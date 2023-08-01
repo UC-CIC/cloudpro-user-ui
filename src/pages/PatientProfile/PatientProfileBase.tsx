@@ -1,10 +1,11 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useMemo } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { useQuery } from 'react-query';
 import { Input, InputGroup, Box, Select } from '@chakra-ui/react';
 
 import PatientProfileFormControls from './PatientProfileFormControls';
 import FormControl from '../../components/FormControl';
+import ComboBox from '../../components/ComboBox';
 import { useAuth } from '../../hooks/useAuth';
 import {
   getHospitalByHid,
@@ -42,6 +43,7 @@ const PatientProfileBase: React.FC<Props> = ({
 
   // Setup form
   const {
+    control,
     formState: { errors, isValid },
     getValues,
     handleSubmit,
@@ -51,7 +53,7 @@ const PatientProfileBase: React.FC<Props> = ({
   const selectedHid = (watch('hospital') || '').split(';')[0];
 
   // Query for hospitals
-  const { data: hospitalList, isLoading: isLoadingHospitals } = useQuery(
+  const { data: hospitals, isLoading: isLoadingHospitals } = useQuery(
     'hospitals',
     async () => {
       const token = await auth.getAccessToken();
@@ -61,8 +63,15 @@ const PatientProfileBase: React.FC<Props> = ({
     },
   );
 
+  const hospitalsList = useMemo(() => {
+    return (hospitals || []).map(({ hid, hospitalName }) => ({
+      label: hospitalName,
+      value: `${hid};${hospitalName}`,
+    }));
+  }, [hospitals]);
+
   // Query for surgeons
-  const { data: surgeonList, isLoading: isLoadingSurgeons } = useQuery(
+  const { data: surgeons, isLoading: isLoadingSurgeons } = useQuery(
     ['surgeons', selectedHid],
     async () => {
       const token = await auth.getAccessToken();
@@ -72,6 +81,13 @@ const PatientProfileBase: React.FC<Props> = ({
     },
     { enabled: !!selectedHid },
   );
+
+  const surgeonsList = useMemo(() => {
+    return (surgeons || []).map(({ sub, name }) => ({
+      label: name,
+      value: `${sub};${name}`,
+    }));
+  }, [surgeons]);
 
   // Submit data before changing screen
   const handleStepChange = (stepSize: number) => {
@@ -132,10 +148,13 @@ const PatientProfileBase: React.FC<Props> = ({
             bg="white"
             placeholder="Select option"
             {...register('birthSex', { required: 'Birth sex is required' })}
-            
           >
-            <option style={{ backgroundColor: 'white'}} value="bs_m">Male</option>
-            <option style={{ backgroundColor: 'white'}} value="bs_f">Female</option>
+            <option style={{ backgroundColor: 'white' }} value="bs_m">
+              Male
+            </option>
+            <option style={{ backgroundColor: 'white' }} value="bs_f">
+              Female
+            </option>
           </Select>
         </FormControl>
       </InputGroup>
@@ -158,36 +177,40 @@ const PatientProfileBase: React.FC<Props> = ({
 
       {/* Hospital */}
       <FormControl error={errors.hospital?.message as string} label="Hospital">
-        <Select
-          disabled={isLoadingHospitals || isLoadingSurgeons}
-          id="hospital"
-          bg="white"
-          placeholder={isLoadingHospitals ? 'Loading...' : 'Select hospital'}
-          {...register('hospital', { required: 'Hospital is required' })}
-        >
-          {(hospitalList || []).map(({ hid, hospitalName }) => (
-            <option style={{ backgroundColor: 'white'}} key={hid} value={`${hid};${hospitalName}`}>
-              {hospitalName}
-            </option>
-          ))}
-        </Select>
+        <Controller
+          control={control}
+          name="hospital"
+          render={({ field: fieldProps }) => (
+            <ComboBox
+              disabled={isLoadingHospitals || isLoadingSurgeons}
+              options={hospitalsList}
+              placeholder={
+                isLoadingHospitals ? 'Loading...' : 'Select hospital'
+              }
+              {...fieldProps}
+              onChange={(value) => fieldProps.onChange(value.value)}
+            />
+          )}
+          rules={{ required: 'Hospital is required' }}
+        />
       </FormControl>
 
       {/* Surgeon */}
       <FormControl error={errors.surgeon?.message as string} label="Surgeon">
-        <Select
-          id="surgeon"
-          bg="white"
-          disabled={!surgeonList?.length || isLoadingSurgeons}
-          placeholder="Select surgeon"
-          {...register('surgeon', { required: 'Surgeon is required' })}
-        >
-          {(surgeonList || []).map(({ sub, name }) => (
-            <option style={{ backgroundColor: 'white'}} key={sub} value={`${sub};${name}`}>
-              {name}
-            </option>
-          ))}
-        </Select>
+        <Controller
+          control={control}
+          name="surgeon"
+          render={({ field: fieldProps }) => (
+            <ComboBox
+              disabled={!surgeonsList?.length || isLoadingSurgeons}
+              options={surgeonsList}
+              placeholder="Select surgeon"
+              {...fieldProps}
+              onChange={(value) => fieldProps.onChange(value?.value ?? null)}
+            />
+          )}
+          rules={{ required: 'Surgeon is required' }}
+        />
       </FormControl>
 
       {/* Surgery date */}

@@ -8,7 +8,7 @@ export const AwsConfigAuth = {
     path: '/',
     expires: 365,
     sameSite: 'strict',
-    secure: false,
+    secure: process.env.REACT_APP_AUTH_SECURE !== 'false',
   },
 
   authenticationFlowType: 'CUSTOM_AUTH',
