@@ -73,7 +73,7 @@ const ComboBox = forwardRef<typeof Input, Props>(
     useEffect(() => {
       reset();
       setItems(options);
-    }, [options]);
+    }, [reset, options]);
 
     return (
       <Flex direction="column" flex="1 1 auto">

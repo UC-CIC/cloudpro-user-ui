@@ -2,7 +2,14 @@ import React, { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { useQuery } from 'react-query';
 import { Link, useParams } from 'react-router-dom';
-import { Box, Button, Center, Container, Stack,useColorModeValue } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Center,
+  Container,
+  Stack,
+  useColorModeValue,
+} from '@chakra-ui/react';
 
 import Loader from '../components/Loader/Loader';
 import { PageLayout } from '../components/page-layout';
@@ -103,8 +110,7 @@ const mapValuesToString = (val: any): any =>
   mapValues(val, (v: any) => v?.toString());
 
 export const Audit: React.FC = () => {
-  const backgroundColor = useColorModeValue("gray.100", "gray.800");
-
+  const backgroundColor = useColorModeValue('gray.100', 'gray.800');
 
   const auth = useAuth();
   const { sid = '' } = useParams();
@@ -219,29 +225,25 @@ export const Audit: React.FC = () => {
   return (
     <PageLayout>
       <Container maxW="3xl">
-        { proFormQuestions.length != 0 ?
-              proFormQuestions.map((step) => (
-                <Box
-                  key={step.name}
-                  mb="4"
-                  py="4"
-                  px="6"
-                  borderRadius="md"
-                  bg={backgroundColor}
-                >
-                  {renderFields(step)}
-                </Box>
-              )) : 
-              <Box
-                  mb="4"
-                  py="4"
-                  px="6"
-                  borderRadius="md"
-                  bg="gray.50"
-                >
-                  Woops! You missed this survey. It is important to remember to complete your assigned surveys to better help your care team.
-                </Box>
-        }
+        {proFormQuestions.length !== 0 ? (
+          proFormQuestions.map((step) => (
+            <Box
+              key={step.name}
+              mb="4"
+              py="4"
+              px="6"
+              borderRadius="md"
+              bg={backgroundColor}
+            >
+              {renderFields(step)}
+            </Box>
+          ))
+        ) : (
+          <Box mb="4" py="4" px="6" borderRadius="md" bg="gray.50">
+            Woops! You missed this survey. It is important to remember to
+            complete your assigned surveys to better help your care team.
+          </Box>
+        )}
 
         <Center mt="8">
           <Button as={Link} colorScheme="teal" to="/home">
