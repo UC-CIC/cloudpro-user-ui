@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
+import { set } from 'lodash';
 import { useForm } from 'react-hook-form';
 import { useQuery } from 'react-query';
 import { Link, useParams } from 'react-router-dom';
@@ -115,7 +116,13 @@ export const Audit: React.FC = () => {
   const auth = useAuth();
   const { sid = '' } = useParams();
 
-  const { control, register, setValue } = useForm<FormData>({
+  const {
+    control,
+    formState: { isValid: isFormValid },
+    register,
+    reset,
+    setValue,
+  } = useForm<FormData>({
     mode: 'onChange',
   });
 
@@ -169,13 +176,16 @@ export const Audit: React.FC = () => {
   // Set form values
   useEffect(() => {
     if (!proFormQuestions || !auditState) return;
+    const defaultValues: FormData = {};
     for (const step of proFormQuestions) {
       for (const field of step.fields) {
         const linkId = field.name.split('.')[1];
         const entryResponse = auditState.states[linkId].entryResponse;
-        setValue(field.name, mapValuesToString(entryResponse));
+        if (entryResponse)
+          set(defaultValues, field.name, mapValuesToString(field.state));
       }
     }
+    reset(defaultValues);
   }, [auditState, proFormQuestions, setValue]);
 
   const renderFields = (step: FormElement) => {
@@ -225,7 +235,7 @@ export const Audit: React.FC = () => {
   return (
     <PageLayout>
       <Container maxW="3xl">
-        {proFormQuestions.length !== 0 ? (
+        {proFormQuestions.length && isFormValid ? (
           proFormQuestions.map((step) => (
             <Box
               key={step.name}
