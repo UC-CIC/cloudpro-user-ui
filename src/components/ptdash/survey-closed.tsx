@@ -1,24 +1,19 @@
 import { useNavigate } from 'react-router-dom';
-import { Link } from '@chakra-ui/react'
+import { Link } from '@chakra-ui/react';
 
-import { Box, Container, HStack, useColorModeValue,useColorMode } from '@chakra-ui/react';
+import { Box, Container, HStack, useColorModeValue } from '@chakra-ui/react';
 import { CheckIcon, CloseIcon } from '@chakra-ui/icons';
 
 export interface Props {
   description: string;
   missed: boolean;
   sid: string;
-  duedate:string;
+  duedate: string;
 }
 
-
-
-
-export const SurveyClosed: React.FC<Props> = ( props ) => {
-  const { colorMode, toggleColorMode } = useColorMode();
-
+export const SurveyClosed: React.FC<Props> = (props) => {
   const navigate = useNavigate();
-  const textColor = useColorModeValue("black", "white");
+  const textColor = useColorModeValue('black', 'white');
   // Navigate the user to the survey
   const showAudit = async () => {
     const stateHash = props.sid + props.duedate;
@@ -28,9 +23,15 @@ export const SurveyClosed: React.FC<Props> = ( props ) => {
   return (
     <Container>
       <HStack spacing="10" py="2">
-        {props.missed ? <CloseIcon color={textColor}/> : <CheckIcon color={textColor}/>}
+        {props.missed ? (
+          <CloseIcon color={textColor} />
+        ) : (
+          <CheckIcon color={textColor} />
+        )}
         <Box>
-          <Link onClick={showAudit} color={textColor}>{props.description}</Link>
+          <Link onClick={showAudit} color={textColor}>
+            {props.description}
+          </Link>
         </Box>
       </HStack>
     </Container>

@@ -53,17 +53,19 @@ export interface Props {
  * @param dataSurveys Survey groups retrieved by the API
  */
 const mapDataSurveys = (dataSurveys: Record<string, Survey[]>[]) => {
-  return dataSurveys.reduce(
-    (acc: SurveySet[][], groupSet: Record<string, Survey[]>) => {
-      const sets: SurveySet[] = [];
-      Object.entries(groupSet).forEach(([groupName, surveyList]) => {
-        if (surveyList.length) sets.push({ groupName, surveys: surveyList });
-      });
-      if (sets.length) acc.push(sets);
-      return acc;
-    },
-    [],
-  );
+  const surveySets: Record<string, Survey[]> = {};
+  dataSurveys.forEach((groupSet) => {
+    Object.entries(groupSet).forEach(([groupName, surveyList]) => {
+      if (surveyList.length)
+        surveySets[groupName] = [
+          ...(surveySets[groupName] || []),
+          ...surveyList,
+        ];
+    });
+  });
+  return Object.entries(surveySets).map(([groupName, surveyList]) => [
+    { groupName, surveys: surveyList },
+  ]);
 };
 
 export const PtNav: React.FC<Props> = (props) => {
@@ -187,7 +189,7 @@ const SurveysPanel: React.FC<{
 
       {surveys.map((groupSet: SurveySet[]) =>
         groupSet.map(({ groupName, surveys }) => (
-          <Container key={groupName}>
+          <Container mb="6" key={groupName}>
             {/* Group due date */}
             <SurveyGrouping
               dueDate={surveys[0].due.split('T')[0]}
