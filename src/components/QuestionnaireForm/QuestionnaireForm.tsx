@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { set } from 'lodash';
 import { useForm } from 'react-hook-form';
 import {
   Box,
@@ -77,13 +78,16 @@ export const QuestionnaireForm: React.FC<Props> = ({
     register,
     clearErrors,
     handleSubmit,
+    getValues,
     getFieldState,
-    setValue,
     formState,
     formState: { errors, isValid: isFormValid },
+    reset,
+    setValue,
   } = useForm<FormData>({ mode: 'onTouched' });
 
   useEffect(() => {
+    const defaultValues: FormData = {};
     for (const step of steps) {
       for (const field of step.fields) {
         switch (field.type) {
@@ -92,9 +96,8 @@ export const QuestionnaireForm: React.FC<Props> = ({
           case 'dropdown':
           case 'radio':
           case 'text':
-            if (field.state != null) {
-              setValue(field.name, mapValuesToString(field.state));
-            }
+            if (field.state)
+              set(defaultValues, field.name, mapValuesToString(field.state));
             break;
           default:
             console.error(`Invalid type of ${field.type}`);
@@ -102,7 +105,9 @@ export const QuestionnaireForm: React.FC<Props> = ({
         }
       }
     }
-  }, [setValue, steps]);
+
+    reset(defaultValues);
+  }, [reset, setValue, steps]);
 
   const onSubmit = async (data: FormData) => {
     return onFormSubmit(mapValuesToNumber(data));
@@ -129,9 +134,13 @@ export const QuestionnaireForm: React.FC<Props> = ({
   if (!currentStep) return <div></div>;
 
   // Check whether the current step is in a valid state
-  const isStepValid: boolean = !currentStep.fields.some(
-    (field) => getFieldState(field.name, formState).invalid,
-  );
+  const isStepValid: boolean = !currentStep.fields.some((field) => {
+    return (
+      getFieldState(field.name, formState).invalid ||
+      getValues(field.name) === null ||
+      getValues(field.name) === undefined
+    );
+  });
 
   const isGroup = currentStep.fields.length > 1;
 

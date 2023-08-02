@@ -1,8 +1,16 @@
 import React, { useEffect, useMemo } from 'react';
+import { set } from 'lodash';
 import { useForm } from 'react-hook-form';
 import { useQuery } from 'react-query';
 import { Link, useParams } from 'react-router-dom';
-import { Box, Button, Center, Container, Stack,useColorModeValue } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Center,
+  Container,
+  Stack,
+  useColorModeValue,
+} from '@chakra-ui/react';
 
 import Loader from '../components/Loader/Loader';
 import { PageLayout } from '../components/page-layout';
@@ -103,13 +111,18 @@ const mapValuesToString = (val: any): any =>
   mapValues(val, (v: any) => v?.toString());
 
 export const Audit: React.FC = () => {
-  const backgroundColor = useColorModeValue("gray.100", "gray.800");
-
+  const backgroundColor = useColorModeValue('gray.100', 'gray.800');
 
   const auth = useAuth();
   const { sid = '' } = useParams();
 
-  const { control, register, setValue } = useForm<FormData>({
+  const {
+    control,
+    formState: { isValid: isFormValid },
+    register,
+    reset,
+    setValue,
+  } = useForm<FormData>({
     mode: 'onChange',
   });
 
@@ -163,13 +176,16 @@ export const Audit: React.FC = () => {
   // Set form values
   useEffect(() => {
     if (!proFormQuestions || !auditState) return;
+    const defaultValues: FormData = {};
     for (const step of proFormQuestions) {
       for (const field of step.fields) {
         const linkId = field.name.split('.')[1];
         const entryResponse = auditState.states[linkId].entryResponse;
-        setValue(field.name, mapValuesToString(entryResponse));
+        if (entryResponse)
+          set(defaultValues, field.name, mapValuesToString(field.state));
       }
     }
+    reset(defaultValues);
   }, [auditState, proFormQuestions, setValue]);
 
   const renderFields = (step: FormElement) => {
@@ -219,29 +235,25 @@ export const Audit: React.FC = () => {
   return (
     <PageLayout>
       <Container maxW="3xl">
-        { proFormQuestions.length != 0 ?
-              proFormQuestions.map((step) => (
-                <Box
-                  key={step.name}
-                  mb="4"
-                  py="4"
-                  px="6"
-                  borderRadius="md"
-                  bg={backgroundColor}
-                >
-                  {renderFields(step)}
-                </Box>
-              )) : 
-              <Box
-                  mb="4"
-                  py="4"
-                  px="6"
-                  borderRadius="md"
-                  bg="gray.50"
-                >
-                  Woops! You missed this survey. It is important to remember to complete your assigned surveys to better help your care team.
-                </Box>
-        }
+        {proFormQuestions.length && isFormValid ? (
+          proFormQuestions.map((step) => (
+            <Box
+              key={step.name}
+              mb="4"
+              py="4"
+              px="6"
+              borderRadius="md"
+              bg={backgroundColor}
+            >
+              {renderFields(step)}
+            </Box>
+          ))
+        ) : (
+          <Box mb="4" py="4" px="6" borderRadius="md" bg="gray.50">
+            Woops! You missed this survey. It is important to remember to
+            complete your assigned surveys to better help your care team.
+          </Box>
+        )}
 
         <Center mt="8">
           <Button as={Link} colorScheme="teal" to="/home">
