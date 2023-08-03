@@ -171,7 +171,7 @@ export const BarChart = () => {
 
       {options.length > 0 ? (
         <>
-          <Select background={colorMode === "light" ? "black" : "white"} onChange={handleOptionChange}>
+          <Select background={colorMode === "light" ? "white" : "white"} onChange={handleOptionChange}>
             {options.map((option: any, index) => (
               <option style={{ backgroundColor: 'white'}} key={option} value={index}>
                 {option}
