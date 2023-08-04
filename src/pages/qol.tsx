@@ -22,7 +22,7 @@ const QOL: React.FC = () => {
   const auth = useAuth();
 
   const header_tags=[
-    "Pre-Operation",
+    "Before Surgery",
     "10 Day After Surgery",
     "1 Month After Surgery",
     "2 Month After Surgery",
