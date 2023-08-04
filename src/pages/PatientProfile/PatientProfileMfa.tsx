@@ -54,7 +54,7 @@ const PatientProfileMfa: React.FC<Props> = ({
       </Box>
 
       {/* tfa selection */}
-      <FormControl error={errors.tfa?.message as string} label="Preferred 2fa">
+      <FormControl error={errors.tfa?.message as string} label="Preferred Two Factor Authentication">
         <Select
           placeholder="Select option"
           {...register('tfa', {
