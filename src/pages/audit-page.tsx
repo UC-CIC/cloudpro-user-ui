@@ -2,13 +2,16 @@ import React, { useEffect, useMemo } from 'react';
 import { set } from 'lodash';
 import { useForm } from 'react-hook-form';
 import { useQuery } from 'react-query';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import {
   Box,
   Button,
   Center,
   Container,
+  Heading,
   Stack,
+  Text,
+  useColorMode,
   useColorModeValue,
 } from '@chakra-ui/react';
 
@@ -111,10 +114,15 @@ const mapValuesToString = (val: any): any =>
   mapValues(val, (v: any) => v?.toString());
 
 export const Audit: React.FC = () => {
-  const backgroundColor = useColorModeValue('gray.100', 'gray.800');
+  const backgroundColor = useColorModeValue('gray.100', 'gray.700');
 
   const auth = useAuth();
   const { sid = '' } = useParams();
+
+  const location = useLocation();
+  const { info } = location.state || {};
+  const { colorMode } = useColorMode();
+  const isLight = colorMode === "light";
 
   const {
     control,
@@ -235,6 +243,40 @@ export const Audit: React.FC = () => {
   return (
     <PageLayout>
       <Container maxW="3xl">
+        {info && (
+          <>
+            <Heading
+              mb={{ base: 1, md: 2 }}
+              cursor="pointer"
+              onClick={() => window.history.go(-1)}
+              fontWeight="400"
+              fontSize={{ base: "16px", md: "18px" }}
+            >
+              <Text
+                color='teal.500'
+                mb={{ base: 1, md: 0 }}
+                mr={{ base: 0, md: 1 }}
+              >
+                &lt; Back
+              </Text>
+            </Heading>
+
+            <Heading
+              mb={{ base: 1, md: 2 }}
+              fontWeight="400"
+              fontSize={{ base: "16px", md: "18px" }}
+            >
+              <Text
+                color={isLight ? 'black' : 'white'}
+                mb={{ base: 3, md: 5 }}
+                mr={{ base: 0, md: 1 }}
+                letterSpacing='0.3px'
+              >
+                {info}
+              </Text>
+            </Heading>
+          </>
+        )}
         {proFormQuestions.length && isFormValid ? (
           proFormQuestions.map((step) => (
             <Box
@@ -255,11 +297,13 @@ export const Audit: React.FC = () => {
           </Box>
         )}
 
-        <Center mt="8">
+        {!info && (
+          <Center mt="8">
           <Button as={Link} colorScheme="teal" to="/home">
             Go back to surveys
           </Button>
         </Center>
+        )}
       </Container>
     </PageLayout>
   );

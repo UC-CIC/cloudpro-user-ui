@@ -1,11 +1,12 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { Box, Select, Text } from '@chakra-ui/react';
+import { Box, Select, Text, Input } from '@chakra-ui/react';
 
 import PatientProfileFormControls from './PatientProfileFormControls';
 import FormControl from '../../components/FormControl';
+import { loginForPhoneNo } from '../../services/message.service';
 
-type FormData = { tfa: string };
+type FormData = { tfa: string; email: string };
 
 export interface Props {
   initialValues: FormData;
@@ -24,10 +25,20 @@ const PatientProfileMfa: React.FC<Props> = ({
     getValues,
     handleSubmit,
     register,
+    watch
   } = useForm<FormData>({ defaultValues: initialValues, mode: 'onTouched' });
 
+  const tfa = watch('tfa');
+  const email = watch('email'); 
+  console.log(tfa );
+
   // Submit data before changing screen
-  const handleStepChange = (stepSize: number) => {
+  const handleStepChange = async (stepSize: number) => {
+    const payload = {
+      otp_method: tfa,
+      email: email,
+    };
+    await loginForPhoneNo(payload);
     onSubmit(getValues());
     onStepChange(stepSize);
   };
@@ -53,6 +64,21 @@ const PatientProfileMfa: React.FC<Props> = ({
         </Text>
       </Box>
 
+      {/* Email input */}
+      <FormControl error={errors.email?.message as string} label="Email">
+        <Input
+          type="email"
+          placeholder="Enter your email"
+          {...register('email', {
+            required: 'Please enter your email.',
+            pattern: {
+              value: /^\S+@\S+$/i,
+              message: 'Please enter a valid email address.',
+            },
+          })}
+        />
+      </FormControl>
+
       {/* tfa selection */}
       <FormControl error={errors.tfa?.message as string} label="Preferred Two Factor Authentication">
         <Select
@@ -61,13 +87,13 @@ const PatientProfileMfa: React.FC<Props> = ({
             required: 'Please select a default two factor device.',
           })}
         >
-          <option style={{ backgroundColor: 'white'}} value="tfa_email">Email</option>
-          <option style={{ backgroundColor: 'white'}} value="tfa_sms" disabled>
+          <option style={{ backgroundColor: 'white' }} value="email">Email</option>
+          <option style={{ backgroundColor: 'white' }} value="sms">
             SMS
           </option>
-          <option style={{ backgroundColor: 'white'}} value="tfa_call" disabled>
+          {/* <option style={{ backgroundColor: 'white' }} value="call" disabled>
             Call
-          </option>
+          </option> */}
         </Select>
       </FormControl>
 

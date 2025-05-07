@@ -8,6 +8,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { App } from './app';
 import theme from './config/theme';
 import { ProvideAuth } from './hooks/useAuth';
+import './styles/custom.css'
 
 /* import "./styles/styles.css"; */
 
@@ -21,7 +22,7 @@ const root = createRoot(document.getElementById('root') as HTMLElement);
 const queryClient = new QueryClient();
 
 root.render(
-  <React.StrictMode>
+  <>
     <ChakraProvider theme={theme}>
       <QueryClientProvider client={queryClient}>
         <ProvideAuth>
@@ -31,5 +32,5 @@ root.render(
         </ProvideAuth>
       </QueryClientProvider>
     </ChakraProvider>
-  </React.StrictMode>,
+  </>,
 );

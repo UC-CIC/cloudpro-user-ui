@@ -26,7 +26,10 @@ export interface PatientProfile {
     lastName: string;
     phone: string;
     surgeon: string;
+    surgery_name: string;
     surgeryDate: string;
+    otp: string,
+    // otp_method : string
   };
   state: 'INIT' | 'STAGED' | 'COMPLETE';
   sub: string;
@@ -43,6 +46,7 @@ export const getHospitalByHid = async (
     headers: {
       'content-type': 'application/json',
       Authorization: `Bearer ${auth_token}`,
+      'x-api-key': `${process.env.REACT_APP_API_TOKEN}`,
     },
   };
 
@@ -57,10 +61,53 @@ export const getHospitalList = async (
     headers: {
       'content-type': 'application/json',
       Authorization: `Bearer ${auth_token}`,
+      'x-api-key': `${process.env.REACT_APP_API_TOKEN}`,
     },
   };
 
   return callExternalApi({ config, transform: true });
+};
+
+export const sendOptForPatient = async (auth_token: string, phoneValue: string,) => {
+  const config: AxiosRequestConfig = {
+    url: `${apiServerUrl}/mfa/${phoneValue}`,
+    method: 'GET',
+    headers: {
+      'content-type': 'application/json',
+      Authorization: `Bearer ${auth_token}`,
+      'x-api-key': `${process.env.REACT_APP_API_TOKEN}`,
+    },
+  }
+
+  return callExternalApi({ config, transform: true })
+}
+
+export const otpVerificationForPatient = async (auth_token: string, payload: object) => {
+  const config: AxiosRequestConfig = {
+    url: `${apiServerUrl}/mfa/verify`,
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      Authorization: `Bearer ${auth_token}`,
+      'x-api-key': `${process.env.REACT_APP_API_TOKEN}`,
+    },
+    data: payload
+  };
+  let { data, error } = await callExternalApi<FormState>({ config });
+  return { data, error };
+};
+
+export const loginForPhoneNo = async (payload: object) => {
+  const config: AxiosRequestConfig = {
+    url: `${apiServerUrl}/mfa/set-preference`,
+    method: 'POST',
+    headers: {
+      'x-api-key': `${process.env.REACT_APP_API_TOKEN}`,
+    },
+    data: payload
+  };
+  let { data, error } = await callExternalApi<FormState>({ config });
+  return { data, error };
 };
 
 export const getNotificationsBySub = async (
@@ -73,10 +120,56 @@ export const getNotificationsBySub = async (
     headers: {
       'content-type': 'application/json',
       Authorization: `Bearer ${authToken}`,
+      'x-api-key': `${process.env.REACT_APP_API_TOKEN}`,
     },
   };
   return callExternalApi<UserNotifications>({ config, transform: true });
 };
+
+export const getPatientListForSurgeon = async (sub: string, authToken: string): Promise<ApiResponse> => {
+  const config: AxiosRequestConfig = {
+    url: `${apiServerUrl}/surgeon/${sub}`,
+    method: 'GET',
+    headers: {
+      'content-type': 'application/json',
+      Authorization: `Bearer ${authToken}`,
+      'x-api-key': `${process.env.REACT_APP_API_TOKEN}`,
+    }
+  };
+  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
+
+  return { data, error }
+}
+
+export const getAllPatientDetails = async (sub: string, authToken: string): Promise<ApiResponse> => {
+  const config: AxiosRequestConfig = {
+    url: `${apiServerUrl}/surgeon/all-patient-details/${sub}`,
+    method: 'GET',
+    headers: {
+      'content-type': 'application/json',
+      Authorization: `Bearer ${authToken}`,
+      'x-api-key': `${process.env.REACT_APP_API_TOKEN}`,
+    }
+  };
+  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
+
+  return { data, error }
+}
+
+export const getPatientDetailsForSurgeon = async (sub: string, authToken: string): Promise<ApiResponse> => {
+  const config: AxiosRequestConfig = {
+    url: `${apiServerUrl}/surgeon/patient-details/${sub}`,
+    method: 'GET',
+    headers: {
+      'content-type': 'application/json',
+      Authorization: `Bearer ${authToken}`,
+      'x-api-key': `${process.env.REACT_APP_API_TOKEN}`,
+    }
+  };
+  const { data, error } = (await callExternalApi({ config })) as ApiResponse;
+
+  return { data, error }
+}
 
 export const getPtReportBySub = async (
   sub: string,
@@ -88,6 +181,7 @@ export const getPtReportBySub = async (
     headers: {
       'content-type': 'application/json',
       Authorization: `Bearer ${auth_token}`,
+      'x-api-key': `${process.env.REACT_APP_API_TOKEN}`,
     },
   };
 
@@ -109,6 +203,7 @@ export const getAggregateByAgg = async (
     headers: {
       'content-type': 'application/json',
       Authorization: `Bearer ${auth_token}`,
+      'x-api-key': `${process.env.REACT_APP_API_TOKEN}`,
     },
   };
 
@@ -131,6 +226,7 @@ export const initState = async (
     headers: {
       'content-type': 'application/json',
       Authorization: `Bearer ${authToken}`,
+      'x-api-key': `${process.env.REACT_APP_API_TOKEN}`,
     },
   };
   let { data, error } = await callExternalApi<FormState>({ config });
@@ -168,6 +264,7 @@ export const simulateSurveyRoll = async (
     headers: {
       'content-type': 'application/json',
       Authorization: `Bearer ${authToken}`,
+      'x-api-key': `${process.env.REACT_APP_API_TOKEN}`,
     },
     data: {
       name: scheduleName,
@@ -187,6 +284,7 @@ export const uploader = async (
     headers: {
       'content-type': 'application/json',
       Authorization: `Bearer ${auth_token}`,
+      'x-api-key': `${process.env.REACT_APP_API_TOKEN}`,
     },
     data: {
       file_name: fileName,
@@ -216,6 +314,7 @@ export const getSurvey = async (
     headers: {
       'content-type': 'application/json',
       Authorization: `Bearer ${authToken}`,
+      'x-api-key': `${process.env.REACT_APP_API_TOKEN}`,
     },
   };
 
@@ -242,6 +341,7 @@ export const closeSurvey = async (
     headers: {
       'content-type': 'application/json',
       Authorization: `Bearer ${authToken}`,
+      'x-api-key': `${process.env.REACT_APP_API_TOKEN}`,
     },
     data: { sid: sid, due_date: dueDate },
   };
@@ -261,6 +361,7 @@ export const getAudit = async (
     headers: {
       'content-type': 'application/json',
       Authorization: `Bearer ${authToken}`,
+      'x-api-key': `${process.env.REACT_APP_API_TOKEN}`,
     },
   };
   let { data, error } = await callExternalApi<Audit>({ config });
@@ -284,6 +385,7 @@ export const getUserProfile = async (
     headers: {
       'content-type': 'application/json',
       Authorization: `Bearer ${authToken}`,
+      'x-api-key': `${process.env.REACT_APP_API_TOKEN}`,
     },
   };
 
@@ -301,6 +403,7 @@ export const updateProfile = async (
     headers: {
       'content-type': 'application/json',
       Authorization: `Bearer ${authToken}`,
+      'x-api-key': `${process.env.REACT_APP_API_TOKEN}`,
     },
     data: mapObjectKeys(profile, camelToSnakeCase),
   };
@@ -339,6 +442,7 @@ export const getStateByStateHash = async (
     headers: {
       'content-type': 'application/json',
       Authorization: `Bearer ${authToken}`,
+      'x-api-key': `${process.env.REACT_APP_API_TOKEN}`,
     },
   };
   let { data, error } = await callExternalApi<FormState>({ config });
@@ -356,6 +460,7 @@ export const getQuestionnaireByProHash = async (
     headers: {
       'content-type': 'application/json',
       Authorization: `Bearer ${authToken}`,
+      'x-api-key': `${process.env.REACT_APP_API_TOKEN}`,
     },
   };
   return callExternalApi<Questionnaire>({ config, transform: true });
@@ -380,6 +485,7 @@ export const evaluateScore = async (
     headers: {
       'content-type': 'application/json',
       Authorization: `Bearer ${authToken}`,
+      'x-api-key': `${process.env.REACT_APP_API_TOKEN}`,
     },
     data: {
       pro_pack: proPack,
@@ -404,6 +510,7 @@ export const updateFullState = async (
     headers: {
       'content-type': 'application/json',
       Authorization: `Bearer ${authToken}`,
+      'x-api-key': `${process.env.REACT_APP_API_TOKEN}`,
     },
     data: transformState(state, camelToSnakeCase),
   };

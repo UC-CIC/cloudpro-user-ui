@@ -1,0 +1,20 @@
+.text-transform-capitalize {
+    text-transform: capitalize !important;
+}
+
+.survey-container {
+    padding: 20px;
+    /* background-color: #f7f7f7; */
+}
+
+@media (max-width: 450px) {
+    table.chakra-table p {
+        font-size: 11px !important;
+    }
+}
+
+@media (max-width: 360px) {
+    table.chakra-table p {
+        font-size: 10px !important;
+    }
+}

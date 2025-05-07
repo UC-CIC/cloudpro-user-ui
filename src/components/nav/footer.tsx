@@ -44,6 +44,9 @@ const SocialButton = ({
   );
 };
 
+const d = new Date();
+let year = d.getFullYear();
+
 export const Footer = () => {
   return (
     <Box
@@ -60,7 +63,7 @@ export const Footer = () => {
         align="center"
       >
         <Logo />
-        <Text>© 2023 CloudPRO. All rights reserved</Text>
+        <Text>© {year} CloudPRO. All rights reserved</Text>
         <Stack direction={'row'} spacing={6}>
           <SocialButton label={'Twitter'} href={'#'}>
             <FaTwitter />

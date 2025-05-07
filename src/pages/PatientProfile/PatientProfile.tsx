@@ -54,7 +54,7 @@ const PatientProfile: React.FC<Props> = ({ onSetup, profile }) => {
   const [challengeQs, setChallengeQs] = useState({
     ...profile.challenge,
   } as PatientProfileType['challenge']);
-  const [tfa, setTfa] = useState({ tfa: profile.tfa });
+  const [tfa, setTfa] = useState({ tfa: profile.tfa, email: profile.email });
 
   // Update the active step
   const handleStepChange = (stepSize: number) => setStep(step + stepSize);

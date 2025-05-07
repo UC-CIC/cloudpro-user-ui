@@ -14,6 +14,8 @@ import { Surgeon } from './pages/surgeon-page';
 import { Survey } from './pages/survey-page';
 import { Audit } from './pages/audit-page';
 import QOL from './pages/qol';
+import { SurgeonPatientDetails } from './pages/surgeon-patient-details';
+import { SurgeonPatientChart } from './pages/surgeon-patient-chart';
 
 export const App: React.FC = () => {
   const { isEmployee, isLoading } = useAuth();
@@ -35,6 +37,9 @@ export const App: React.FC = () => {
         {isEmployee ? (
           <>
             <Route path="/home" element={<Surgeon />} />
+            <Route path='/patient-details/:sub' element={<SurgeonPatientDetails />} />
+            <Route path='/survey-details/:sub/:propack' element={<SurgeonPatientChart />} />
+            <Route path="/audit/:sid" element={<Audit />} />
             <Route path="*" element={<Navigate replace to="/home" />} />
           </>
         ) : (
