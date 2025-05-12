@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import {
   Heading,
   Input,
@@ -20,6 +20,7 @@ import { FaUserAlt, FaLock } from 'react-icons/fa';
 
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate, NavLink as RouterLink } from 'react-router-dom';
+import { loginForPhoneNo } from '../services/message.service';
 
 const CFaUserAlt = chakra(FaUserAlt);
 const CFaLock = chakra(FaLock);
@@ -43,13 +44,59 @@ export const LoginFlow = () => {
       | React.SyntheticEvent<HTMLAnchorElement>,
   ) => {
     event.preventDefault();
-    const result = await auth.getChallenge(email);
-    if (result.success) {
-      setShowGetCode(true);
-    } else {
-      alert(result.message);
+    try {
+      const result = await auth.getChallenge(email);
+      if (result.success) {
+        setShowGetCode(true);
+      } else {
+        alert(result.message);
+      }
+    } catch (error) {
+      alert('An error occurred. Please try again.');
     }
   };
+  const [success, setSuccess] = useState('')
+
+  const getSmsCode = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        email: email,
+        'otp_method': "sms"
+      };
+      const { data, error } = await loginForPhoneNo(payload);
+      if (data) {
+        await auth.getChallenge(email);
+        setSuccess('OTP sent to registered phone.')
+      } else {
+        if (error?.message === 'Request failed with status code 400') {
+          alert("Phone number is not verified")
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
+  const getEmailCode = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        email: email,
+        'otp_method': "email"
+      };
+      const { data, error } = await loginForPhoneNo(payload);
+      if (data) {
+        await auth.getChallenge(email);
+        setSuccess('OTP sent to registered email.')
+      }
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
   const executeVerify = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const result = await auth.signIn(code);
@@ -116,7 +163,7 @@ export const LoginFlow = () => {
                       />
                       <Input
                         type={showOTP ? 'text' : 'password'}
-                        placeholder="OTP Code"
+                        placeholder="OTP = One Time Password Code"
                         value={code}
                         onChange={(e) => setCode(e.target.value)}
                         color={colorMode === "light" ? "black" : "white"}
@@ -164,17 +211,19 @@ export const LoginFlow = () => {
                     {/* OTP alternative method options */}
                     {alttfa && (
                       <Box pt="4">
-                        <Button h="1.75rem" size="sm">
+                        <Button onClick={getEmailCode} h="1.75rem" size="sm">
                           email
                         </Button>
-                        <Button mx="2" h="1.75rem" size="sm">
+                        <Button onClick={getSmsCode} mx="2" h="1.75rem" size="sm">
                           sms
                         </Button>
-                        <Button h="1.75rem" size="sm">
+                        {/* <Button h="1.75rem" size="sm">
                           call
-                        </Button>{' '}
+                        </Button>{' '} */}
                       </Box>
                     )}
+
+                    <Text mt='7px' color="gray.600" fontSize='13px'>{success}</Text>
                   </FormControl>
                 )}
 

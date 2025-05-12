@@ -7,7 +7,7 @@ import Loader from '../components/Loader/Loader';
 import { Link, Input } from '@chakra-ui/react';
 
 import { useAuth } from '../hooks/useAuth';
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   getUserProfile,
   PatientProfile as PatientProfileType,
@@ -21,7 +21,7 @@ const QOL: React.FC = () => {
   const [file, setFile] = useState<File>();
   const auth = useAuth();
 
-  const header_tags=[
+  const header_tags = [
     "Before Surgery",
     "10 Day After Surgery",
     "1 Month After Surgery",
@@ -37,10 +37,10 @@ const QOL: React.FC = () => {
     "11 Month After Surgery",
     "12 Month After Surgery",
   ]
-  
-  const buildList: any = ( sub:string, surgeryDate:string ) => {
-    const descriptionTags=[];
-    const dateObj = new Date(surgeryDate + " 00:00:00");
+
+  const buildList: any = (sub: string, surgeryDate: string) => {
+    const descriptionTags = [];
+    const dateObj = new Date(surgeryDate);
 
 
     // Pre Op
@@ -51,19 +51,19 @@ const QOL: React.FC = () => {
     descriptionTags.push(sub + "-" + dateObj.toISOString().slice(0, -13) + "00h00m00s-1");
 
     // reset to surgery date
-    dateObj.setDate(dateObj.getDate() - 10 );
+    dateObj.setDate(dateObj.getDate() - 10);
 
     // Every month after
-    for ( var i = 1; i <= 12; i++ ) {
+    for (var i = 1; i <= 12; i++) {
       dateObj.setMonth(dateObj.getMonth() + 1)
-      descriptionTags.push(sub + "-" + dateObj.toISOString().slice(0, -13) + "00h00m00s-" + (i+1).toString());
+      descriptionTags.push(sub + "-" + dateObj.toISOString().slice(0, -13) + "00h00m00s-" + (i + 1).toString());
     }
-    return ( descriptionTags );
+    return (descriptionTags);
   }
-  const executeSchedSimulation:any = async( name:string ) => {
+  const executeSchedSimulation: any = async (name: string) => {
     alert("Survey roll submitted; please wait 3 minutes for it to take effect");
     const token = await auth.getAccessToken();
-    const response = await simulateSurveyRoll(name,token);
+    const response = await simulateSurveyRoll(name, token);
   }
 
 
@@ -84,42 +84,42 @@ const QOL: React.FC = () => {
       </Stack>
     );
 
-  const handleFileChange = ( e:any ) => {
+  const handleFileChange = (e: any) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
     }
   };
-  
-  const getMyToken:any = async() => {
+
+  const getMyToken: any = async () => {
     const token = await auth.getAccessToken();
     return token
   }
-  
+
   const handleUploadClick = () => {
     if (!file) {
       return;
     }
-    getMyToken().then( function( token:any ) {
-      const authToken:any = token;
-      uploader(authToken,file.name).then( function( response:any ) {
-        const preSignedUrlData:any = response;
+    getMyToken().then(function (token: any) {
+      const authToken: any = token;
+      uploader(authToken, file.name).then(function (response: any) {
+        const preSignedUrlData: any = response;
         const formData = new FormData();
         console.log("PreSigned:", preSignedUrlData);
         // append the fields in presignedPostData in formData            
         Object.keys(preSignedUrlData.data.fields).forEach(key => {
           formData.append(key, preSignedUrlData.data.fields[key]);
-          console.log("KEY:",key)
+          console.log("KEY:", key)
           //console.log("VAL:",preSignedUrlData.data.fields[key])
-        });           
+        });
         // append the file
         formData.append("file", file);
         console.log(file)
         console.log(formData.getAll("file"))
 
-        uploadFile( preSignedUrlData.data.url,formData).then( function( response:any ) {
+        uploadFile(preSignedUrlData.data.url, formData).then(function (response: any) {
           console.log(response);
         })
-       
+
       });
     });
 
@@ -131,9 +131,9 @@ const QOL: React.FC = () => {
       <h1><strong>Simulate Sweep</strong> ~~Surgery Date {profile.profile.surgeryDate}~~</h1>
       <hr></hr>
       <div>
-        {   
-          buildList( profile.sub, profile.profile.surgeryDate ).map( (name:any,index:any)=> {
-            return <div key={index}><strong><Link color="teal.500" onClick={ () => executeSchedSimulation(name)}>{header_tags[index]} </Link></strong><br/>{name}<br/></div>
+        {
+          buildList(profile.sub, profile.profile.surgeryDate).map((name: any, index: any) => {
+            return <div key={index}><strong><Link color="teal.500" onClick={() => executeSchedSimulation(name)}>{header_tags[index]} </Link></strong><br />{name}<br /></div>
           })
         }
       </div>
@@ -143,7 +143,7 @@ const QOL: React.FC = () => {
         placeholder="Upload PROPack"
         size="md"
         type="file"
-        onChange={ (event) => handleFileChange(event) }
+        onChange={(event) => handleFileChange(event)}
       />
       <div>{file && `${file.name} - ${file.type}`}</div>
       <button onClick={handleUploadClick}>Upload</button>

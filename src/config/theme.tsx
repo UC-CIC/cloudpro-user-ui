@@ -1,4 +1,4 @@
-import { extendTheme, theme as baseTheme, theme } from '@chakra-ui/react';
+import { extendTheme, theme as baseTheme } from '@chakra-ui/react';
 
 // // 2. Objects can be created inside the extendTheme function or elsewhere and imported
 // const colors = {

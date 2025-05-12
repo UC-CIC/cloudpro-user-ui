@@ -185,10 +185,10 @@ const SurveysPanel: React.FC<{
 }> = ({ renderSurvey, surveys }) => {
   return (
     <TabPanel>
-      {!surveys.length && <Text>Nothing yet to review.</Text>}
+      {!surveys?.length && <Text>Nothing yet to review.</Text>}
 
-      {surveys.map((groupSet: SurveySet[]) =>
-        groupSet.map(({ groupName, surveys }) => (
+      {surveys?.map((groupSet: SurveySet[]) =>
+        groupSet?.map(({ groupName, surveys }) => (
           <Container mb="6" key={groupName}>
             {/* Group due date */}
             <SurveyGrouping
@@ -198,7 +198,7 @@ const SurveysPanel: React.FC<{
 
             {/* Surveys */}
             <Stack divider={<Divider />} pt="4">
-              {surveys.map((item) => (
+              {surveys?.map((item) => (
                 <React.Fragment key={item.sid}>
                   {renderSurvey(item)}
                 </React.Fragment>

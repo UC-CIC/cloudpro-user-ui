@@ -108,7 +108,7 @@ const useProvideAuth = (): UseAuth => {
       return { success: true, message: '' };
     } catch (error: any) {
       console.error(error);
-      return { success: false, message: 'OTP FAIL' };
+      return { success: false, message: 'OTP = One Time Password FAIL' };
     }
   };
 
@@ -118,7 +118,7 @@ const useProvideAuth = (): UseAuth => {
       return { success: true, message: '' };
     } catch (error: any) {
       console.error(error);
-      return { success: false, message: 'OTP FAIL' };
+      return { success: false, message: 'OTP = One Time Password FAIL' };
     }
   };
 

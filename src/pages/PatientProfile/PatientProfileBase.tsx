@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useQuery } from 'react-query';
-import { Input, InputGroup, Box, Select } from '@chakra-ui/react';
+import { Input, InputGroup, Box, Select, Button, InputRightElement } from '@chakra-ui/react';
 
 import PatientProfileFormControls from './PatientProfileFormControls';
 import FormControl from '../../components/FormControl';
@@ -11,6 +11,8 @@ import {
   getHospitalByHid,
   getHospitalList,
   PatientProfile,
+  sendOptForPatient,
+  otpVerificationForPatient,
 } from '../../services/message.service';
 
 type FormData = PatientProfile['profile'];
@@ -32,7 +34,7 @@ interface SurgeonEntity {
   sub: string;
 }
 
-const PHONE_FORMAT = /^\+?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/im;
+const PHONE_FORMAT = /^\+\d{1,3}[-\s.]?\(?\d{3}\)?[-\s.]?\d{3}[-\s.]?\d{4,6}$/;
 
 const PatientProfileBase: React.FC<Props> = ({
   initialValues,
@@ -51,6 +53,8 @@ const PatientProfileBase: React.FC<Props> = ({
     watch,
   } = useForm<FormData>({ defaultValues: initialValues, mode: 'onTouched' });
   const selectedHid = (watch('hospital') || '').split(';')[0];
+  const phoneValue = watch('phone');
+  const OTP = watch('otp')
 
   // Query for hospitals
   const { data: hospitals, isLoading: isLoadingHospitals } = useQuery(
@@ -89,10 +93,53 @@ const PatientProfileBase: React.FC<Props> = ({
     }));
   }, [surgeons]);
 
-  // Submit data before changing screen
+  const [showOTPInput, setShowOTPInput] = useState(false);
+  const [isOTPVerified, setIsOTPVerified] = useState(false);
+  const isPhoneValid = PHONE_FORMAT.test(phoneValue);
+
+  const sendOTP = async () => {
+    try {
+        const token = await auth.getAccessToken();
+        const { data, error } = await sendOptForPatient(token, phoneValue);
+        if (data){
+          setShowOTPInput(true);
+          setIsOTPVerified(false);
+          alert(data)
+        }else{
+          alert(error?.message)
+        }
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+};
+
+  const otpVerification = async() => {
+    try {
+      const token = await auth.getAccessToken();
+      const payload = {
+        phone: phoneValue,
+        otp : OTP,
+        email : auth.username
+      }
+      const { data, error } = await otpVerificationForPatient(token, payload);
+      if (data){
+        setIsOTPVerified(true);
+        alert(data)
+      }else{
+        alert(error?.message)
+      }
+  } catch (error) {
+      console.error(error);
+      throw error;
+  }
+  };
+
   const handleStepChange = (stepSize: number) => {
-    onSubmit(getValues());
-    onStepChange(stepSize);
+    if (isOTPVerified) {
+      onSubmit(getValues());
+      onStepChange(stepSize);
+    }
   };
 
   return (
@@ -161,19 +208,50 @@ const PatientProfileBase: React.FC<Props> = ({
 
       {/* Phone */}
       <FormControl error={errors.phone?.message as string} label="Phone">
+      <InputGroup>
         <Input
           id="phone"
           type="tel"
-          placeholder="xxx-xxx-xxxx"
+          placeholder="+1-xxx-xxx-xxxx"
           {...register('phone', {
-            required: 'Phone is required',
+            required: 'Phone number with country code is required',
             pattern: {
               value: PHONE_FORMAT,
-              message: 'Invalid phone number',
+              message: 'Invalid phone number. Must include country code.',
             },
           })}
         />
+
+          {isPhoneValid && (
+            <InputRightElement width="auto">
+              <Button onClick={sendOTP} type="button" h="1.75rem" size="sm" mr="2">
+                Send OTP
+              </Button>
+            </InputRightElement>
+          )}
+        </InputGroup>
       </FormControl>
+
+      {/* Phone OTP */}
+      {showOTPInput && isPhoneValid && (
+        <FormControl error={errors?.otp?.message as string}>
+          <InputGroup>
+            <Input
+              id="otp"
+              type="text"
+              placeholder="Enter OTP = One Time Password"
+              {...register('otp', {
+                required: 'OTP = One Time Password is required',
+              })}
+            />
+            <InputRightElement width="auto">
+              <Button onClick={otpVerification} h="1.75rem" size="sm" mr="2">
+                Verify OTP
+              </Button>
+            </InputRightElement>
+          </InputGroup>
+        </FormControl>
+      )}
 
       {/* Hospital */}
       <FormControl error={errors.hospital?.message as string} label="Hospital">
@@ -213,6 +291,18 @@ const PatientProfileBase: React.FC<Props> = ({
         />
       </FormControl>
 
+      {/* {procedure} */}
+      <FormControl error={errors.surgery_name?.message as string} label="Procedure">
+        <Select
+          id="surgery_name"
+          placeholder="Select procedure"
+          {...register('surgery_name', { required: 'Procedure is required' })}
+        >
+          <option value="Lung cancer resection">Lung cancer resection</option>
+          <option value="Esophageal cancer resection">Esophageal cancer resection</option>
+        </Select>
+      </FormControl>
+      
       {/* Surgery date */}
       <FormControl
         error={errors.surgeryDate?.message as string}
@@ -228,7 +318,7 @@ const PatientProfileBase: React.FC<Props> = ({
       {/* Form controls */}
       <PatientProfileFormControls
         isFirstStep
-        isFormValid={isValid}
+        isFormValid={isValid && isOTPVerified}
         onStepChange={handleStepChange}
       />
     </form>

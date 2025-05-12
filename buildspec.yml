@@ -1,0 +1,10 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.9 # specify the Python version you need, such as 3.8, 3.9, etc.
+      nodejs: 18
+    commands:
+    - chmod +x s3deploy-dev.sh
+    - /bin/sh s3deploy-dev.sh

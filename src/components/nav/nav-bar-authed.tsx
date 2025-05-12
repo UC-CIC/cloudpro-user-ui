@@ -29,9 +29,12 @@ import {
 
 import Logo from '../Logo';
 import { useAuth } from '../../hooks/useAuth';
-import { UserNotifications } from '../../models/notifications';
 import { Notifications } from '../notifications/notification';
-import { getNotificationsBySub } from '../../services/message.service';
+import { getNotificationsBySub, getPatientListForSurgeon } from '../../services/message.service';
+import {
+  getUserProfile,
+  PatientProfile as PatientProfileType,
+} from '../../services/message.service';
 
 // Settings to limit display to mobile screens
 const MOBILE_DISPLAY = ['flex', 'flex', 'none', 'none'];
@@ -41,20 +44,36 @@ const DESKTOP_DISPLAY = ['none', 'none', 'flex', 'flex'];
 
 export const NavBarAuthed = () => {
   const auth = useAuth();
+  const { isEmployee } = useAuth();
 
   const { colorMode, toggleColorMode } = useColorMode();
   const [display, changeDisplay] = useState('none');
   const [notificationDisplay, setNotificationDisplay] = useState(false);
 
-  const { data: notifications } = useQuery<UserNotifications>(
+  const { data: notifications } = useQuery(
     ['notifications', auth.sub],
     async () => {
-      const authToken = await auth.getAccessToken();
-      const { data, error } = await getNotificationsBySub(auth.sub, authToken);
-      if (!data) throw error;
-      return data;
+      if (!isEmployee) {
+        const authToken = await auth.getAccessToken();
+        const { data, error } = await getNotificationsBySub(auth.sub, authToken);
+        if (!data) throw error;
+        return data;
+      }
     },
   );
+
+  const { data: profile } = useQuery('forUserName', async () => {
+    const token = await auth.getAccessToken();
+    if (isEmployee) {
+      const { data, error } = await getPatientListForSurgeon(auth.sub, token);
+      if (!data) throw error;
+      return data as any
+    } else {
+      const { data, error } = await getUserProfile(auth.sub, token);
+      if (!data) throw error;
+      return data as PatientProfileType;
+    }
+  })
 
   const menuItems: any = [
     {
@@ -75,6 +94,12 @@ export const NavBarAuthed = () => {
       to: '/',
       children: 'Account Settings',
     },
+    // {
+    //   'aria-label': 'My Patients',
+    //   as: NavLink,
+    //   to: '/my-patients-list',
+    //   children: 'My Patients'
+    // },
     {
       'aria-label': 'Logout',
       as: NavLink,
@@ -95,6 +120,7 @@ export const NavBarAuthed = () => {
       alignItems="center"
       h={16}
       bg={useColorModeValue('white', 'gray.900')}
+      color={colorMode === 'light' ? "black !importent" : "white"}
     >
       {/* Left side of navbar */}
       <Flex alignItems="center" pl="4">
@@ -122,14 +148,17 @@ export const NavBarAuthed = () => {
           <Button onClick={toggleColorMode}>
             {colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
           </Button>
-          <Button onClick={() => setNotificationDisplay(true)}>
-            <BellIcon />
-            <Notifications
-              notifications={notifications}
-              isOpen={notificationDisplay}
-              onClose={() => setNotificationDisplay(false)}
-            />
-          </Button>
+
+          {!isEmployee &&
+            <Button onClick={() => setNotificationDisplay(true)}>
+              <BellIcon />
+              <Notifications
+                notifications={notifications}
+                isOpen={notificationDisplay}
+                onClose={() => setNotificationDisplay(false)}
+              />
+            </Button>
+          }
 
           {/* Menu (desktop) */}
           <Box display={DESKTOP_DISPLAY}>
@@ -156,15 +185,35 @@ export const NavBarAuthed = () => {
                     src="https://avatars.dicebear.com/api/male/username.svg"
                   />
                 </Center>
-                <Text py="2" textAlign="center">
-                  Username
+
+                <Text pt="2" textAlign="center">
+                  {isEmployee ? (profile?.name) : (profile?.profile?.firstName)}
                 </Text>
+                <Text fontSize='13px' color='#545353' fontWeight='400' textAlign="center">
+                  {profile?.email}
+                </Text>
+                <Text fontSize='13px' color='#545353' fontWeight='400' textAlign="center">
+                  {isEmployee ? (profile?.phone) : (profile?.profile?.phone)}
+                </Text>
+
                 <MenuDivider />
+
                 {menuItems.map(({ children, ...props }: any) => (
-                  <MenuItem {...props} key={children} fontWeight="normal">
-                    {children}
-                  </MenuItem>
+                  (isEmployee && (children === 'Account Settings' || children === 'My Patients' || children === 'Logout')) ? (
+                    <MenuItem {...props} key={children} fontWeight="normal">
+                      {children}
+                    </MenuItem>
+                  ) :
+                    (!isEmployee && (children === 'Surveys' || children === 'Reports' || children === 'Account Settings' || children === 'Logout')) ?
+                      (
+                        <MenuItem {...props} key={children} fontWeight="normal">
+                          {children}
+                        </MenuItem>
+                      )
+                      :
+                      null
                 ))}
+
               </MenuList>
             </Menu>
           </Box>
@@ -200,22 +249,46 @@ export const NavBarAuthed = () => {
               size="lg"
               src="https://avatars.dicebear.com/api/male/username.svg"
             />
-            <Text pt="4" pb="8" textAlign="center">
-              Username
+            <Text pt="2" textAlign="center">
+              {isEmployee ? (profile?.name) : (profile?.profile?.firstName)}
+            </Text>
+            <Text fontSize='13px' color='#545353' fontWeight='400' textAlign="center">
+              {profile?.email}
+            </Text>
+            <Text fontSize='13px' color='#545353' fontWeight='400' textAlign="center">
+              {isEmployee ? (profile?.phone) : (profile?.profile?.phone)}
             </Text>
             <Divider />
             {menuItems.map(({ children, ...props }: any) => (
-              <Button
-                {...props}
-                key={children}
-                variant="ghost"
-                py="4"
-                w="100%"
-                height="auto"
-              >
-                {children}
-              </Button>
+              (isEmployee && (children === 'Account Settings' || children === 'My Patients' || children === 'Logout')) ? (
+                <Button
+                  {...props}
+                  key={children}
+                  variant="ghost"
+                  py="4"
+                  w="100%"
+                  height="auto"
+                >
+                  {children}
+                </Button>
+              ) :
+                (!isEmployee && (children === 'Surveys' || children === 'Reports' || children === 'Account Settings' || children === 'Logout')) ?
+                  (
+                    <Button
+                      {...props}
+                      key={children}
+                      variant="ghost"
+                      py="4"
+                      w="100%"
+                      height="auto"
+                    >
+                      {children}
+                    </Button>
+                  )
+                  :
+                  null
             ))}
+
           </Flex>
         </Flex>
       </Flex>

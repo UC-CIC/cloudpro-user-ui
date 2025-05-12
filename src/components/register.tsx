@@ -126,7 +126,7 @@ export const RegisterFlow = () => {
                         />
                         <Input
                           type={showOTP ? 'text' : 'password'}
-                          placeholder="OTP Code"
+                          placeholder="OTP = One Time Password Code"
                           value={code}
                           onChange={(e) => setCode(e.target.value)}
                           color={colorMode === "light" ? "black" : "white"}

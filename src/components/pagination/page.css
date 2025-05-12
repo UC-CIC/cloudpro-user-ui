@@ -1,0 +1,28 @@
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+  }
+  
+  .pagination span {
+    cursor: pointer;
+    padding: 5px 10px;
+  }
+  
+  .pagination span.active {
+    font-weight: bold;
+  }
+  
+  .pagination span:hover {
+    text-decoration: underline;
+  }
+  .disabled {
+    pointer-events: none;
+    opacity: 0.5;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .text-decoration-none {
+    text-decoration: none !important;
+  }
