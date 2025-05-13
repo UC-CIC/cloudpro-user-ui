@@ -27,6 +27,7 @@ import { useNavigate } from "react-router-dom";
 import HomePie from "../../charts/HomePie";
 import dayjs from "dayjs";
 import { FaDownload } from "react-icons/fa";
+import * as XLSX from 'xlsx';
 
 const theme = extendTheme({
   config: {
@@ -108,7 +109,7 @@ export const SrgnTab: React.FC = () => {
       patient.name ? `" ${patient.name}"` : '-',
       patient.surgery_name ? `" ${patient.surgery_name}"` : '-',
       patient.surgery_date ? `" ${patient.surgery_date}"` : '-',
-      patient.last_activity?.date ? `" ${patient.last_activity.date}"` : '-', 
+      patient.last_activity?.date ? `" ${patient.last_activity.date}"` : '-',
     ]);
 
     const csvContent = [
@@ -124,50 +125,51 @@ export const SrgnTab: React.FC = () => {
   const exportAllPatients = async () => {
     try {
       setIsLoading(true); // Start loading
-  
+
       const token = await auth.getAccessToken();
       const { data, error } = await getAllPatientDetails(auth.sub, token);
-  
+
       if (error) throw error;
-  
+
       if (data?.length > 0) {
-        const headers = [
-          " Name", " Surgery Name", " Surgery Date",
-          " Pro Type", " Score", " Due",
-          " Target", " Completed Date"
-        ] as const;
-  
-        const csvRows: string[] = [headers.join(",")];
-  
+        const rows: any[] = [];
+
         data?.forEach((patient: any) => {
           const { survey_data, ...patientInfo } = patient;
-  
-          // Create a row for patient info, persist name, surgery_name, and surgery_date in all rows
+
           survey_data.forEach((survey: any) => {
-            const csvRow = {
-              Name: patientInfo.name ? `" ${patientInfo.name}"` : '-',
-              Surgery_Name: patientInfo.surgery_name ? `" ${patientInfo.surgery_name}"` : '-',
-              Surgery_Date: patientInfo.surgery_date ? `" ${patientInfo.surgery_date}"` : '-',
-              Pro_Type: survey.pro_type ? `" ${survey.pro_type}"` : '-',
-              Score: survey.score ? `" ${survey.score}"` : '-',
-              Due: survey.due ? `" ${survey.due}"` : '-',
-              Target: survey.target?.target ? `" ${survey.target.target}"` : '-',
-              Completed_Date: survey.completed?.date ? `" ${survey.completed.date}"` : '-',
-            };
-  
-            csvRows.push(Object.values(csvRow).join(","));
+            rows.push({
+              "Name": patientInfo.name || '-',
+              "Surgery Name": patientInfo.surgery_name || '-',
+              "Surgery Date": patientInfo.surgery_date || '-',
+              "Pro Type": survey.pro_type || '-',
+              "Score": survey.score || '-',
+              "Due": survey.due || '-',
+              "Target": survey.target?.target || '-',
+              "Completed Date": survey.completed?.date || '-',
+            });
           });
         });
-  
-        const csvContent = csvRows.join("\n");
-  
-        const blob = new Blob([csvContent], { type: 'text/xlsx;charset=utf-8;' });
+
+        // Create worksheet and workbook
+        const worksheet = XLSX.utils.json_to_sheet(rows);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "All Patients");
+
+        // Generate buffer and create Blob
+        const excelBuffer = XLSX.write(workbook, {
+          bookType: "xlsx",
+          type: "array"
+        });
+
+        const blob = new Blob([excelBuffer], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        });
+
         const url = URL.createObjectURL(blob);
-  
         const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", "all_patients_data.xlsx");
-        link.style.visibility = 'hidden';
+        link.href = url;
+        link.download = "all_patients_data.xlsx";
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -180,21 +182,37 @@ export const SrgnTab: React.FC = () => {
       setIsLoading(false); // Stop loading
     }
   };
-  
-    
-  const downloadCSV = (data: any) => {
-    const csvContent = convertToCSV(data);
-    const blob = new Blob([csvContent], { type: 'text/xlsx;charset=utf-8;' });
+
+
+  const downloadXLSX = (data: any[]) => {
+    const transformedData = data.map(item => ({
+      name: item.name || '-',
+      surgery_name: item.surgery_name || '-',
+      surgery_date: item.surgery_date || '-',
+      last_activity_date: item.last_activity?.date || '-',
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(transformedData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Patients");
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    });
+
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", "patients_data.xlsx");
-    link.style.visibility = 'hidden';
+    link.href = url;
+    link.download = "patients_data.xlsx";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
-
 
   if (isLoading) {
     return (
@@ -249,8 +267,8 @@ export const SrgnTab: React.FC = () => {
                     colorScheme="teal"
                     size="sm"
                     mr='2'
-                    onClick={() => downloadCSV(sortedPatients)}
-                    aria-label="Download CSV"
+                    onClick={() => downloadXLSX(sortedPatients)}
+                    aria-label="Download XLSX"
                   />
                 </Box>
                 <Box>

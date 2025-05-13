@@ -30,6 +30,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import HomePie from "../../charts/HomePie";
 import { FaDownload } from "react-icons/fa";
+import * as XLSX from 'xlsx';
 
 const theme = extendTheme({
     config: {
@@ -141,14 +142,33 @@ export const PatientDetails: React.FC = () => {
         return csvContent;
     };
 
-    const downloadCSV = (data: any) => {
-        const csvContent = convertToCSV(data);
-        const blob = new Blob([csvContent], { type: 'text/xlsx;charset=utf-8;' });
+
+    const downloadXLSX = (data: any[]) => {
+        const flattened = data.map((item: any) => ({
+            target: item.target?.target || '-',
+            completed_date: item.completed?.date || '-',
+            pro_type: item.pro_type || '-',
+            score: item.score || '-',
+            // due: item.due || '-',
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(flattened);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Patient Details");
+
+        const excelBuffer = XLSX.write(workbook, {
+            bookType: "xlsx",
+            type: "array",
+        });
+
+        const blob = new Blob([excelBuffer], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        });
+
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", "patients_details.xlsx");
-        link.style.visibility = 'hidden';
+        link.href = url;
+        link.download = "patients_details.xlsx";
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -199,62 +219,62 @@ export const PatientDetails: React.FC = () => {
                 >
                     <Flex direction={{ base: "column", lg: "row" }} justify="space-between">
                         <Box w={{ base: "100%", lg: "50%" }}>
-                        <Heading
-                    mb={{ base: 1, md: 2 }}
-                    cursor="pointer"
-                    onClick={() => window.history.go(-1)}
-                    fontWeight="400"
-                    fontSize={{ base: "16px", md: "18px" }}
-                >
-                    <Text
-                        color='teal.500'
-                        mb={{ base: 1, md: 0 }}
-                        mr={{ base: 0, md: 1 }}
-                    >
-                        &lt; Back
-                    </Text>
-                </Heading>
-                <Heading
-                    // mb={{ base: 1, md: 2 }}
-                    fontWeight="400"
-                    fontSize={{ base: "16px", md: "18px" }}
-                >
-                    <Text
-                        color={isLight ? 'black' : 'white'}
-                        mb={{ base: 3, md: 3 }}
-                        mr={{ base: 0, md: 1 }}
-                        letterSpacing='0.3px'
-                    >
-                        {patient?.name} | {patient?.surgery_date} {patient?.surgery_name}
-                    </Text>
+                            <Heading
+                                mb={{ base: 1, md: 2 }}
+                                cursor="pointer"
+                                onClick={() => window.history.go(-1)}
+                                fontWeight="400"
+                                fontSize={{ base: "16px", md: "18px" }}
+                            >
+                                <Text
+                                    color='teal.500'
+                                    mb={{ base: 1, md: 0 }}
+                                    mr={{ base: 0, md: 1 }}
+                                >
+                                    &lt; Back
+                                </Text>
+                            </Heading>
+                            <Heading
+                                // mb={{ base: 1, md: 2 }}
+                                fontWeight="400"
+                                fontSize={{ base: "16px", md: "18px" }}
+                            >
+                                <Text
+                                    color={isLight ? 'black' : 'white'}
+                                    mb={{ base: 3, md: 3 }}
+                                    mr={{ base: 0, md: 1 }}
+                                    letterSpacing='0.3px'
+                                >
+                                    {patient?.name} | {patient?.surgery_date} {patient?.surgery_name}
+                                </Text>
 
-                    <Flex align="center" justify="flex-start" alignItems="start">
-                    <Flex align="center" w={{ base: 'full', md: 'auto' }}>
-                        <Input
-                            placeholder="Search..."
-                            size="sm"
-                            mr="2"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            w={{ base: 'full', md: '300px' }}
-                        />
-                    </Flex>
-                    <Box textAlign="right">
-                        <IconButton
-                            icon={<FaDownload />}
-                            colorScheme="teal"
-                            size="sm"
-                            onClick={() => downloadCSV(filteredSurveyData)}
-                            aria-label="Download CSV"
-                        />
-                    </Box>
-                </Flex>
-                </Heading>
+                                <Flex align="center" justify="flex-start" alignItems="start">
+                                    <Flex align="center" w={{ base: 'full', md: 'auto' }}>
+                                        <Input
+                                            placeholder="Search..."
+                                            size="sm"
+                                            mr="2"
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            w={{ base: 'full', md: '300px' }}
+                                        />
+                                    </Flex>
+                                    <Box textAlign="right">
+                                        <IconButton
+                                            icon={<FaDownload />}
+                                            colorScheme="teal"
+                                            size="sm"
+                                            onClick={() => downloadXLSX(filteredSurveyData)}
+                                            aria-label="Download XLSX"
+                                        />
+                                    </Box>
+                                </Flex>
+                            </Heading>
                         </Box>
                         {/* bg={isLight ? '#F3F6FF' : '#4c6081'} */}
                         <Box w={{ base: "100%", lg: "50%" }} borderRadius="9px">
-                            <Flex direction="row" justifyContent={{base : 'center', md : 'right'}} alignItems="center" wrap="nowrap">
-                                <Box mb={{base : '5px'}} width={{ base: "40%", md: "25%" }} textAlign="center" mr={{ base: '10px', md: '0px' }}>
+                            <Flex direction="row" justifyContent={{ base: 'center', md: 'right' }} alignItems="center" wrap="nowrap">
+                                <Box mb={{ base: '5px' }} width={{ base: "40%", md: "25%" }} textAlign="center" mr={{ base: '10px', md: '0px' }}>
                                     <HomePie data={ChartData} showLabels={false} />
                                 </Box>
                                 <Box textAlign="left" mr='10px'>
