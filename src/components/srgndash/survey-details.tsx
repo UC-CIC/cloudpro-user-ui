@@ -19,6 +19,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Loader from '../Loader/Loader';
 import dayjs from 'dayjs';
 import { FaDownload } from 'react-icons/fa';
+import * as XLSX from 'xlsx';
 
 Chart.register(LineElement, TimeScale, PointElement, LinearScale, Title, Tooltip, Legend, CategoryScale, annotationPlugin);
 
@@ -297,18 +298,36 @@ const SurveyDt: React.FC = () => {
         return csvContent;
     };
 
-    const downloadCSV = (data: any) => {
-        const csvContent = convertToCSV(data);
-        const blob = new Blob([csvContent], { type: 'text/xlsx;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", "survey_details.xlsx");
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
+     const downloadXLSX = (data: any[]) => {
+           const flattened = data.map((item: any) => ({
+               target: item.target?.target || '-',
+               completed_date: item.completed?.date || '-',
+            //    pro_type: item.pro_type || '-',
+               score: item.score || '-',
+               // due: item.due || '-',
+           }));
+   
+           const worksheet = XLSX.utils.json_to_sheet(flattened);
+           const workbook = XLSX.utils.book_new();
+           XLSX.utils.book_append_sheet(workbook, worksheet, "Patient Details");
+   
+           const excelBuffer = XLSX.write(workbook, {
+               bookType: "xlsx",
+               type: "array",
+           });
+   
+           const blob = new Blob([excelBuffer], {
+               type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+           });
+   
+           const url = URL.createObjectURL(blob);
+           const link = document.createElement("a");
+           link.href = url;
+           link.download = "patients_details.xlsx";
+           document.body.appendChild(link);
+           link.click();
+           document.body.removeChild(link);
+       };
 
     const { colorMode } = useColorMode();
     const isLight = colorMode === "light";
@@ -445,8 +464,8 @@ const SurveyDt: React.FC = () => {
                             icon={<FaDownload />}
                             colorScheme="teal"
                             size="sm"
-                            onClick={() => downloadCSV(sortedSurveyData)}
-                            aria-label="Download CSV"
+                            onClick={() => downloadXLSX(sortedSurveyData)}
+                            aria-label="Download XLSX"
                         />
                     </Box>
                 </Flex>
